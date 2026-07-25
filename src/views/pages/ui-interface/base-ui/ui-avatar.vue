@@ -1,0 +1,522 @@
+<template>
+    <main>
+        <div class="p-3 lg:py-6 lg:px-0">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3 lg:mb-6">
+                <h1 class="text-gray-900 text-xl font-bold mb-0">Avatar</h1>
+            </div>
+        
+            <!-- Start grid -->  
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h2 class="text-gray-900 text-lg font-bold mb-0">Circular Avatars</h2>
+                        <button type="button" @click="toggleCode(0)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(0) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div>
+                    <div class="preview-content" :class="{ hidden: showCode(0) }"> 
+                        <div class="flex flex-wrap items-end justify-start lg:justify-between! gap-3 border-dashed border-primary border px-4.5 py-5 rounded-md">
+                            <img class="w-3 h-3 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-01.jpg" alt="avatar">
+                            <img class="w-4 h-4 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-02.jpg" alt="avatar">
+                            <img class="w-5 h-5 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-03.jpg" alt="avatar">
+                            <img class="w-6 h-6 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-04.jpg" alt="avatar">
+                            <img class="w-8 h-8 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-05.jpg" alt="avatar">
+                            <img class="w-10 h-10 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-06.jpg" alt="avatar"> 
+                        </div> 
+                    </div>  
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(0) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+&lt;div class="flex flex-wrap items-end justify-start lg:justify-between! gap-3 border-dashed border-primary border px-4.5 py-5 rounded-md"&gt; 
+&lt;img class="w-3 h-3 border border-border-color rounded-full" src="assets/img/avatar/avatar-01.jpg" alt="avatar"&gt;
+&lt;img class="w-4 h-4 border border-border-color rounded-full" src="assets/img/avatar/avatar-02.jpg" alt="avatar"&gt;
+&lt;img class="w-5 h-5 border border-border-color rounded-full" src="assets/img/avatar/avatar-03.jpg" alt="avatar"&gt;
+&lt;img class="w-6 h-6 border border-border-color rounded-full" src="assets/img/avatar/avatar-04.jpg" alt="avatar"&gt;
+&lt;img class="w-8 h-8 border border-border-color rounded-full" src="assets/img/avatar/avatar-05.jpg" alt="avatar"&gt;
+&lt;img class="w-10 h-10 border border-border-color rounded-full" src="assets/img/avatar/avatar-06.jpg" alt="avatar"&gt; 
+&lt;/div&gt;
+</code>
+</pre>
+
+                </div> <!-- end card -->
+
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h3 class="text-gray-900 text-lg font-bold mb-0">Square Avatars</h3>
+                        <button type="button" @click="toggleCode(1)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(1) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div> 
+                    <div class="preview-content" :class="{ hidden: showCode(1) }"> 
+                        <div class="flex flex-wrap items-end justify-start lg:justify-between! gap-3 border-dashed border-primary border px-4.5 py-5 rounded-md">
+                            <img class="w-3 h-3 border border-border-color rounded-xs" src="@/assets/img/avatar/avatar-14.jpg" alt="avatar">
+                            <img class="w-4 h-4 border border-border-color rounded-xs" src="@/assets/img/avatar/avatar-15.jpg" alt="avatar">
+                            <img class="w-5 h-5 border border-border-color rounded-sm" src="@/assets/img/avatar/avatar-16.jpg" alt="avatar">
+                            <img class="w-6 h-6 border border-border-color rounded-md" src="@/assets/img/avatar/avatar-17.jpg" alt="avatar">
+                            <img class="w-8 h-8 border border-border-color rounded-lg" src="@/assets/img/avatar/avatar-18.jpg" alt="avatar">
+                            <img class="w-10 h-10 border border-border-color rounded-lg" src="@/assets/img/avatar/avatar-19.jpg" alt="avatar"> 
+                        </div> 
+                    </div>
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(1) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16"> 
+&lt;div class="flex flex-wrap items-end justify-start lg:justify-between! gap-3 border-dashed border-primary border px-4.5 py-5 rounded-md"&gt;
+&lt;img class="w-3 h-3 border border-border-color rounded-xs" src="assets/img/avatar/avatar-14.jpg" alt="avatar"&gt;
+&lt;img class="w-4 h-4 border border-border-color rounded-xs" src="assets/img/avatar/avatar-15.jpg" alt="avatar"&gt;
+&lt;img class="w-5 h-5 border border-border-color rounded-sm" src="assets/img/avatar/avatar-16.jpg" alt="avatar"&gt;
+&lt;img class="w-6 h-6 border border-border-color rounded-md" src="assets/img/avatar/avatar-17.jpg" alt="avatar"&gt;
+&lt;img class="w-8 h-8 border border-border-color rounded-lg" src="assets/img/avatar/avatar-18.jpg" alt="avatar"&gt;
+&lt;img class="w-10 h-10 border border-border-color rounded-lg" src="assets/img/avatar/avatar-19.jpg" alt="avatar"&gt; 
+&lt;/div&gt; 
+</code>
+</pre>
+                </div> <!-- end card -->
+
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h4 class="text-gray-900 text-lg font-bold mb-0">Circular Avatars with Placeholder</h4>
+                        <button type="button" @click="toggleCode(2)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(2) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div> 
+                    <div class="preview-content border-dashed border-primary border px-4.5 py-5 rounded-md" :class="{ hidden: showCode(2) }">
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5">
+                            <span class="w-4 h-4 bg-primary rounded-full text-xs text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-5 h-5 bg-primary rounded-full text-xs text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-6 h-6 bg-primary rounded-full text-xs text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-8 h-8 bg-primary rounded-full text-[13px] text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-10 h-10 bg-primary rounded-full text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-11 h-11 bg-primary rounded-full text-white flex justify-center items-center font-semibold">AI</span>
+                        </div>
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3">
+                            <span class="w-4 h-4 bg-light border border-border-color rounded-full text-xs text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-5 h-5 bg-light border border-border-color rounded-full text-xs text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-6 h-6 bg-light border border-border-color rounded-full text-xs text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-8 h-8 bg-light border border-border-color rounded-full text-[13px] text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-10 h-10 bg-light border border-border-color rounded-full text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-11 h-11 bg-light border border-border-color rounded-full text-dark flex justify-center items-center font-semibold">AI</span>
+                        </div>
+                    </div> 
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(2) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+&lt;div class="border-dashed border-primary border px-4.5 py-5 rounded-md"&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5"&gt;
+    &lt;span class="w-4 h-4 bg-primary rounded-full text-xs text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-5 h-5 bg-primary rounded-full text-xs text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-6 h-6 bg-primary rounded-full text-xs text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-8 h-8 bg-primary rounded-full text-[13px] text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-10 h-10 bg-primary rounded-full text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-11 h-11 bg-primary rounded-full text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3"&gt;
+    &lt;span class="w-4 h-4 bg-light border border-border-color rounded-full text-xs text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-5 h-5 bg-light border border-border-color rounded-full text-xs text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-6 h-6 bg-light border border-border-color rounded-full text-xs text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-8 h-8 bg-light border border-border-color rounded-full text-[13px] text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-10 h-10 bg-light border border-border-color rounded-full text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-11 h-11 bg-light border border-border-color rounded-full text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</code>
+</pre>
+                </div> <!-- end card -->
+
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h5>Square Avatars with Placeholder</h5>
+                        <button type="button" @click="toggleCode(3)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(3) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div> 
+                    <div class="preview-content border-dashed border-primary border px-4.5 py-5 rounded-md" :class="{ hidden: showCode(3) }">
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5">
+                            <span class="w-4 h-4 bg-primary rounded-xs text-xs text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-5 h-5 bg-primary rounded-sm text-xs text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-6 h-6 bg-primary rounded-md text-xs text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-8 h-8 bg-primary rounded-lg text-[13px] text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-10 h-10 bg-primary rounded-lg text-white flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-11 h-11 bg-primary rounded-xl text-white flex justify-center items-center font-semibold">AI</span>
+                        </div>
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3">
+                            <span class="w-4 h-4 bg-light border border-border-color rounded-xs text-xs text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-5 h-5 bg-light border border-border-color rounded-sm text-xs text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-6 h-6 bg-light border border-border-color rounded-md text-xs text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-8 h-8 bg-light border border-border-color rounded-lg text-[13px] text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-10 h-10 bg-light border border-border-color rounded-lg text-dark flex justify-center items-center font-semibold">AI</span>
+                            <span class="w-11 h-11 bg-light border border-border-color rounded-xl text-dark flex justify-center items-center font-semibold">AI</span>
+                        </div>
+                    </div> 
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(3) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+&lt;div class="border-dashed border-primary border px-4.5 py-5 rounded-md"&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5"&gt;
+    &lt;span class="w-4 h-4 bg-primary rounded-xs text-xs text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-5 h-5 bg-primary rounded-sm text-xs text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-6 h-6 bg-primary rounded-md text-xs text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-8 h-8 bg-primary rounded-lg text-[13px] text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-10 h-10 bg-primary rounded-lg text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-11 h-11 bg-primary rounded-xl text-white flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3"&gt;
+    &lt;span class="w-4 h-4 bg-light border border-border-color rounded-xs text-xs text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-5 h-5 bg-light border border-border-color rounded-sm text-xs text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-6 h-6 bg-light border border-border-color rounded-md text-xs text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-8 h-8 bg-light border border-border-color rounded-lg text-[13px] text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-10 h-10 bg-light border border-border-color rounded-lg text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+    &lt;span class="w-11 h-11 bg-light border border-border-color rounded-xl text-dark flex justify-center items-center font-semibold"&gt;AI&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</code>
+</pre>
+                </div> <!-- end card -->
+
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h5>Circular Avatars with Placeholder Icons</h5>
+                        <button type="button" @click="toggleCode(4)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(4) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div> 
+                    <div class="preview-content border-dashed border-primary border px-4.5 py-5 rounded-md" :class="{ hidden: showCode(4) }">
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5">
+                            <span class="w-4 h-4 bg-primary rounded-full text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-5 h-5 bg-primary rounded-full text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-6 h-6 bg-primary rounded-full text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-8 h-8 bg-primary rounded-full text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-10 h-10 bg-primary rounded-full text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-11 h-11 bg-primary rounded-full text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                        </div>
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3">
+                            <span class="w-4 h-4 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-5 h-5 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-6 h-6 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-8 h-8 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-10 h-10 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-11 h-11 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                        </div>
+                    </div> 
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(4) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+&lt;div class="border-dashed border-primary border px-4.5 py-5 rounded-md"&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5"&gt;
+    &lt;span class="w-4 h-4 bg-primary rounded-full text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-5 h-5 bg-primary rounded-full text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-6 h-6 bg-primary rounded-full text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-8 h-8 bg-primary rounded-full text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-10 h-10 bg-primary rounded-full text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-11 h-11 bg-primary rounded-full text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3"&gt;
+    &lt;span class="w-4 h-4 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-5 h-5 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-6 h-6 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-8 h-8 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-10 h-10 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-11 h-11 bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</code>
+</pre>
+                </div> <!-- end card -->
+
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h5>Square Avatars with Placeholder Icons</h5>
+                        <button type="button" @click="toggleCode(5)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(5) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div> 
+                    <div class="preview-content border-dashed border-primary border px-4.5 py-5 rounded-md" :class="{ hidden: showCode(5) }">
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5">
+                            <span class="w-4 h-4 bg-primary rounded-xs text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-5 h-5 bg-primary rounded-sm text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-6 h-6 bg-primary rounded-md text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-8 h-8 bg-primary rounded-lg text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-10 h-10 bg-primary rounded-lg text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-11 h-11 bg-primary rounded-xl text-white flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                        </div>
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3">
+                            <span class="w-4 h-4 bg-light border border-border-color rounded-xs text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-5 h-5 bg-light border border-border-color rounded-sm text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-6 h-6 bg-light border border-border-color rounded-md text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-8 h-8 bg-light border border-border-color rounded-lg text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-10 h-10 bg-light border border-border-color rounded-lg text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                            <span class="w-11 h-11 bg-light border border-border-color rounded-xl text-dark flex justify-center items-center"><i class="icon icon-user"></i> </span>
+                        </div>
+                    </div> 
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(5) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+&lt;div class="border-dashed border-primary border px-4.5 py-5 rounded-md"&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5"&gt;
+    &lt;span class="w-4 h-4 bg-primary rounded-xs text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-5 h-5 bg-primary rounded-sm text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-6 h-6 bg-primary rounded-md text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-8 h-8 bg-primary rounded-lg text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-10 h-10 bg-primary rounded-lg text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-11 h-11 bg-primary rounded-xl text-white flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3"&gt;
+    &lt;span class="w-4 h-4 bg-light border border-border-color rounded-xs text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-5 h-5 bg-light border border-border-color rounded-sm text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-6 h-6 bg-light border border-border-color rounded-md text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-8 h-8 bg-light border border-border-color rounded-lg text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-10 h-10 bg-light border border-border-color rounded-lg text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+    &lt;span class="w-11 h-11 bg-light border border-border-color rounded-xl text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt; &lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</code>
+</pre>
+                </div> <!-- end card -->
+
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h5>Circular Avatar Group</h5>
+                        <button type="button" @click="toggleCode(6)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(6) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div>
+                    <div class="preview-content" :class="{ hidden: showCode(6) }">
+                        <div class="flex flex-wrap lg:justify-between! justify-center gap-10 items-end border-dashed border-primary border px-4.5 py-5 rounded-md">
+                            <div class="avatar-list-stacked">
+                                <img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="@/assets/img/avatar/avatar-27.jpg" alt="img"> 
+                                <img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="@/assets/img/avatar/avatar-28.jpg" alt="img"> 
+                                <img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="@/assets/img/avatar/avatar-29.jpg" alt="img"> 
+                                <a class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color text-[12px] bg-light text-dark" href="javascript:void(0);"> +8 </a>
+                            </div>
+                            <div class="avatar-list-stacked">
+                                <img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="@/assets/img/avatar/avatar-01.jpg" alt="img"> 
+                                <img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="@/assets/img/avatar/avatar-02.jpg" alt="img"> 
+                                <img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="@/assets/img/avatar/avatar-03.jpg" alt="img">
+                                <a class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color text-[13px] bg-light text-dark" href="javascript:void(0);"> +8 </a>
+                            </div>
+                            <div class="avatar-list-stacked pr-4.5">
+                                <img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="@/assets/img/avatar/avatar-04.jpg" alt="img"> 
+                                <img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="@/assets/img/avatar/avatar-05.jpg" alt="img"> 
+                                <img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="@/assets/img/avatar/avatar-06.jpg" alt="img"> 
+                                <a class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color text-[14px] bg-light text-dark" href="javascript:void(0);"> +8 </a>
+                            </div> 
+                        </div> 
+                    </div>  
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(6) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+&lt;div&gt;
+&lt;div class="flex flex-wrap lg:justify-between! justify-center gap-10 items-end border-dashed border-primary border px-4.5 py-5 rounded-md"&gt;
+    &lt;div class="avatar-list-stacked"&gt;
+    &lt;img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="assets/img/avatar/avatar-27.jpg" alt="img"&gt; 
+    &lt;img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="assets/img/avatar/avatar-28.jpg" alt="img"&gt; 
+    &lt;img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="assets/img/avatar/avatar-29.jpg" alt="img"&gt; 
+    &lt;a class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color text-[12px] bg-light text-dark" href="javascript:void(0);"&gt; +8 &lt;/a&gt;
+&lt;/div&gt;
+&lt;div class="avatar-list-stacked"&gt;
+    &lt;img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="assets/img/avatar/avatar-01.jpg" alt="img"&gt; 
+    &lt;img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="assets/img/avatar/avatar-02.jpg" alt="img"&gt; 
+    &lt;img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="assets/img/avatar/avatar-03.jpg" alt="img"&gt; 
+    &lt;a class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color text-[13px] bg-light text-dark" href="javascript:void(0);"&gt; +8 &lt;/a&gt;
+&lt;/div&gt;
+&lt;div class="avatar-list-stacked pr-4.5"&gt;
+    &lt;img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="assets/img/avatar/avatar-04.jpg" alt="img"&gt; 
+    &lt;img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="assets/img/avatar/avatar-05.jpg" alt="img"&gt; 
+    &lt;img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color" src="assets/img/avatar/avatar-06.jpg" alt="img"&gt; 
+    &lt;a class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1 transition-transform duration-150 ease-in-out -me-3.5 align-middle rounded-full border border-border-color text-[14px] bg-light text-dark" href="javascript:void(0);"&gt; +8 &lt;/a&gt;
+&lt;/div&gt; 
+&lt;/div&gt;
+</code>
+</pre>
+                </div> <!-- end card -->
+
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h5>Square Avatar Group</h5>
+                        <button type="button" @click="toggleCode(7)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(7) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div> 
+                    <div class="preview-content" :class="{ hidden: showCode(7) }">
+                        <div class="flex flex-wrap lg:justify-between! justify-center gap-10 items-end border-dashed border-primary border px-4.5 py-5 rounded-md">
+                            <div class="avatar-list-stacked">
+                                <img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-md border border-border-color" src="@/assets/img/avatar/avatar-06.jpg" alt="img"> 
+                                <img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-md border border-border-color" src="@/assets/img/avatar/avatar-07.jpg" alt="img"> 
+                                <img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-md border border-border-color" src="@/assets/img/avatar/avatar-08.jpg" alt="img"> 
+                                <a class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-md border border-border-color text-[12px] bg-light text-dark" href="javascript:void(0);"> +8 </a>
+                            </div>
+                            <div class="avatar-list-stacked">
+                                <img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="@/assets/img/avatar/avatar-09.jpg" alt="img"> 
+                                <img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="@/assets/img/avatar/avatar-10.jpg" alt="img"> 
+                                <img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="@/assets/img/avatar/avatar-11.jpg" alt="img"> 
+                                <a class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color text-[13px] bg-light text-dark" href="javascript:void(0);"> +8 </a>
+                            </div>
+                            <div class="avatar-list-stacked pr-4.5">
+                                <img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="@/assets/img/avatar/avatar-12.jpg" alt="img"> 
+                                <img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="@/assets/img/avatar/avatar-13.jpg" alt="img"> 
+                                <img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="@/assets/img/avatar/avatar-14.jpg" alt="img"> 
+                                <a class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color text-[14px] bg-light text-dark" href="javascript:void(0);"> +8 </a>
+                            </div> 
+                        </div> 
+                    </div> 
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(7) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+&lt;div&gt;
+&lt;div class="flex flex-wrap lg:justify-between! justify-center gap-10 items-end border-dashed border-primary border px-4.5 py-5 rounded-md"&gt;
+    &lt;div class="avatar-list-stacked"&gt;
+        &lt;img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-md border border-border-color" src="assets/img/avatar/avatar-06.jpg" alt="img"&gt; 
+        &lt;img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-md border border-border-color" src="assets/img/avatar/avatar-07.jpg" alt="img"&gt; 
+        &lt;img class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-md border border-border-color" src="assets/img/avatar/avatar-08.jpg" alt="img"&gt; 
+        &lt;a class="w-6 h-6 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-md border border-border-color text-[12px] bg-light text-dark" href="javascript:void(0);"&gt; +8 &lt;/a&gt;
+    &lt;/div&gt;
+    &lt;div class="avatar-list-stacked"&gt;
+        &lt;img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="assets/img/avatar/avatar-09.jpg" alt="img"&gt; 
+        &lt;img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="assets/img/avatar/avatar-10.jpg" alt="img"&gt; 
+        &lt;img class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="assets/img/avatar/avatar-11.jpg" alt="img"&gt; 
+        &lt;a class="w-8 h-8 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color text-[13px] bg-light text-dark" href="javascript:void(0);"&gt; +8 &lt;/a&gt;
+    &lt;/div&gt;
+    &lt;div class="avatar-list-stacked pr-4.5"&gt;
+        &lt;img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="assets/img/avatar/avatar-12.jpg" alt="img"&gt; 
+        &lt;img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="assets/img/avatar/avatar-13.jpg" alt="img"&gt; 
+        &lt;img class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color" src="assets/img/avatar/avatar-14.jpg" alt="img"&gt; 
+        &lt;a class="w-10 h-10 inline-flex items-center justify-center font-medium hover:-translate-y-[0.188rem] hover:z-1  transition-transform duration-150 ease-in-out -me-3.5  align-middle rounded-lg border border-border-color text-[14px] bg-light text-dark" href="javascript:void(0);"&gt; +8 &lt;/a&gt;
+    &lt;/div&gt; 
+&lt;/div&gt; 
+&lt;/div&gt;
+</code>
+</pre>
+                </div> <!-- end card -->
+
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h5>Circular Avatars with Dot</h5>
+                        <button type="button" @click="toggleCode(8)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(8) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div> 
+                    <div class="preview-content border-dashed border-primary border px-4.5 py-5 rounded-md" :class="{ hidden: showCode(8) }">
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5">
+                            <span class="w-4 h-4 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="-bottom-0.5 -end-0.5 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-5 h-5 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-6 h-6 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-8 h-8 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-10 h-10 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0.5 end-0.5 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-11 h-11 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-1.5 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                        </div>
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3">
+                            <span class="relative"><img class="w-4 h-4 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-15.jpg" alt="avatar"><span class="bottom-0 -end-0.5 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-5 h-5 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-16.jpg" alt="avatar"><span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-6 h-6 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-17.jpg" alt="avatar"><span class="bottom-0 end-0.5 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-8 h-8 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-18.jpg" alt="avatar"><span class="bottom-0 end-0.5 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-10 h-10 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-19.jpg" alt="avatar"><span class="bottom-0 end-1.5 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-12 h-12 border border-border-color rounded-full" src="@/assets/img/avatar/avatar-20.jpg" alt="avatar"><span class="bottom-0 end-1.75 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                        </div>  
+                    </div> 
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(8) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+&lt;div class="border-dashed border-primary border px-4.5 py-5 rounded-md"&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5"&gt;
+    &lt;span class="w-4 h-4 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="-bottom-0.5 -end-0.5 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-5 h-5 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-6 h-6 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-8 h-8 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-10 h-10 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0.5 end-0.5 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-11 h-11 relative bg-light border border-border-color rounded-full text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-1.5 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3"&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-4 h-4 border border-border-color rounded-full" src="assets/img/avatar/avatar-15.jpg" alt="avatar"&gt;&lt;span class="bottom-0 -end-0.5 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-5 h-5 border border-border-color rounded-full" src="assets/img/avatar/avatar-16.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-6 h-6 border border-border-color rounded-full" src="assets/img/avatar/avatar-17.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-0.5 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-8 h-8 border border-border-color rounded-full" src="assets/img/avatar/avatar-18.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-0.5 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-10 h-10 border border-border-color rounded-full" src="assets/img/avatar/avatar-19.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-1.5 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-12 h-12 border border-border-color rounded-full" src="assets/img/avatar/avatar-20.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-1.75 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;/div&gt;  
+&lt;/div&gt;
+</code>
+</pre>
+                </div> <!-- end card -->
+
+                <div class="preview-card bg-white/50 rounded-md border border-border-color p-5">
+                    <div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+                        <h5>Square Avatars with Dot</h5>
+                        <button type="button" @click="toggleCode(9)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+                            <i class="icon icon-eye"></i>
+                            <span class="code-btn">{{ showCode(9) ? "Show Preview" : "Show Code" }}</span>
+                        </button>
+                    </div> 
+                    <div class="preview-content border-dashed border-primary border px-4.5 py-5 rounded-md" :class="{ hidden: showCode(9) }">
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5">
+                            <span class="w-4 h-4 relative bg-light border border-border-color rounded-xs text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-5 h-5 relative bg-light border border-border-color rounded-sm text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-6 h-6 relative bg-light border border-border-color rounded-md text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-8 h-8 relative bg-light border border-border-color rounded-lg text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-10 h-10 relative bg-light border border-border-color rounded-lg text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                            <span class="w-11 h-11 relative bg-light border border-border-color rounded-xl text-dark flex justify-center items-center"><i class="icon icon-user"></i><span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                        </div>
+                        <div class="flex flex-wrap items-end lg:justify-between justify-start gap-3">
+                            <span class="relative"><img class="w-4 h-4 border border-border-color rounded-xs" src="@/assets/img/avatar/avatar-21.jpg" alt="avatar"><span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-5 h-5 border border-border-color rounded-sm" src="@/assets/img/avatar/avatar-22.jpg" alt="avatar"><span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-6 h-6 border border-border-color rounded-md" src="@/assets/img/avatar/avatar-23.jpg" alt="avatar"><span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-8 h-8 border border-border-color rounded-lg" src="@/assets/img/avatar/avatar-24.jpg" alt="avatar"><span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-10 h-10 border border-border-color rounded-lg" src="@/assets/img/avatar/avatar-25.jpg" alt="avatar"><span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                            <span class="relative"><img class="w-12 h-12 border border-border-color rounded-xl" src="@/assets/img/avatar/avatar-26.jpg" alt="avatar"><span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"></span></span>
+                        </div>  
+                    </div>  
+<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm  overflow-hidden" :class="{ hidden: !showCode(9) }">
+<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+<code class="language-html block w-full max-h-[450px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+&lt;div class="border-dashed border-primary border px-4.5 py-5 rounded-md"&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3 lg:mb-12 mb-5"&gt;
+    &lt;span class="w-4 h-4 relative bg-light border border-border-color rounded-xs text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-5 h-5 relative bg-light border border-border-color rounded-sm text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-6 h-6 relative bg-light border border-border-color rounded-md text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-8 h-8 relative bg-light border border-border-color rounded-lg text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-10 h-10 relative bg-light border border-border-color rounded-lg text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="w-11 h-11 relative bg-light border border-border-color rounded-xl text-dark flex justify-center items-center"&gt;&lt;i class="icon icon-user"&gt;&lt;/i&gt;&lt;span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="flex flex-wrap items-end lg:justify-between justify-start gap-3"&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-4 h-4 border border-border-color rounded-xs" src="assets/img/avatar/avatar-21.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-5 h-5 border border-border-color rounded-sm" src="assets/img/avatar/avatar-22.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-6 h-6 border border-border-color rounded-md" src="assets/img/avatar/avatar-23.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-0 absolute  size-1.5 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-8 h-8 border border-border-color rounded-lg" src="assets/img/avatar/avatar-24.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-10 h-10 border border-border-color rounded-lg" src="assets/img/avatar/avatar-25.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+    &lt;span class="relative"&gt;&lt;img class="w-12 h-12 border border-border-color rounded-xl" src="assets/img/avatar/avatar-26.jpg" alt="avatar"&gt;&lt;span class="bottom-0 end-0 absolute  size-2 bg-success border border-white rounded-full"&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;/div&gt;  
+&lt;/div&gt;
+</code>
+</pre>
+                </div> <!-- end card -->
+
+            </div>  
+            <!-- End grid --> 
+        </div>
+    </main>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            showCodeState: {},
+        };
+    },
+    methods: {
+        showCode(index) {
+            return !!this.showCodeState[index];
+        },
+        toggleCode(index) {
+            this.showCodeState[index] = !this.showCodeState[index];
+        },
+    },
+};
+</script>

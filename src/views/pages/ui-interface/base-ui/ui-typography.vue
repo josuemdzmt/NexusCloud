@@ -1,0 +1,92 @@
+<template>
+			<main>
+                <div class="p-3 lg:py-6 lg:px-0">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3 lg:mb-6">
+                        <h1 class="text-gray-900 text-xl font-bold mb-0">Typography</h1>
+                    </div>
+					
+                    <!-- Start grid -->
+					<div class="grid grid-cols-12 gap-6">
+						<div class="preview-card lg:col-span-6 col-span-12 bg-white/50 rounded-md border border-border-color p-5 flex flex-col h-full">
+							<div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+								<div class="text-[17px] text-dark font-bold">Display Headings</div>
+								<button type="button" @click="toggleCode(0)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+									<i class="icon icon-eye"></i>
+									<span class="code-btn">{{ showCode(0) ? "Show Preview" : "Show Code" }}</span>
+								</button>
+							</div> 
+							<div class="preview-content flex flex-col gap-2 flex-1" :class="{ hidden: showCode(0) }">
+								<h1 class="text-[64px] max-md:text-6xl">Display 1</h1>
+								<h1 class="text-[56px] max-md:text-5xl">Display 2</h1>
+								<h1 class="text-[48px] max-md:text-4xl">Display 3</h1>
+								<h1 class="text-[36px] max-md:text-3xl">Display 4</h1>
+								<h1 class="text-[24px] max-md:text-xl">Display 5</h1>
+								<h1 class="text-[18px] max-md:text-base">Display 6</h1> 
+							</div> 
+	<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm overflow-hidden" :class="{ hidden: !showCode(0) }">
+	<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+	<code class="language-html block w-full max-h-[250px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+	&lt;div class="flex flex-col gap-2"&gt;
+		&lt;h1 class="text-[64px]"&gt;Display 1&lt;/h1&gt;
+		&lt;h1 class="text-[56px]"&gt;Display 2&lt;/h1&gt;
+		&lt;h1 class="text-[48px]"&gt;Display 3&lt;/h1&gt;
+		&lt;h1 class="text-[36px]"&gt;Display 4&lt;/h1&gt;
+		&lt;h1 class="text-[24px]"&gt;Display 5&lt;/h1&gt;
+		&lt;h1 class="text-[18px]"&gt;Display 6&lt;/h1&gt; 
+	&lt;/div&gt;
+	</code>
+	</pre>
+						</div> <!-- end card -->
+
+						<div class="preview-card lg:col-span-6 col-span-12 bg-white/50 rounded-md border border-border-color p-5 flex flex-col h-full">
+							<div class="pb-5 mb-5 flex items-center xxl:gap-0 gap-3 justify-between flex-wrap border-b border-border-color">
+								<div class="text-[17px] text-dark font-bold">Headings</div>
+								<button type="button" @click="toggleCode(1)" data-toggle="code" class="flex items-center gap-2 border py-1.5 px-2.5 text-xs border-border-color font-semibold rounded-md bg-light-200 dark:bg-gray-100 focus:bg-primary focus:border-primary focus:text-white text-gray-900 dark:text-dark dark:focus:text-dark">
+									<i class="icon icon-eye"></i>
+									<span class="code-btn">{{ showCode(1) ? "Show Preview" : "Show Code" }}</span>
+								</button>
+							</div> 
+							<div class="preview-content flex flex-col gap-2 flex-1" :class="{ hidden: showCode(1) }">
+								<h1>Heading 1</h1>
+								<h2>Heading 2</h2>
+								<h3>Heading 3</h3>
+								<h4>Heading 4</h4>
+								<h5>Heading 5</h5>
+								<h6>Heading 6</h6> 
+							</div> 
+	<pre class="code relative mt-4 p-0! bg-dark text-gray-100 text-sm overflow-hidden" :class="{ hidden: !showCode(1) }">
+	<button type="button" data-copy class="sticky float-end top-3 right-3 z-10 bg-gray-800 text-white text-xs px-2.5 py-1.5 rounded-md hover:bg-gray-700 flex items-center gap-1"><i class="icon icon-copy"></i><span>Copy</span></button>
+	<code class="language-html block w-full max-h-[250px] mb-[-42px] mt-[-10px]! overflow-auto p-4 pr-16">
+	&lt;div class="flex flex-col gap-2"&gt;
+		&lt;h1&gt;Heading 1&lt;/h1&gt;
+		&lt;h2&gt;Heading 2&lt;/h2&gt;
+		&lt;h3&gt;Heading 3&lt;/h3&gt;
+		&lt;h4&gt;Heading 4&lt;/h4&gt;
+		&lt;h5&gt;Heading 5&lt;/h5&gt;
+		&lt;h6&gt;Heading 6&lt;/h6&gt; 
+	&lt;/div&gt;
+	</code>
+	</pre> 
+						</div> <!-- end card -->
+						
+					</div><!-- End grid -->
+				</div>
+            </main>
+</template>
+<script>
+export default {
+    data() {
+        return {
+            showCodeState: {},
+        };
+    },
+    methods: {
+        showCode(index) {
+            return !!this.showCodeState[index];
+        },
+        toggleCode(index) {
+            this.showCodeState[index] = !this.showCodeState[index];
+        },
+    },
+};
+</script>
