@@ -41,15 +41,15 @@ export const all_routes = {
 
   // Inventory
 
-  products: '/inventory/products',
-  addProduct: '/inventory/add-product',
-  editProduct: '/inventory/edit-product',
-  categories: '/inventory/categories',
-  brands: '/inventory/brands',
-  units: '/inventory/units',
-  inventory: '/inventory/inventory',
-  suppliers: '/inventory/suppliers',
-  warehouse: '/inventory/warehouse',
+  products: '/inventory/product/list',
+  addProduct: '/inventory/product/new',
+  editProduct: '/inventory/product/:recordId/edit',
+  categories: '/inventory/category/list',
+  brands: '/inventory/brand/list',
+  units: '/inventory/unit/list',
+  inventory: '/inventory/general/inventory',
+  suppliers: '/inventory/general/suppliers',
+  warehouse: '/inventory/general/warehouse',
 
   // Stock
 

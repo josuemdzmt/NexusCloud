@@ -34,6 +34,16 @@ import SidebarMenu from './views/layouts/sidebar-menu.vue';
 import CommonFooter from './views/layouts/common-footer.vue';
 import PosHeader from './views/layouts/pos-header.vue';
 
+// ---------- Nexus UI Components ---------- //
+import NXDataTable from './components/nexus/NX-DataTable.vue';
+import NXCombobox from './components/nexus/NX-Combobox.vue';
+import NXFormPage from './components/nexus/NX-FormPage.vue';
+import NXModal from './components/nexus/NX-Modal.vue';
+import NXModalHeader from './components/nexus/NX-ModalHeader.vue';
+import NXModalBody from './components/nexus/NX-ModalBody.vue';
+import NXModalFooter from './components/nexus/NX-ModalFooter.vue';
+import NXModalForm from './components/nexus/NX-ModalForm.vue';
+
 // ---------- Modal Components ---------- //
 
 import InventoryDashboardModal from './components/modal/inventory-dashboard-modal.vue';
@@ -179,6 +189,14 @@ use([
   TitleComponent,
 ]);
 app.component('vue3-select', Vue3Select);
+app.component('nx-datatable', NXDataTable);
+app.component('nx-combobox', NXCombobox);
+app.component('nx-form-page', NXFormPage);
+app.component('nx-modal', NXModal);
+app.component('nx-modal-header', NXModalHeader);
+app.component('nx-modal-body', NXModalBody);
+app.component('nx-modal-footer', NXModalFooter);
+app.component('nx-modal-form', NXModalForm);
 app.component("v-chart", VueECharts);
 app.use(VueApexCharts);
 app.use(Antd)

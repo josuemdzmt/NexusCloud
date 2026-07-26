@@ -26,5 +26,5 @@ export default defineConfig({
   optimizeDeps: {
     include: ['vuedraggable'],
   },
-  base: '/vue/',
+  base: '/',
 })
