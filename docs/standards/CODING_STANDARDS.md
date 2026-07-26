@@ -16,6 +16,8 @@ Todas las variables definidas en `data()`, `props`, o variables locales deben ut
 | **`obj`** | Objeto (`Object`) | `objForm`, `objFilter`, `objProduct`, `objUser` |
 | **`lst`** | Arreglo / Lista (`Array`) | `lstProducts`, `lstColumns`, `lstCategories` |
 
+> **Excepción de IDs:** Los identificadores de registros no deben llevar el prefijo `num`, aunque sean de tipo número. Se deben nombrar de forma explícita y sin prefijo, por ejemplo: `recordId` o `relatedRecordId`.
+
 ---
 
 ## 2. Formato de Declaración de `props`

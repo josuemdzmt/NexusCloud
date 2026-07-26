@@ -19,6 +19,9 @@ Author URL: https://themeforest.net/user/dreamstechnologies
 @layer theme, base, components, pages, utilities;
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+:root {
+    --toastify-z-index: 999999 !important;
+}
 
 @theme {
 

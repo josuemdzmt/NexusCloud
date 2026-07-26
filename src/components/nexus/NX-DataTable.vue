@@ -266,8 +266,8 @@ export default {
         }, 50);
       });
     },
-    handleRowAction(objAction, objRow) {
-      const eventPayload = { detail: { action: objAction, row: objRow, objAction, objRow } };
+    handleRowAction(action, row) {
+      const eventPayload = { detail: { action, row } };
       this.$emit('rowaction', eventPayload);
       this.$emit('onrowaction', eventPayload);
     },

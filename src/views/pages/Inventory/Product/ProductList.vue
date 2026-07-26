@@ -85,13 +85,11 @@ export default {
         });
     },
     handleRowAction(objEvent) {
-      const { action, row, objAction, objRow } = objEvent.detail;
-      const targetRow = objRow || row;
-      const targetAction = objAction || action;
-      if (targetAction.name === 'edit') {
-        this.$router.push('/inventory/product/' + targetRow.id + '/edit');
-      } else if (targetAction.name === 'delete') {
-        this.handleDelete(targetRow.id);
+      const { action, row } = objEvent.detail;
+      if (action.name === 'edit') {
+        this.$router.push(`/inventory/product/${row.id}/edit`);
+      } else if (action.name === 'delete') {
+        this.handleDelete(row.id);
       }
     },
     handleDelete(numId) {

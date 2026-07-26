@@ -182,13 +182,8 @@ app.component('security-settings-modal', SecuritySettingsModal)
 app.component('support-dashboard-modal', SupportDashboardModal)
 app.component('calendar-modal', CalendarModal)
 
-use([
-  CanvasRenderer,
-  GaugeChart,
-  TooltipComponent,
-  TitleComponent,
-]);
-app.component('vue3-select', Vue3Select);
+// ---------- Nexus UI Components ---------- //
+
 app.component('nx-datatable', NXDataTable);
 app.component('nx-combobox', NXCombobox);
 app.component('nx-form-page', NXFormPage);
@@ -198,6 +193,15 @@ app.component('nx-modal-body', NXModalBody);
 app.component('nx-modal-footer', NXModalFooter);
 app.component('nx-modal-form', NXModalForm);
 app.component("v-chart", VueECharts);
+
+use([
+  CanvasRenderer,
+  GaugeChart,
+  TooltipComponent,
+  TitleComponent,
+]);
+app.component('vue3-select', Vue3Select);
 app.use(VueApexCharts);
 app.use(Antd)
-app.use(router).mount('#app'); 
+
+app.use(router).mount('#app');

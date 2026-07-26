@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button :id="id + '-trigger-btn'" :data-hs-overlay="'#' + id" class="hidden"></button>
+    <button :id="id + '-trigger-btn'" :data-hs-overlay="'#' + id" data-hs-overlay-keyboard="false" class="hidden"></button>
     <nx-modal :id="id" :size="size">
       <nx-modal-header :label="title"></nx-modal-header>
 
@@ -44,8 +44,6 @@ export default {
         const elTrigger = document.getElementById(this.id + '-trigger-btn');
         if (elTrigger) {
           elTrigger.click();
-        } else if (window.HSOverlay) {
-          window.HSOverlay.open('#' + this.id);
         }
       }, 50);
     },

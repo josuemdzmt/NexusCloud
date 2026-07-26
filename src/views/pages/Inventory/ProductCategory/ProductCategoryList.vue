@@ -4,7 +4,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3 mb-3 lg:mb-6">
         <h1 class="text-gray-900 text-xl font-bold mb-0">Categorías de Producto</h1>
         <div class="flex items-center gap-2">
-          <button @click="handleCreate" data-hs-overlay="#category-modal" class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer">
+          <button @click="handleCreate" class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer">
             <i class="ph ph-plus"></i> Nuevo registro
           </button>
         </div>
@@ -19,7 +19,8 @@
 
 <script>
 import ProductCategoryService from '@/services/inventory/ProductCategoryService';
-import ProductCategoryForm from './ProductCategoryForm.vue';
+import ProductCategoryForm from '@/views/pages/Inventory/ProductCategory/ProductCategoryForm.vue';
+import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 export default {
   name: 'ProductCategoryList',
@@ -64,16 +65,16 @@ export default {
     handleGetData() {
       this.bSpinner = true;
       ProductCategoryService.getAll()
-        .then((response) => {
-          const data = response.data || response;
-          this.lstCategories = data;
-        })
-        .catch((error) => {
-          console.error('Error fetching product categories:', error);
-        })
-        .finally(() => {
-          this.bSpinner = false;
-        });
+      .then((response) => {
+        const data = response.data || response;
+        this.lstCategories = data;
+      })
+      .catch((error) => {
+        console.error('Error fetching product categories:', error);
+      })
+      .finally(() => {
+        this.bSpinner = false;
+      });
     },
     handleCreate() {
       if (this.$refs.categoryFormRef) {
@@ -81,25 +82,25 @@ export default {
       }
     },
     handleRowAction(objEvent) {
-      const { action, row, objAction, objRow } = objEvent.detail;
-      const targetRow = objRow || row;
-      const targetAction = objAction || action;
-      if (targetAction.name === 'edit') {
+      const { action, row } = objEvent.detail;
+      if (action.name === 'edit') {
         if (this.$refs.categoryFormRef) {
-          this.$refs.categoryFormRef.handleOpen(targetRow.id);
+          this.$refs.categoryFormRef.handleOpen(row.id);
         }
-      } else if (targetAction.name === 'delete') {
-        this.handleDelete(targetRow.id);
+      } else if (action.name === 'delete') {
+        this.handleDelete(row.id);
       }
     },
     handleDelete(numId) {
       ProductCategoryService.delete(numId)
-        .then(() => {
-          this.handleGetData();
-        })
-        .catch((error) => {
-          console.error('Error deleting category:', error);
-        });
+      .then(() => {
+        handleSuccess('Eliminado', 'Categoría eliminada exitosamente');
+        this.handleGetData();
+      })
+      .catch((error) => {
+        handleError('Error', 'No se pudo eliminar la categoría');
+        console.error('Error deleting category:', error);
+      });
     }
   }
 };
