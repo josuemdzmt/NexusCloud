@@ -49,11 +49,8 @@ export default {
     },
     handleClose() {
       const elModal = document.getElementById(this.id);
-      const elCloseBtn = elModal ? elModal.querySelector('[data-hs-overlay]') : null;
-      if (elCloseBtn) {
-        elCloseBtn.click();
-      } else if (window.HSOverlay) {
-        window.HSOverlay.close('#' + this.id);
+      if (window.HSOverlay && elModal) {
+        window.HSOverlay.close(elModal);
       }
     },
     handleSubmit(objValues, objActions) {

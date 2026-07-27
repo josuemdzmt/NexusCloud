@@ -122,7 +122,7 @@
               <!-- Badge Type -->
               <template v-else-if="objCol.type === 'badge'">
                 <span class="text-[11px] px-2 py-0.5 rounded" :class="getBadgeClass(objCol, objRow[objCol.fieldName])">
-                  {{ objRow[objCol.fieldName] }}
+                  {{ getBadgeLabel(objCol, objRow[objCol.fieldName]) }}
                 </span>
               </template>
 
@@ -339,6 +339,10 @@ export default {
     getBadgeClass(objCol, strValue) {
       const classMap = objCol.typeAttributes?.classMap || {};
       return classMap[strValue] || 'bg-light text-default';
+    },
+    getBadgeLabel(objCol, strValue) {
+      const labelMap = objCol.typeAttributes?.labelMap;
+      return labelMap && labelMap[strValue] !== undefined ? labelMap[strValue] : strValue;
     },
     formatCurrency(numVal) {
       if (numVal === null || numVal === undefined) return '0';

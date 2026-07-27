@@ -57,8 +57,8 @@
       {
         "menuValue": "Unidades",
         "Icon": "ph-duotone ph-compass",
-        "active_link": "/inventory/unit/list",
-        "route": "/inventory/unit/list",
+        "active_link": "/inventory/unit-measure/list",
+        "route": "/inventory/unit-measure/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -81,8 +81,8 @@
       {
         "menuValue": "Almacenes",
         "Icon": "ph-duotone ph-house-simple",
-        "active_link": "/inventory/general/warehouse",
-        "route": "/inventory/general/warehouse",
+        "active_link": "/inventory/location/list",
+        "route": "/inventory/location/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -194,6 +194,22 @@
         "Icon": "ph-duotone ph-tray",
         "active_link": "/sales/sales-analytics",
         "route": "/sales/sales-analytics",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Monedas",
+        "Icon": "ph-duotone ph-coin",
+        "active_link": "/sales/currency/list",
+        "route": "/sales/currency/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Métodos de Pago",
+        "Icon": "ph-duotone ph-credit-card",
+        "active_link": "/sales/payment-methods/list",
+        "route": "/sales/payment-methods/list",
         "hasSubRoute": false,
         "showSubRoute": false
       }

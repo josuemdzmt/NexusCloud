@@ -11,7 +11,7 @@
       <nx-datatable 
         key-field="id" 
         :data="lstProducts" 
-        :columns="columns" 
+        :columns="lstColumns" 
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
@@ -23,6 +23,8 @@
 
 <script>
 import ProductService from '@/services/inventory/ProductService';
+import { handleSuccess, handleError } from '@/utils/toastUtils';
+import { PRODUCT_STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/Product/ProductConstants';
 
 export default {
   name: 'ProductList',
@@ -30,7 +32,7 @@ export default {
     return {
       bSpinner: false,
       lstProducts: [],
-      columns: [
+      lstColumns: [
         { label: 'Producto', fieldName: 'name', type: 'text', sortable: true },
         { label: 'Código', fieldName: 'code', type: 'text', sortable: true },
         { label: 'SKU', fieldName: 'sku', type: 'text' },
@@ -38,32 +40,10 @@ export default {
         { label: 'Marca', fieldName: 'brand', type: 'text' },
         { label: 'Unidad', fieldName: 'unit', type: 'text' },
         { label: 'Cantidad', fieldName: 'quantity', type: 'number' },
-        {
-          label: 'Estado',
-          fieldName: 'status',
-          type: 'badge',
-          typeAttributes: {
-            classMap: {
-              Active: 'bg-success-transparent text-success',
-              Inactive: 'bg-danger-transparent text-danger',
-              'En Stock': 'bg-success-transparent text-success',
-              'Low Stock': 'bg-warning-transparent text-warning',
-              'No Stock': 'bg-danger-transparent text-danger'
-            }
-          }
-        },
+        { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: PRODUCT_STATUS_BADGE },
         { label: 'Precio de Venta', fieldName: 'sellingPrice', type: 'currency' },
         { label: 'Precio de Compra', fieldName: 'purchasePrice', type: 'currency' },
-        {
-          label: 'Acción',
-          type: 'action',
-          typeAttributes: {
-            rowActions: [
-              { label: 'Editar', name: 'edit', icon: 'icon-pencil-line' },
-              { label: 'Eliminar', name: 'delete', icon: 'icon-trash-2', class: 'text-danger' }
-            ]
-          }
-        }
+        { label: 'Acción', type: 'action', typeAttributes: ACTION_BUTTONS }
       ]
     };
   },
