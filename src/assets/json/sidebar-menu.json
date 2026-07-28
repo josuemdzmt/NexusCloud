@@ -73,8 +73,8 @@
       {
         "menuValue": "Proveedores",
         "Icon": "ph-duotone ph-user",
-        "active_link": "/inventory/general/suppliers",
-        "route": "/inventory/general/suppliers",
+        "active_link": "/inventory/vendor/list",
+        "route": "/inventory/vendor/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -120,8 +120,8 @@
       {
         "menuValue": "Clientes",
         "Icon": "ph-duotone ph-address-book",
-        "active_link": "/sales/customers",
-        "route": "/sales/customers",
+        "active_link": "/sales/customer/list",
+        "route": "/sales/customer/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -212,6 +212,14 @@
         "route": "/sales/payment-methods/list",
         "hasSubRoute": false,
         "showSubRoute": false
+      },
+      {
+        "menuValue": "Perfiles de Impuestos",
+        "Icon": "ph-duotone ph-receipt",
+        "active_link": "/sales/tax-profile/list",
+        "route": "/sales/tax-profile/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
       }
     ]
   },
@@ -299,24 +307,14 @@
         "showSubRoute": false,
         "subMenus": [
           {
-            "menuValue": "General",
-            "route": "/settings/general-settings",
-            "active_link": "/settings/general-settings"
+            "menuValue": "Organización",
+            "route": "/system/org/list",
+            "active_link": "/system/org/list"
           },
           {
-            "menuValue": "Seguridad",
-            "route": "/settings/security-settings",
-            "active_link": "/settings/security-settings"
-          },
-          {
-            "menuValue": "Notificaciones",
-            "route": "/settings/notifications-settings",
-            "active_link": "/settings/notifications-settings"
-          },
-          {
-            "menuValue": "Integraciones",
-            "route": "/settings/integrations-settings",
-            "active_link": "/settings/integrations-settings"
+            "menuValue": "Sucursales",
+            "route": "/system/branch/list",
+            "active_link": "/system/branch/list"
           }
         ]
       }

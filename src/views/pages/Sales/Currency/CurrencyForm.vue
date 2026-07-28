@@ -22,13 +22,24 @@
           <Field name="symbol" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.symbol }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Ej. $" maxlength="10" />
           <ErrorMessage name="symbol" class="text-danger text-[11px] mt-1 block" />
         </div>
+
+        
+        <div class="col-span-2 mt-2">
+
+        
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Configuración</h4>
+
+        
+        </div>
+
         
         <!-- Estado -->
         <div class="col-span-2">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Estado</label>
-          <Field name="status" as="nx-combobox" :options="lstStatusOptions" placeholder="Seleccionar Estado" class="w-full text-sm border-border-color focus:border-primary" />
+                    <label class="flex items-center gap-2 cursor-pointer mt-1">
+            <Field name="status" as="input" type="checkbox" :value="'Active'" :unchecked-value="'Inactive'" class="size-4 rounded border-border-color text-primary focus:ring-0" />
+            <span class="text-sm font-semibold text-gray-900">Moneda Activa</span>
+          </label>
         </div>
-
       </div>
     </template>
   </nx-modal-form>

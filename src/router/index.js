@@ -226,6 +226,17 @@ const routes = [
     ],
   },
 
+  //Vendor
+  {
+    path: "/inventory/vendor",
+    component: () => import("@/views/pages/Inventory/Vendor/Vendor.vue"),
+    children: [
+      { path: "", redirect: "/inventory/vendor/list" },
+      { path: "list", component: () => import("@/views/pages/Inventory/Vendor/VendorList.vue"), meta: { title: "Proveedores | NexusCloud" } },
+    ],
+  },
+
+
   // Inventory General
   {
     path: "/inventory/general",
@@ -239,13 +250,14 @@ const routes = [
       { path: "brands", component: () => import("@/views/pages/inventory-module/brands.vue"), meta: { title: "Brands | NexusCloud" } },
       { path: "units", component: () => import("@/views/pages/inventory-module/units.vue"), meta: { title: "Units | NexusCloud" } },
       { path: "inventory", component: () => import("@/views/pages/inventory-module/inventory.vue"), meta: { title: "Inventory | NexusCloud" } },
-      { path: "suppliers", component: () => import("@/views/pages/Inventory/Vendor/VendorList.vue"), meta: { title: "Proveedores | NexusCloud" } },
+      { path: "suppliers", component: () => import("@/views/pages/inventory-module/suppliers.vue"), meta: { title: "Suppliers | NexusCloud" } },
       { path: "warehouse", component: () => import("@/views/pages/inventory-module/warehouse.vue"), meta: { title: "Warehouse | NexusCloud" } },
     ],
   },
 
-  // Sales
-
+  // ==========================================
+  // SALES
+  // ==========================================
   {
     path: "/sales/currency",
     component: () => import("@/views/pages/Sales/Currency/Currency.vue"),
@@ -254,13 +266,50 @@ const routes = [
       { path: "list", component: () => import("@/views/pages/Sales/Currency/CurrencyList.vue"), meta: { title: "Monedas | NexusCloud" } }
     ]
   },
-  
   {
     path: "/sales/payment-methods",
     component: () => import("@/views/pages/Sales/PaymentMethod/PaymentMethod.vue"),
     children: [
       { path: "", redirect: "/sales/payment-methods/list" },
       { path: "list", component: () => import("@/views/pages/Sales/PaymentMethod/PaymentMethodList.vue"), meta: { title: "Métodos de Pago | NexusCloud" } }
+    ]
+  },
+  //Customer
+  {
+    path: "/sales/customer",
+    component: () => import("@/views/pages/Sales/Customer/Customer.vue"),
+    children: [
+      { path: "", redirect: "/sales/customer/list" },
+      { path: "list", component: () => import("@/views/pages/Sales/Customer/CustomerList.vue"), meta: { title: "Clientes | NexusCloud" } }
+    ]
+  },
+  
+  //Tax Profile
+  {
+    path: "/sales/tax-profile",
+    component: () => import("@/views/pages/Sales/TaxProfile/TaxProfile.vue"),
+    children: [
+      { path: "", redirect: "/sales/tax-profile/list" },
+      { path: "list", component: () => import("@/views/pages/Sales/TaxProfile/TaxProfileList.vue"), meta: { title: "Perfiles Fiscales | NexusCloud" } }
+    ]
+  },
+
+  //System Module
+  {
+    path: "/system",
+    component: () => import("@/views/pages/System/Org/Org.vue"), // we can use any container or a generic one
+    children: [
+      { path: "org/list", component: () => import("@/views/pages/System/Org/OrgList.vue"), meta: { title: "Organizaciones | NexusCloud" } },
+      { path: "branch/list", component: () => import("@/views/pages/System/Branch/BranchList.vue"), meta: { title: "Sucursales | NexusCloud" } }
+    ]
+  },
+//Sales Orders
+  {
+    path: "/sales/sales-orders",
+    component: () => import("@/views/pages/Sales/SalesOrder/SalesOrder.vue"),
+    children: [
+      { path: "", redirect: "/sales/sales-orders/list" },
+      { path: "list", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderList.vue"), meta: { title: "Pedidos | NexusCloud" } }
     ]
   },
 
@@ -278,8 +327,8 @@ const routes = [
     path: "/sales",
     component: () => import("@/views/pages/sales-module/sales-index.vue"),
     children: [
-      { path: "", redirect: "/sales/customers" },
-      { path: "customers", component: () => import("@/views/pages/Sales/Customer/CustomerList.vue"), meta: { title: "Clientes | NexusCloud" } },
+      { path: "", redirect: "/sales/customer/list" },
+      { path: "customers", component: () => import("@/views/pages/sales-module/customers.vue"), meta: { title: "Customers | NexusCloud" } },
       { path: "sales-orders", component: () => import("@/views/pages/sales-module/sales-orders.vue"), meta: { title: "Sales Orders | NexusCloud" } },
       { path: "recurring-invoices", component: () => import("@/views/pages/sales-module/recurring-invoices.vue"), meta: { title: "Recurring Invoices | NexusCloud" } },
       { path: "add-recurring-invoice", component: () => import("@/views/pages/sales-module/add-recurring-invoice.vue"), meta: { title: "Add Recurring Invoices | NexusCloud" } },

@@ -29,7 +29,7 @@
 import VendorService from '@/services/inventory/VendorService';
 import VendorForm from '@/views/pages/Inventory/Vendor/VendorForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
-import { IS_PERSON_BADGE, ACTION_BUTTONS } from './VendorConstants';
+import { IS_PERSON_BADGE, STATUS_BADGE, ACTION_BUTTONS } from './VendorConstants';
 
 export default {
   name: 'VendorList',
@@ -44,6 +44,7 @@ export default {
         { label: 'Razón Social / Nombre', fieldName: 'legal_name', type: 'text', sortable: true },
         { label: 'RFC / Tax ID', fieldName: 'tax_id', type: 'text', sortable: true },
         { label: 'Tipo Persona', fieldName: 'is_person', type: 'badge', typeAttributes: IS_PERSON_BADGE },
+        { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: STATUS_BADGE },
         { label: 'Límite Crédito', fieldName: 'credit_limit', type: 'currency', sortable: true },
         { label: 'Días Crédito', fieldName: 'credit_days', type: 'text', sortable: true },
         { label: 'Acción', type: 'action', typeAttributes: ACTION_BUTTONS }
@@ -85,20 +86,7 @@ export default {
         if (this.$refs.vendorFormRef) {
           this.$refs.vendorFormRef.handleOpen(row.id);
         }
-      } else if (action.name === 'delete') {
-        this.handleDelete(row.id);
       }
-    },
-    handleDelete(numId) {
-      VendorService.delete(numId)
-      .then(() => {
-        handleSuccess('Eliminado', 'Proveedor eliminado exitosamente');
-        this.handleGetData();
-      })
-      .catch((error) => {
-        handleError('Error', 'No se pudo eliminar el proveedor');
-        console.error('Error deleting vendor:', error);
-      });
     }
   }
 };

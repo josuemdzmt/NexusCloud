@@ -14,7 +14,7 @@
         <template #footer="{ isSubmitting }">
           <slot name="footer" :isSubmitting="isSubmitting">
             <nx-modal-footer>
-              <button type="button" class="btn-sm bg-white border border-border-color text-gray-900 hover:bg-light cursor-pointer" :data-hs-overlay="'#' + id" @click="handleCancel">Cancelar</button>
+              <button type="button" class="btn-sm bg-white border border-border-color text-gray-900 hover:bg-light cursor-pointer" @click="handleCancel">Cancelar</button>
               <button type="submit" :disabled="isSubmitting" class="btn-sm bg-dark text-white border border-dark hover:bg-primary-hover cursor-pointer disabled:opacity-50">
                 <span v-if="isSubmitting" class="animate-spin inline-block size-4 border-[2px] border-current border-t-transparent text-white rounded-full mr-2" role="status"></span>
                 Guardar
@@ -49,8 +49,11 @@ export default {
     },
     handleClose() {
       const elModal = document.getElementById(this.id);
-      if (window.HSOverlay && elModal) {
-        window.HSOverlay.close(elModal);
+      const elCloseBtn = elModal ? elModal.querySelector('[data-hs-overlay]') : null;
+      if (elCloseBtn) {
+        elCloseBtn.click();
+      } else if (window.HSOverlay) {
+        window.HSOverlay.close('#' + this.id);
       }
     },
     handleSubmit(objValues, objActions) {

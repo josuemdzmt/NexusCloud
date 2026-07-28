@@ -59,7 +59,12 @@ export const all_routes = {
 
   // Sales
 
-  customers: '/sales/customers',
+  customers: '/sales/customer/list',
+  taxProfileList: '/sales/tax-profile/list',
+  orgList: '/system/org/list',
+  branchList: '/system/branch/list',
+
+
   salesOrders: '/sales/sales-orders',
   recurringInvoices: '/sales/recurring-invoices',
   addRecurringInvoices: '/sales/add-recurring-invoice',

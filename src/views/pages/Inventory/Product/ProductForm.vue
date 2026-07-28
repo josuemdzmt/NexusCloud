@@ -96,9 +96,17 @@
               <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             </div>
           </div>
+          <div class="col-span-2 mt-2">
+
+            <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Configuración</h4>
+
+          </div>
+
           <div class="bg-white border border-border-color rounded-md p-4">
-            <h2 class="text-lg max-lg:text-[17px] text-title mb-4">Estado</h2>
-            <Field name="status" as="nx-combobox" :options="lstStatusOptions" placeholder="Seleccionar Estado" class="w-full text-sm border-border-color focus:border-primary" />
+                      <label class="flex items-center gap-2 cursor-pointer mt-1">
+            <Field name="status" as="input" type="checkbox" :value="'Active'" :unchecked-value="'Inactive'" class="size-4 rounded border-border-color text-primary focus:ring-0" />
+            <span class="text-sm font-semibold text-gray-900">Producto Activo</span>
+          </label>
           </div>
         </template>
       </nx-form-page>

@@ -7,10 +7,13 @@ export function formatError(error: any, strFallback = 'Error desconocido', strSe
   if (!error) return strFallback;
   
   // Si el backend envía errores de validación (Laravel HTTP 422)
-  if (error.errors && typeof error.errors === 'object') {
-    return Object.values(error.errors).flat().join(strSeparator);
+  // Revisa error.response.data.errors o error.errors
+  let apiErrors = error.response?.data?.errors || error.errors;
+  
+  if (apiErrors && typeof apiErrors === 'object') {
+    return Object.values(apiErrors).flat().join(strSeparator);
   }
   
   // Si envía un mensaje general
-  return error.message || strFallback;
+  return error.response?.data?.message || error.message || strFallback;
 }

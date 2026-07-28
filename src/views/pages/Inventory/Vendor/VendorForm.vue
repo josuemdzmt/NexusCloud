@@ -6,12 +6,12 @@
         <div class="col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Tipo de Persona <span class="text-danger">*</span></label>
           <div class="flex items-center gap-4 mt-2">
-            <label class="inline-flex items-center">
-              <Field v-model="bIsPerson" type="radio" name="is_person" :value="true" class="form-radio text-primary" />
+            <label class="inline-flex items-center" :class="{ 'opacity-50 cursor-not-allowed': !!recordId }">
+              <Field v-model="bIsPerson" type="radio" name="is_person" :value="true" class="form-radio text-primary" :disabled="!!recordId" />
               <span class="ml-2 text-sm">Física (Individuo)</span>
             </label>
-            <label class="inline-flex items-center">
-              <Field v-model="bIsPerson" type="radio" name="is_person" :value="false" class="form-radio text-primary" />
+            <label class="inline-flex items-center" :class="{ 'opacity-50 cursor-not-allowed': !!recordId }">
+              <Field v-model="bIsPerson" type="radio" name="is_person" :value="false" class="form-radio text-primary" :disabled="!!recordId" />
               <span class="ml-2 text-sm">Moral (Empresa)</span>
             </label>
           </div>
@@ -53,6 +53,10 @@
           <ErrorMessage name="tax_id" class="text-danger text-[11px] mt-1 block" />
         </div>
 
+        
+        <div class="col-span-2 mt-2">
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Finanzas</h4>
+        </div>
         <!-- Crédito -->
         <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Límite de Crédito</label>
@@ -63,6 +67,18 @@
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Días de Crédito</label>
           <Field name="credit_days" as="input" type="number" :class="{ 'border-danger focus:border-danger': errors.credit_days }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
           <ErrorMessage name="credit_days" class="text-danger text-[11px] mt-1 block" />
+        </div>
+        
+        <div class="col-span-2 mt-2">
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Configuración</h4>
+        </div>
+        <!-- Estado -->
+        <div class="col-span-2">
+          <label class="flex items-center gap-2 cursor-pointer mt-1">
+            <Field name="status" as="input" type="checkbox" :value="'Active'" :unchecked-value="'Inactive'" class="size-4 rounded border-border-color text-primary focus:ring-0" />
+            <span class="text-sm font-semibold text-gray-900">Proveedor Activo</span>
+          </label>
+          <ErrorMessage name="status" class="text-danger text-[11px] mt-1 block" />
         </div>
 
       </div>
@@ -96,7 +112,8 @@ const validationSchema = yup.object({
   second_last_name: yup.string().nullable().default(''),
   tax_id: yup.string().nullable().default(''),
   credit_limit: yup.number().nullable().default(0),
-  credit_days: yup.number().nullable().default(0)
+  credit_days: yup.number().nullable().default(0),
+  status: yup.string().nullable().default('Active')
 });
 
 export default {
@@ -174,7 +191,7 @@ export default {
         this.handleClose();
       })
       .catch((error) => {
-        handleError('Error de Validación', error.response?.data?.message || 'Error al crear el proveedor');
+        handleError('Error de Validación', error);
         console.error('Error creating vendor:', error);
       })
       .finally(() => {
@@ -190,7 +207,7 @@ export default {
         this.$emit('success');
       })
       .catch((error) => {
-        handleError('Error de Validación', error.response?.data?.message || 'Error al actualizar el proveedor');
+        handleError('Error de Validación', error);
         console.error('Error updating vendor:', error);
       })
       .finally(() => {
