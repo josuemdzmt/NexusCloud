@@ -126,10 +126,10 @@
         "showSubRoute": false
       },
       {
-        "menuValue": "Pedidos de Venta",
+        "menuValue": "Ordenes de Venta",
         "Icon": "ph-duotone ph-stack",
-        "active_link": "/sales/sales-orders",
-        "route": "/sales/sales-orders",
+        "active_link": "/sales/sales-orders/list",
+        "route": "/sales/sales-orders/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -210,6 +210,22 @@
         "Icon": "ph-duotone ph-credit-card",
         "active_link": "/sales/payment-methods/list",
         "route": "/sales/payment-methods/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Listas de Precios",
+        "Icon": "ph-duotone ph-list-numbers",
+        "active_link": "/sales/pricebook/list",
+        "route": "/sales/pricebook/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Precios de Productos",
+        "Icon": "ph-duotone ph-currency-dollar",
+        "active_link": "/sales/product-price/list",
+        "route": "/sales/product-price/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },

@@ -52,37 +52,30 @@
             <h2 class="text-lg max-lg:text-[17px] text-title mb-4">Precio y Stock</h2>
             <div class="grid grid-cols-3 gap-3">
               <div>
-                <label class="text-sm font-semibold text-gray-900 mb-1 block">Precio de Venta</label>
+                <label class="text-sm font-semibold text-gray-900 mb-1 block">Precio Estándar</label>
                 <Field name="sellingPrice" as="input" type="number" :class="{ 'border-danger focus:border-danger': errors.sellingPrice }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
                 <ErrorMessage name="sellingPrice" class="text-danger text-[11px] mt-1 block" />
               </div>
               <div>
-                <label class="text-sm font-semibold text-gray-900 mb-1 block">Precio de Costo</label>
+                <label class="text-sm font-semibold text-gray-900 mb-1 block">Costo de Referencia</label>
                 <Field name="purchasePrice" as="input" type="number" :class="{ 'border-danger focus:border-danger': errors.purchasePrice }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
                 <ErrorMessage name="purchasePrice" class="text-danger text-[11px] mt-1 block" />
               </div>
-              <div>
-                <label class="text-sm font-semibold text-gray-900 mb-1 block">Cantidad</label>
+              <div v-if="!$route.params.recordId">
+                <label class="text-sm font-semibold text-gray-900 mb-1 block">Stock Inicial</label>
                 <Field name="quantity" as="input" type="number" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
               </div>
               <div>
                 <label class="text-sm font-semibold text-gray-900 mb-1 block">Unidad</label>
-                <Field name="unit" as="select" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0">
-                  <option value="">Seleccionar Unidad</option>
-                  <option>Piezas</option>
-                  <option>Kilogramos</option>
-                </Field>
+                <Field name="unitMeasureId" as="nx-combobox" :options="lstUnitOptions" placeholder="Seleccionar Unidad" class="w-full text-sm border-border-color focus:border-primary" />
               </div>
               <div>
                 <label class="text-sm font-semibold text-gray-900 mb-1 block">Stock Mínimo</label>
                 <Field name="reorderLevel" as="input" type="number" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
               </div>
               <div>
-                <label class="text-sm font-semibold text-gray-900 mb-1 block">Porcentaje de Impuestos</label>
-                <Field name="taxRate" as="select" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0">
-                  <option value="">Seleccionar Impuesto</option>
-                  <option>18%</option>
-                </Field>
+                <label class="text-sm font-semibold text-gray-900 mb-1 block">Perfil de Impuestos</label>
+                <Field name="taxProfileId" as="nx-combobox" :options="lstTaxOptions" placeholder="Seleccionar Impuesto" class="w-full text-sm border-border-color focus:border-primary" />
               </div>
             </div>
           </div>
@@ -119,6 +112,11 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import ProductService from '@/services/inventory/ProductService';
 import ProductCategoryService from '@/services/inventory/ProductCategoryService';
+import BrandService from '@/services/inventory/BrandService';
+import UnitMeasureService from '@/services/inventory/UnitMeasureService';
+import TaxProfileService from '@/services/sales/TaxProfileService';
+import { handleBuildCatalogOptions } from '@/utils/catalogUtils';
+import { handleError, handleSuccess } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
   name: yup.string().default('').required('El nombre es obligatorio').min(3, 'Mínimo 3 caracteres'),
@@ -131,9 +129,9 @@ const validationSchema = yup.object({
   sellingPrice: yup.number().default(0).typeError('Debe ser un número').required('Precio requerido').min(0, 'No puede ser negativo'),
   purchasePrice: yup.number().default(0).typeError('Debe ser un número').required('Costo requerido').min(0, 'No puede ser negativo'),
   quantity: yup.number().nullable().default(0),
-  unit: yup.string().nullable().default(''),
+  unitMeasureId: yup.number().nullable().default(null),
   reorderLevel: yup.number().nullable().default(0),
-  taxRate: yup.string().nullable().default(''),
+  taxProfileId: yup.number().nullable().default(null),
   status: yup.string().nullable().default('Active')
 });
 
@@ -149,55 +147,89 @@ export default {
       strTitle: 'Producto',
       objValidationSchema: validationSchema,
       objInitialData: validationSchema.getDefault(),
-      lstCategories: [],
-      lstBrandOptions: [
-        { label: 'Apple', value: 1 },
-        { label: 'Dell', value: 2 },
-        { label: 'Samsung', value: 3 }
-      ],
-      lstStatusOptions: [
-        { label: 'Active', value: 'Active' },
-        { label: 'Inactive', value: 'Inactive' }
-      ]
+      objCurrentProduct: null,
+      lstRawCategories: [],
+      lstRawBrands: [],
+      lstRawUnits: [],
+      lstRawTaxes: []
     };
+  },
+  computed: {
+    lstCategories() {
+      return handleBuildCatalogOptions(this.lstRawCategories, this.objCurrentProduct?.categoryId);
+    },
+    lstBrandOptions() {
+      return handleBuildCatalogOptions(this.lstRawBrands, this.objCurrentProduct?.brandId);
+    },
+    lstUnitOptions() {
+      return handleBuildCatalogOptions(this.lstRawUnits, this.objCurrentProduct?.unitMeasureId);
+    },
+    lstTaxOptions() {
+      return handleBuildCatalogOptions(this.lstRawTaxes, this.objCurrentProduct?.taxProfileId);
+    }
   },
   mounted() {
     this.handleGetCategories();
+    this.handleGetBrands();
+    this.handleGetUnits();
+    this.handleGetTaxes();
     if (this.$route.params.recordId) {
       this.handleInitForm(this.$route.params.recordId);
     }
   },
   methods: {
+    handleGetBrands() {
+      BrandService.getAll({ per_page: 100 })
+        .then((response) => {
+          this.lstRawBrands = response.data || response;
+        })
+        .catch((error) => {
+          handleError('Ocurrió un problema al obtener las marcas', error);
+        });
+    },
+    handleGetUnits() {
+      UnitMeasureService.getAll({ per_page: 100 })
+        .then((response) => {
+          this.lstRawUnits = response.data || response;
+        })
+        .catch((error) => {
+          handleError('Ocurrió un problema al obtener las unidades de medida', error);
+        });
+    },
+    handleGetTaxes() {
+      TaxProfileService.getAll({ per_page: 100 })
+        .then((response) => {
+          this.lstRawTaxes = response.data || response;
+        })
+        .catch((error) => {
+          handleError('Ocurrió un problema al obtener los perfiles de impuestos', error);
+        });
+    },
     handleGetCategories() {
       ProductCategoryService.getAll({ per_page: 100 })
         .then((response) => {
-          const data = response.data || response;
-          this.lstCategories = data.map((cat) => ({
-            label: cat.name,
-            value: cat.id
-          }));
+          this.lstRawCategories = response.data || response;
         })
-        .catch((error) => console.error('Error fetching categories:', error));
+        .catch((error) => {
+          handleError('Ocurrió un problema al obtener las categorías', error);
+        });
     },
     handleInitForm(id) {
       this.bSpinner = true;
       ProductService.getById(id)
         .then((data) => {
-          // Rellenamos el formulario dinámicamente usando la referencia al Form
-          // Nota: api.js devuelve directamente response.data
-          // Aseguramos que data contenga los datos esperados (podría venir envuelto en data.data dependiendo del backend)
           const formData = data.data || data;
+          this.objCurrentProduct = formData;
           this.$refs.formPageRef.handleSetValues(formData);
         })
         .catch((error) => {
-          console.error('Error fetching product:', error);
+          handleError('Ocurrió un problema al obtener la información del producto', error);
         })
         .finally(() => {
           this.bSpinner = false;
         });
     },
     handleSubmit(values) {
-      console.log(JSON.stringify(values, null, 2));
       if (this.$route.params.recordId) {
         this.handleUpdate(values);
       } else {
@@ -208,10 +240,12 @@ export default {
       this.bSpinner = true;
       ProductService.create(objForm)
         .then((data) => {
-          console.log('Product created', data);
+          handleSuccess('Producto creado exitosamente');
           this.$router.push('/inventory/product/list');
         })
-        .catch((error) => console.error('Error creating product:', error))
+        .catch((error) => {
+          handleError('Ocurrió un problema al crear el producto', error);
+        })
         .finally(() => (this.bSpinner = false));
     },
     handleUpdate(objForm) {
@@ -219,10 +253,12 @@ export default {
       const id = this.$route.params.recordId;
       ProductService.update(id, objForm)
         .then((data) => {
-          console.log('Product updated', data);
+          handleSuccess('Producto actualizado exitosamente');
           this.$router.push('/inventory/product/list');
         })
-        .catch((error) => console.error('Error updating product:', error))
+        .catch((error) => {
+          handleError('Ocurrió un problema al actualizar el producto', error);
+        })
         .finally(() => (this.bSpinner = false));
     },
     handleCancel() {

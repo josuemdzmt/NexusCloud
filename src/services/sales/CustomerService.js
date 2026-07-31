@@ -1,15 +1,23 @@
 import api from '@/services/api';
 
 const ENDPOINT = '/api/v1/core/accounts';
+const ACCOUNT_TYPE = 'Customer';
 
 export default {
+  ACCOUNT_TYPE,
+
   /**
-   * Get a paginated list of customers or filtered by params
+   * Get a paginated list of customers
    * @param {Object} objParams - Query parameters
    */
   getAll(objParams = {}) {
-    // Force account_type to Customer
-    return api.get(ENDPOINT, { params: { ...objParams, account_type: 'Customer' } });
+    return api.get(ENDPOINT, {
+      params: {
+        ...objParams,
+        account_type: ACCOUNT_TYPE,
+        'filter[account_type]': ACCOUNT_TYPE
+      }
+    });
   },
 
   /**
@@ -25,7 +33,7 @@ export default {
    * @param {Object} objData - Customer payload
    */
   create(objData) {
-    return api.post(ENDPOINT, { ...objData, account_type: 'Customer' });
+    return api.post(ENDPOINT, { ...objData, account_type: ACCOUNT_TYPE });
   },
 
   /**
@@ -34,7 +42,7 @@ export default {
    * @param {Object} objData - Customer payload to update
    */
   update(numId, objData) {
-    return api.put(`${ENDPOINT}/${numId}`, { ...objData, account_type: 'Customer' });
+    return api.put(`${ENDPOINT}/${numId}`, { ...objData, account_type: ACCOUNT_TYPE });
   },
 
   /**

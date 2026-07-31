@@ -36,9 +36,9 @@ export default {
         { label: 'Producto', fieldName: 'name', type: 'text', sortable: true },
         { label: 'Código', fieldName: 'code', type: 'text', sortable: true },
         { label: 'SKU', fieldName: 'sku', type: 'text' },
-        { label: 'Categoría', fieldName: 'category', type: 'text' },
-        { label: 'Marca', fieldName: 'brand', type: 'text' },
-        { label: 'Unidad', fieldName: 'unit', type: 'text' },
+        { label: 'Categoría', fieldName: 'categoryName', type: 'text' },
+        { label: 'Marca', fieldName: 'brandName', type: 'text' },
+        { label: 'Unidad', fieldName: 'unitName', type: 'text' },
         { label: 'Cantidad', fieldName: 'quantity', type: 'number' },
         { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: PRODUCT_STATUS_BADGE },
         { label: 'Precio de Venta', fieldName: 'sellingPrice', type: 'currency' },
@@ -55,10 +55,16 @@ export default {
       this.bSpinner = true;
       ProductService.getAll()
         .then((data) => {
-          this.lstProducts = data.data || data;
+          const lstProducts = data.data || data;
+          this.lstProducts = lstProducts.map((objProducto) => ({
+            ...objProducto,
+            categoryName: objProducto.category ? objProducto.category.name : '',
+            brandName: objProducto.brand ? objProducto.brand.name : '',
+            unitName: objProducto.unitMeasure ? objProducto.unitMeasure.name : (objProducto.unit ? objProducto.unit : '')
+          }));
         })
         .catch((error) => {
-          console.error('Error fetching products:', error);
+          handleError('Ocurrió un problema al obtener los productos', error);
         })
         .finally(() => {
           this.bSpinner = false;
@@ -75,9 +81,12 @@ export default {
     handleDelete(numId) {
       ProductService.delete(numId)
         .then(() => {
+          handleSuccess('Producto eliminado exitosamente');
           this.handleGetData();
         })
-        .catch((error) => console.error('Error deleting product:', error));
+        .catch((error) => {
+          handleError('Ocurrió un problema al eliminar el producto', error);
+        });
     }
   }
 };

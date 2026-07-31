@@ -293,6 +293,23 @@ const routes = [
       { path: "list", component: () => import("@/views/pages/Sales/TaxProfile/TaxProfileList.vue"), meta: { title: "Perfiles Fiscales | NexusCloud" } }
     ]
   },
+  {
+    path: "/sales/pricebook",
+    component: () => import("@/views/pages/Sales/Pricebook/Pricebook.vue"),
+    children: [
+      { path: "", redirect: "/sales/pricebook/list" },
+      { path: "list", component: () => import("@/views/pages/Sales/Pricebook/PricebookList.vue"), meta: { title: "Listas de Precios | NexusCloud" } },
+      { path: ":recordId/details", component: () => import("@/views/pages/Sales/Pricebook/PricebookDetails.vue"), meta: { title: "Detalles Lista de Precio | NexusCloud" } }
+    ]
+  },
+  {
+    path: "/sales/product-price",
+    component: () => import("@/views/pages/Sales/PricebookEntry/PricebookEntry.vue"),
+    children: [
+      { path: "", redirect: "/sales/product-price/list" },
+      { path: "list", component: () => import("@/views/pages/Sales/PricebookEntry/PricebookEntryList.vue"), meta: { title: "Precios de Productos | NexusCloud" } }
+    ]
+  },
 
   //System Module
   {
@@ -309,7 +326,10 @@ const routes = [
     component: () => import("@/views/pages/Sales/SalesOrder/SalesOrder.vue"),
     children: [
       { path: "", redirect: "/sales/sales-orders/list" },
-      { path: "list", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderList.vue"), meta: { title: "Pedidos | NexusCloud" } }
+      { path: "list", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderList.vue"), meta: { title: "Pedidos | NexusCloud" } },
+      { path: "new", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderForm.vue"), meta: { title: "Nuevo Pedido | NexusCloud" } },
+      { path: ":recordId/edit", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderForm.vue"), meta: { title: "Editar Pedido | NexusCloud" } },
+      { path: ":recordId/details", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderDetails.vue"), meta: { title: "Detalles Pedido | NexusCloud" } }
     ]
   },
 

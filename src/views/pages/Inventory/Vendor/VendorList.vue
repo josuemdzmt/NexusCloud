@@ -58,22 +58,28 @@ export default {
     handleGetData() {
       this.bSpinner = true;
       VendorService.getAll()
-      .then((response) => {
-        const lstData = response.data || response;
-        // Post-procesar para mostrar nombre completo si es persona
-        this.lstVendors = lstData.map(item => {
-          if (item.is_person) {
-            item.legal_name = `${item.first_name || ''} ${item.last_name || ''} ${item.second_last_name || ''}`.trim();
-          }
-          return item;
+        .then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          const lstAccounts = Array.isArray(lstData) ? lstData : [];
+
+          this.lstVendors = lstAccounts
+            .filter((objItem) => {
+              const strType = objItem.account_type || objItem.accountType;
+              return !strType || strType === VendorService.ACCOUNT_TYPE;
+            })
+            .map((objItem) => {
+              if (objItem.is_person) {
+                objItem.legal_name = `${objItem.first_name || ''} ${objItem.last_name || ''} ${objItem.second_last_name || ''}`.trim();
+              }
+              return objItem;
+            });
+        })
+        .catch((objError) => {
+          handleError('Ocurrió un problema al obtener los proveedores', objError);
+        })
+        .finally(() => {
+          this.bSpinner = false;
         });
-      })
-      .catch((error) => {
-        console.error('Error fetching vendors:', error);
-      })
-      .finally(() => {
-        this.bSpinner = false;
-      });
     },
     handleCreate() {
       if (this.$refs.vendorFormRef) {
