@@ -1,0 +1,34 @@
+---
+description: Salesforce es la base de dominio de NexusCloud (objetos, enums, semántica)
+alwaysApply: true
+---
+
+# Salesforce como fuente de verdad
+
+NexusCloud (front) consume Vertex y modela inventario, sales y objetos relacionados **según Salesforce** (Field Service / CRM / Manufacturing Cloud según aplique). Salesforce es la base de dominio; Vertex/NexusCloud no inventan un modelo paralelo.
+
+## Reglas
+
+- Antes de inventar nombres de entidades, campos, enums o labels de UI, revisar el objeto/API Salesforce equivalente.
+- Preferir API names y picklist values de Salesforce cuando existan (ej. `ProductItemTransaction.TransactionType`: `Replenished`, `Consumed`, `Transferred`, `Adjusted`).
+- La semántica debe coincidir:
+  - crear `ProductItem` con stock → transacción `Replenished`
+  - consumo / venta → `Consumed`
+  - traspaso → `Transferred` (signo en `quantity`: − salida / + entrada)
+  - ajuste manual → `Adjusted`
+- Labels de UI en español están bien (`Reabastecimiento`, `Consumo`, etc.), pero el **valor enviado/recibido** debe ser el picklist Salesforce.
+- Si Vertex expone un campo extra (p. ej. snapshots `quantityBefore`/`quantityAfter`, o `reason` de detalle), tratarlo como extensión; no reemplazar el modelo base de Salesforce.
+- No reintroducir aliases legacy (`Purchase_Receipt`, `Restock`, `Sales_Consumption`, `Transfer_In`/`Out`, `Adjustment`) en código nuevo, constants ni payloads, salvo compatibilidad explícita pedida.
+- Payloads API pueden usar camelCase (`productItemId`, `transactionType`); los **valores de dominio** (enums/picklists) siguen Salesforce.
+- Constants de dominio (`*Constants.js`) deben mapear Salesforce value → label UI; no inventar un enum “Nexus” distinto.
+
+## Ejemplo
+
+```js
+// ❌ BAD — enum inventado / legacy
+transactionType: 'Purchase_Receipt' // o 'Restock'
+
+// ✅ GOOD — picklist Salesforce
+transactionType: 'Replenished'
+// UI label: 'Reabastecimiento' (solo presentación)
+```

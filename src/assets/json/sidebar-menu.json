@@ -73,42 +73,29 @@
       {
         "menuValue": "Inventario",
         "Icon": "ph-duotone ph-subtract",
-        "active_link": "/inventory/general/inventory",
-        "route": "/inventory/general/inventory",
+        "active_link": "/inventory/product-item/list",
+        "route": "/inventory/product-item/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
         "menuValue": "Stock",
-        "active_link": "/stock/",
+        "active_link": "/inventory/product-item-transaction",
         "hasSubRoute": true,
         "showSubRoute": false,
         "Icon": "ph-duotone ph-arrow-square-out",
         "subMenus": [
           {
-            "menuValue": "Gestionar Stock",
-            "route": "/stock/manage-stock",
-            "active_link": "/stock/manage-stock"
-          },
-          {
             "menuValue": "Ajuste de Stock",
-            "route": "/stock/stock-adjustment",
-            "active_link": "/stock/stock-adjustment"
+            "route": "/inventory/product-item-transaction/list",
+            "active_link": "/inventory/product-item-transaction/list"
           },
           {
-            "menuValue": "Transferencia de Stock",
-            "route": "/stock/stock-transfer",
-            "active_link": "/stock/stock-transfer"
+            "menuValue": "Traspaso de Stock",
+            "route": "/inventory/product-transfer/list",
+            "active_link": "/inventory/product-transfer/list"
           }
         ]
-      },
-      {
-        "menuValue": "Proveedores",
-        "Icon": "ph-duotone ph-user",
-        "active_link": "/inventory/vendor/list",
-        "route": "/inventory/vendor/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
       }
     ]
   },
@@ -246,9 +233,9 @@
     "menu": [
       {
         "menuValue": "Proveedores",
-        "Icon": "ph-duotone ph-users",
-        "active_link": "/purchase/vendors",
-        "route": "/purchase/vendors",
+        "Icon": "ph-duotone ph-user",
+        "active_link": "/inventory/vendor/list",
+        "route": "/inventory/vendor/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },

@@ -227,6 +227,37 @@ const routes = [
     ],
   },
 
+  // Product Item (Existencias)
+  {
+    path: "/inventory/product-item",
+    component: () => import("@/views/pages/Inventory/ProductItem/ProductItem.vue"),
+    children: [
+      { path: "", redirect: "/inventory/product-item/list" },
+      { path: "list", component: () => import("@/views/pages/Inventory/ProductItem/ProductItemList.vue"), meta: { title: "Existencias | NexusCloud" } },
+    ],
+  },
+
+  // Product Item Transactions (Ledger / ajustes)
+  {
+    path: "/inventory/product-item-transaction",
+    component: () => import("@/views/pages/Inventory/ProductItemTransaction/ProductItemTransaction.vue"),
+    children: [
+      { path: "", redirect: "/inventory/product-item-transaction/list" },
+      { path: "list", component: () => import("@/views/pages/Inventory/ProductItemTransaction/ProductItemTransactionList.vue"), meta: { title: "Movimientos | NexusCloud" } },
+    ],
+  },
+
+  // Product Transfers
+  {
+    path: "/inventory/product-transfer",
+    component: () => import("@/views/pages/Inventory/ProductTransfer/ProductTransfer.vue"),
+    children: [
+      { path: "", redirect: "/inventory/product-transfer/list" },
+      { path: "list", component: () => import("@/views/pages/Inventory/ProductTransfer/ProductTransferList.vue"), meta: { title: "Traspasos | NexusCloud" } },
+      { path: ":recordId/details", component: () => import("@/views/pages/Inventory/ProductTransfer/ProductTransferDetails.vue"), meta: { title: "Detalle Traspaso | NexusCloud" } },
+    ],
+  },
+
   //Vendor
   {
     path: "/inventory/vendor",

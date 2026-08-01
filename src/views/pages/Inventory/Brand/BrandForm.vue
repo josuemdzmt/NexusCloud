@@ -144,7 +144,7 @@ export default {
       });
     },
     handleCancel() {
-      // Cerrado nativamente por data-hs-overlay
+      this.handleClose();
     }
   }
 };
