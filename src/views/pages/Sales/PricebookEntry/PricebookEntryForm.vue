@@ -5,35 +5,33 @@
         <!-- Lista de Precios -->
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Lista de Precios <span class="text-danger">*</span></label>
-          <Field name="pricebookId">
-            <template #default="{ field }">
-              <nx-combobox
-                v-bind="field"
-                :options="lstPricebookOptions"
-                :current-value="field.value"
-                @update:model-value="(val) => { field.onInput(val); }"
-                placeholder="Seleccionar lista de precios"
-                :disabled="!!numRecordId"
-              />
-            </template>
+          <Field name="pricebookId" v-slot="{ field, value }">
+            <nx-combobox
+              v-bind="field"
+              :options="lstPricebookOptions"
+              :model-value="value"
+              @update:model-value="field.onChange"
+              placeholder="Seleccionar lista de precios"
+              :disabled="!!numRecordId || bLockPricebook"
+              class="w-full text-sm border-border-color focus:border-primary"
+            />
           </Field>
           <ErrorMessage name="pricebookId" class="text-danger text-[11px] mt-1 block" />
         </div>
 
         <!-- Producto -->
-        <div>
+        <div v-if="!bLockProduct">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Producto <span class="text-danger">*</span></label>
-          <Field name="productId">
-            <template #default="{ field }">
-              <nx-combobox
-                v-bind="field"
-                :options="lstProductOptions"
-                :current-value="field.value"
-                @update:model-value="(val) => { field.onInput(val); }"
-                placeholder="Seleccionar producto"
-                :disabled="!!numRecordId"
-              />
-            </template>
+          <Field name="productId" v-slot="{ field, value }">
+            <nx-combobox
+              v-bind="field"
+              :options="lstProductOptions"
+              :model-value="value"
+              @update:model-value="field.onChange"
+              placeholder="Seleccionar producto"
+              :disabled="!!numRecordId"
+              class="w-full text-sm border-border-color focus:border-primary"
+            />
           </Field>
           <ErrorMessage name="productId" class="text-danger text-[11px] mt-1 block" />
         </div>
@@ -41,17 +39,16 @@
         <!-- Moneda -->
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Moneda <span class="text-danger">*</span></label>
-          <Field name="currencyId">
-            <template #default="{ field }">
-              <nx-combobox
-                v-bind="field"
-                :options="lstCurrencyOptions"
-                :current-value="field.value"
-                @update:model-value="(val) => { field.onInput(val); }"
-                placeholder="Seleccionar moneda"
-                :disabled="!!numRecordId"
-              />
-            </template>
+          <Field name="currencyId" v-slot="{ field, value }">
+            <nx-combobox
+              v-bind="field"
+              :options="lstCurrencyOptions"
+              :model-value="value"
+              @update:model-value="field.onChange"
+              placeholder="Seleccionar moneda"
+              :disabled="!!numRecordId"
+              class="w-full text-sm border-border-color focus:border-primary"
+            />
           </Field>
           <ErrorMessage name="currencyId" class="text-danger text-[11px] mt-1 block" />
         </div>
@@ -89,9 +86,9 @@ import CurrencyService from '@/services/sales/CurrencyService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
-  pricebookId: yup.number().required('La lista de precios es obligatoria'),
-  productId: yup.number().required('El producto es obligatorio'),
-  currencyId: yup.number().required('La moneda es obligatoria'),
+  pricebookId: yup.number().nullable().required('La lista de precios es obligatoria'),
+  productId: yup.number().nullable().required('El producto es obligatorio'),
+  currencyId: yup.number().nullable().required('La moneda es obligatoria'),
   unitPrice: yup.number().required('El precio es obligatorio').min(0, 'No puede ser negativo'),
   isActive: yup.boolean().default(true)
 });
@@ -105,10 +102,21 @@ export default {
   emits: ['refresh'],
   data() {
     return {
+      // 1. Booleanos
+      bLockProduct: false,
+      bLockPricebook: false,
+
+      // 2. Números
       numRecordId: null,
+
+      // 3. Cadenas
       strTitle: 'Agregar Precio de Producto',
+
+      // 4. Objetos
       objValidationSchema: validationSchema,
       objInitialData: validationSchema.getDefault(),
+
+      // 5. Listas
       lstProductOptions: [],
       lstPricebookOptions: [],
       lstCurrencyOptions: []
@@ -122,59 +130,79 @@ export default {
   methods: {
     handleGetCurrencies() {
       CurrencyService.getAll({ per_page: 500 })
-        .then((response) => {
-          const lstData = response.data || response;
-          this.lstCurrencyOptions = lstData.map(objCurrency => ({
-            label: `${objCurrency.iso_code} - ${objCurrency.name}`,
+        .then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          this.lstCurrencyOptions = (Array.isArray(lstData) ? lstData : []).map((objCurrency) => ({
+            label: `${objCurrency.iso_code || objCurrency.code} - ${objCurrency.name}`,
             value: objCurrency.id
           }));
         })
-        .catch((error) => {
-          console.error('Error fetching currencies:', error);
-        });
+        .catch((objError) => handleError('Error', 'No se pudieron cargar las monedas', objError));
     },
     handleGetProducts() {
       ProductService.getAll({ per_page: 500, 'filter[is_active]': 1 })
-        .then((response) => {
-          const lstData = response.data || response;
-          this.lstProductOptions = lstData.map(objProduct => ({
+        .then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          this.lstProductOptions = (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
             label: objProduct.name,
             value: objProduct.id
           }));
         })
-        .catch((error) => {
-          console.error('Error fetching products:', error);
-        });
+        .catch((objError) => handleError('Error', 'No se pudieron cargar los productos', objError));
     },
     handleGetPricebooks() {
       PricebookService.getAll({ per_page: 500, 'filter[is_active]': 1 })
-        .then((response) => {
-          const lstData = response.data || response;
-          this.lstPricebookOptions = lstData.map(objPricebook => ({
+        .then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          this.lstPricebookOptions = (Array.isArray(lstData) ? lstData : []).map((objPricebook) => ({
             label: objPricebook.name,
             value: objPricebook.id
           }));
         })
-        .catch((error) => {
-          console.error('Error fetching pricebooks:', error);
-        });
+        .catch((objError) => handleError('Error', 'No se pudieron cargar las listas de precios', objError));
     },
-    handleOpen(id = null, defaultPricebookId = null) {
+    /**
+     * @param {Number|String|null} id
+     * @param {Number|String|Object|null} objDefaults - pricebookId legacy o { pricebookId, productId }
+     */
+    handleOpen(id = null, objDefaults = null) {
       this.numRecordId = id;
       this.strTitle = id ? 'Editar Precio de Producto' : 'Agregar Precio de Producto';
-      
+
+      let defaultPricebookId = null;
+      let defaultProductId = null;
+      if (typeof objDefaults === 'number' || typeof objDefaults === 'string') {
+        defaultPricebookId = objDefaults;
+      } else if (objDefaults && typeof objDefaults === 'object') {
+        defaultPricebookId = objDefaults.pricebookId ?? objDefaults.defaultPricebookId ?? null;
+        defaultProductId = objDefaults.productId ?? objDefaults.defaultProductId ?? null;
+      }
+
+      this.bLockPricebook = !!defaultPricebookId;
+      this.bLockProduct = !!defaultProductId;
+
       if (id) {
         this.handleLoadData(id);
-      } else {
-        this.objInitialData = validationSchema.getDefault();
-        if (defaultPricebookId) {
-          this.objInitialData.pricebookId = Number(defaultPricebookId);
-        }
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-          this.$refs.modalFormRef.handleOpen();
-        }
+        return;
       }
+
+      this.objInitialData = validationSchema.getDefault();
+      if (defaultPricebookId) this.objInitialData.pricebookId = Number(defaultPricebookId);
+      if (defaultProductId) this.objInitialData.productId = Number(defaultProductId);
+
+      CurrencyService.getDefault()
+        .then((objCurrency) => {
+          if (objCurrency?.id && !this.objInitialData.currencyId) {
+            this.objInitialData.currencyId = Number(objCurrency.id);
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (this.$refs.modalFormRef) {
+            this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+            this.$refs.modalFormRef.handleOpen();
+          }
+        });
     },
     handleLoadData(id) {
       if (this.$refs.modalFormRef) {

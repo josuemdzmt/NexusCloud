@@ -14,9 +14,10 @@ export default {
   /**
    * Get a single product by its ID
    * @param {Number|String} id - Product ID
+   * @param {Object} objParams - Query parameters (e.g. include)
    */
-  getById(id) {
-    return api.get(`${ENDPOINT}/${id}`);
+  getById(id, objParams = {}) {
+    return api.get(`${ENDPOINT}/${id}`, { params: objParams });
   },
 
   /**

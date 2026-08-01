@@ -33,9 +33,17 @@
         </div>
 
         
+        <!-- Predeterminada -->
+        <div class="col-span-2">
+          <label class="flex items-center gap-2 cursor-pointer mt-1">
+            <Field name="is_default" type="checkbox" :value="true" :unchecked-value="false" class="size-4 rounded border-border-color text-primary focus:ring-0" />
+            <span class="text-sm font-semibold text-gray-900">Moneda Predeterminada</span>
+          </label>
+        </div>
+
         <!-- Estado -->
         <div class="col-span-2">
-                    <label class="flex items-center gap-2 cursor-pointer mt-1">
+          <label class="flex items-center gap-2 cursor-pointer mt-1">
             <Field name="status" as="input" type="checkbox" :value="'Active'" :unchecked-value="'Inactive'" class="size-4 rounded border-border-color text-primary focus:ring-0" />
             <span class="text-sm font-semibold text-gray-900">Moneda Activa</span>
           </label>
@@ -55,6 +63,7 @@ const validationSchema = yup.object({
   name: yup.string().default('').required('El nombre es obligatorio'),
   iso_code: yup.string().default('').required('El código ISO es obligatorio').max(3, 'Máximo 3 caracteres'),
   symbol: yup.string().nullable().default(''),
+  is_default: yup.boolean().default(false),
   status: yup.string().nullable().default('Active')
 });
 
@@ -107,6 +116,7 @@ export default {
       CurrencyService.getById(numId)
       .then((response) => {
         const data = response.data || response;
+        data.is_default = Boolean(data.is_default ?? data.isDefault);
         if (this.$refs.modalFormRef) {
           this.$refs.modalFormRef.handleSetValues(data);
         }
@@ -134,7 +144,7 @@ export default {
         this.handleClose();
       })
       .catch((error) => {
-        handleError('Error de Validación', error.response?.data?.message || 'Error al crear la moneda');
+        handleError('Error de Validación', error);
         console.error('Error creating currency:', error);
       })
       .finally(() => {
@@ -150,7 +160,7 @@ export default {
         this.$emit('success');
       })
       .catch((error) => {
-        handleError('Error de Validación', error.response?.data?.message || 'Error al actualizar la moneda');
+        handleError('Error de Validación', error);
         console.error('Error updating currency:', error);
       })
       .finally(() => {

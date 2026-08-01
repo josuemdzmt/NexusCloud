@@ -2,6 +2,22 @@ import api from '@/services/api';
 
 const ENDPOINT = '/api/v1/core/currencies';
 
+/**
+ * Resolve the system default currency from a list (client-side fallback).
+ * @param {Array} lstCurrencies
+ * @returns {Object|null}
+ */
+function handleFindDefaultCurrency(lstCurrencies) {
+  const lstData = Array.isArray(lstCurrencies) ? lstCurrencies : [];
+  return (
+    lstData.find((objCurrency) => {
+      const bIsDefault = Boolean(objCurrency.is_default ?? objCurrency.isDefault);
+      const strStatus = objCurrency.status || (objCurrency.is_active === false || objCurrency.isActive === false ? 'Inactive' : 'Active');
+      return bIsDefault && strStatus !== 'Inactive';
+    }) || null
+  );
+}
+
 export default {
   /**
    * Get a paginated list of currencies or filtered by params
@@ -9,6 +25,33 @@ export default {
    */
   getAll(objParams = {}) {
     return api.get(ENDPOINT, { params: objParams });
+  },
+
+  /**
+   * Get the corporate/default currency (active + is_default).
+   * Tries API filter first; falls back to client-side scan of the list.
+   * @returns {Promise<Object|null>}
+   */
+  getDefault() {
+    return api
+      .get(ENDPOINT, { params: { 'filter[is_default]': 1, per_page: 10 } })
+      .then((objResponse) => {
+        const lstData = objResponse.data || objResponse;
+        const lstCurrencies = Array.isArray(lstData) ? lstData : [];
+        const objFromFilter = handleFindDefaultCurrency(lstCurrencies);
+        if (objFromFilter) return objFromFilter;
+
+        return api.get(ENDPOINT, { params: { per_page: 500 } }).then((objAllResponse) => {
+          const lstAll = objAllResponse.data || objAllResponse;
+          return handleFindDefaultCurrency(Array.isArray(lstAll) ? lstAll : []);
+        });
+      })
+      .catch(() =>
+        api.get(ENDPOINT, { params: { per_page: 500 } }).then((objAllResponse) => {
+          const lstAll = objAllResponse.data || objAllResponse;
+          return handleFindDefaultCurrency(Array.isArray(lstAll) ? lstAll : []);
+        })
+      );
   },
 
   /**

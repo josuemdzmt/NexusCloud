@@ -263,9 +263,23 @@ export default {
       this.recordId = id;
       this.strTitle = 'Editar Orden de Venta';
       this.handleLoadData(id);
+    } else {
+      this.handleApplyDefaultCurrency();
     }
   },
   methods: {
+    handleApplyDefaultCurrency() {
+      CurrencyService.getDefault()
+        .then((objCurrency) => {
+          if (!objCurrency?.id || this.recordId) return;
+          this.objInitialData = {
+            ...this.objInitialData,
+            currencyId: Number(objCurrency.id)
+          };
+          this.strFormKey = `new-currency-${objCurrency.id}`;
+        })
+        .catch(() => {});
+    },
     handleGetCustomers() {
       CustomerService.getAll({ per_page: 500 })
         .then((objResponse) => {

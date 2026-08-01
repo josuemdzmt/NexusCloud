@@ -48,22 +48,25 @@
               </div>
             </div>
           </div>
+        </template>
+        <template #sidebar="{ errors }">
+          <!--
           <div class="bg-white border border-border-color rounded-md p-4">
-            <h2 class="text-lg max-lg:text-[17px] text-title mb-4">Precio y Stock</h2>
-            <div class="grid grid-cols-3 gap-3">
+            <h2 class="text-lg max-lg:text-[17px] text-title mb-4">Imagen del Producto</h2>
+            <div class="relative border-2 border-dashed border-border-color rounded-md p-6 text-center cursor-pointer hover:border-primary">
+              <i class="ph-duotone ph-cloud-arrow-up text-3xl text-default"></i>
+              <p class="text-sm text-default mt-2 mb-0">Click o arrastre para subir la imagen</p>
+              <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+            </div>
+          </div>
+          -->
+          <div class="bg-white border border-border-color rounded-md p-4">
+            <h2 class="text-lg max-lg:text-[17px] text-title mb-4">Costo y Stock</h2>
+            <div class="grid grid-cols-1 gap-3">
               <div>
-                <label class="text-sm font-semibold text-gray-900 mb-1 block">Precio Estándar</label>
-                <Field name="sellingPrice" as="input" type="number" :class="{ 'border-danger focus:border-danger': errors.sellingPrice }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-                <ErrorMessage name="sellingPrice" class="text-danger text-[11px] mt-1 block" />
-              </div>
-              <div>
-                <label class="text-sm font-semibold text-gray-900 mb-1 block">Costo de Referencia</label>
+                <label class="text-sm font-semibold text-gray-900 mb-1 block">Costo</label>
                 <Field name="purchasePrice" as="input" type="number" :class="{ 'border-danger focus:border-danger': errors.purchasePrice }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
                 <ErrorMessage name="purchasePrice" class="text-danger text-[11px] mt-1 block" />
-              </div>
-              <div v-if="!$route.params.recordId">
-                <label class="text-sm font-semibold text-gray-900 mb-1 block">Stock Inicial</label>
-                <Field name="quantity" as="input" type="number" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
               </div>
               <div>
                 <label class="text-sm font-semibold text-gray-900 mb-1 block">Unidad</label>
@@ -73,33 +76,14 @@
                 <label class="text-sm font-semibold text-gray-900 mb-1 block">Stock Mínimo</label>
                 <Field name="reorderLevel" as="input" type="number" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
               </div>
-              <div>
-                <label class="text-sm font-semibold text-gray-900 mb-1 block">Perfil de Impuestos</label>
-                <Field name="taxProfileId" as="nx-combobox" :options="lstTaxOptions" placeholder="Seleccionar Impuesto" class="w-full text-sm border-border-color focus:border-primary" />
-              </div>
             </div>
           </div>
-        </template>
-        <template #sidebar>
           <div class="bg-white border border-border-color rounded-md p-4">
-            <h2 class="text-lg max-lg:text-[17px] text-title mb-4">Imagen del Producto</h2>
-            <div class="relative border-2 border-dashed border-border-color rounded-md p-6 text-center cursor-pointer hover:border-primary">
-              <i class="ph-duotone ph-cloud-arrow-up text-3xl text-default"></i>
-              <p class="text-sm text-default mt-2 mb-0">Click o arrastre para subir la imagen</p>
-              <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-            </div>
-          </div>
-          <div class="col-span-2 mt-2">
-
             <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Configuración</h4>
-
-          </div>
-
-          <div class="bg-white border border-border-color rounded-md p-4">
-                      <label class="flex items-center gap-2 cursor-pointer mt-1">
-            <Field name="status" as="input" type="checkbox" :value="'Active'" :unchecked-value="'Inactive'" class="size-4 rounded border-border-color text-primary focus:ring-0" />
-            <span class="text-sm font-semibold text-gray-900">Producto Activo</span>
-          </label>
+            <label class="flex items-center gap-2 cursor-pointer mt-1">
+              <Field name="status" as="input" type="checkbox" :value="'Active'" :unchecked-value="'Inactive'" class="size-4 rounded border-border-color text-primary focus:ring-0" />
+              <span class="text-sm font-semibold text-gray-900">Producto Activo</span>
+            </label>
           </div>
         </template>
       </nx-form-page>
@@ -114,7 +98,6 @@ import ProductService from '@/services/inventory/ProductService';
 import ProductCategoryService from '@/services/inventory/ProductCategoryService';
 import BrandService from '@/services/inventory/BrandService';
 import UnitMeasureService from '@/services/inventory/UnitMeasureService';
-import TaxProfileService from '@/services/sales/TaxProfileService';
 import { handleBuildCatalogOptions } from '@/utils/catalogUtils';
 import { handleError, handleSuccess } from '@/utils/toastUtils';
 
@@ -126,12 +109,9 @@ const validationSchema = yup.object({
   categoryId: yup.number().nullable().default(null),
   brandId: yup.number().nullable().default(null),
   description: yup.string().nullable().default(''),
-  sellingPrice: yup.number().default(0).typeError('Debe ser un número').required('Precio requerido').min(0, 'No puede ser negativo'),
   purchasePrice: yup.number().default(0).typeError('Debe ser un número').required('Costo requerido').min(0, 'No puede ser negativo'),
-  quantity: yup.number().nullable().default(0),
   unitMeasureId: yup.number().nullable().default(null),
   reorderLevel: yup.number().nullable().default(0),
-  taxProfileId: yup.number().nullable().default(null),
   status: yup.string().nullable().default('Active')
 });
 
@@ -150,8 +130,7 @@ export default {
       objCurrentProduct: null,
       lstRawCategories: [],
       lstRawBrands: [],
-      lstRawUnits: [],
-      lstRawTaxes: []
+      lstRawUnits: []
     };
   },
   computed: {
@@ -163,16 +142,12 @@ export default {
     },
     lstUnitOptions() {
       return handleBuildCatalogOptions(this.lstRawUnits, this.objCurrentProduct?.unitMeasureId);
-    },
-    lstTaxOptions() {
-      return handleBuildCatalogOptions(this.lstRawTaxes, this.objCurrentProduct?.taxProfileId);
     }
   },
   mounted() {
     this.handleGetCategories();
     this.handleGetBrands();
     this.handleGetUnits();
-    this.handleGetTaxes();
     if (this.$route.params.recordId) {
       this.handleInitForm(this.$route.params.recordId);
     }
@@ -194,15 +169,6 @@ export default {
         })
         .catch((error) => {
           handleError('Ocurrió un problema al obtener las unidades de medida', error);
-        });
-    },
-    handleGetTaxes() {
-      TaxProfileService.getAll({ per_page: 100 })
-        .then((response) => {
-          this.lstRawTaxes = response.data || response;
-        })
-        .catch((error) => {
-          handleError('Ocurrió un problema al obtener los perfiles de impuestos', error);
         });
     },
     handleGetCategories() {
@@ -240,7 +206,12 @@ export default {
       this.bSpinner = true;
       ProductService.create(objForm)
         .then((data) => {
+          const objProduct = data.data || data;
           handleSuccess('Producto creado exitosamente');
+          if (objProduct?.id) {
+            this.$router.push(`/inventory/product/${objProduct.id}/details`);
+            return;
+          }
           this.$router.push('/inventory/product/list');
         })
         .catch((error) => {
@@ -254,7 +225,7 @@ export default {
       ProductService.update(id, objForm)
         .then((data) => {
           handleSuccess('Producto actualizado exitosamente');
-          this.$router.push('/inventory/product/list');
+          this.$router.push(`/inventory/product/${id}/details`);
         })
         .catch((error) => {
           handleError('Ocurrió un problema al actualizar el producto', error);
@@ -262,6 +233,11 @@ export default {
         .finally(() => (this.bSpinner = false));
     },
     handleCancel() {
+      const id = this.$route.params.recordId;
+      if (id) {
+        this.$router.push(`/inventory/product/${id}/details`);
+        return;
+      }
       this.$router.push('/inventory/product/list');
     }
   }

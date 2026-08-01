@@ -63,26 +63,18 @@
         "showSubRoute": false
       },
       {
-        "menuValue": "Inventario",
-        "Icon": "ph-duotone ph-subtract",
-        "active_link": "/inventory/general/inventory",
-        "route": "/inventory/general/inventory",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Proveedores",
-        "Icon": "ph-duotone ph-user",
-        "active_link": "/inventory/vendor/list",
-        "route": "/inventory/vendor/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
         "menuValue": "Almacenes",
         "Icon": "ph-duotone ph-house-simple",
         "active_link": "/inventory/location/list",
         "route": "/inventory/location/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Inventario",
+        "Icon": "ph-duotone ph-subtract",
+        "active_link": "/inventory/general/inventory",
+        "route": "/inventory/general/inventory",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -109,6 +101,14 @@
             "active_link": "/stock/stock-transfer"
           }
         ]
+      },
+      {
+        "menuValue": "Proveedores",
+        "Icon": "ph-duotone ph-user",
+        "active_link": "/inventory/vendor/list",
+        "route": "/inventory/vendor/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
       }
     ]
   },
@@ -126,42 +126,18 @@
         "showSubRoute": false
       },
       {
-        "menuValue": "Ordenes de Venta",
-        "Icon": "ph-duotone ph-stack",
-        "active_link": "/sales/sales-orders/list",
-        "route": "/sales/sales-orders/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Facturas Recurrentes",
-        "Icon": "ph-duotone ph-note",
-        "active_link": "/sales/recurring-invoices",
-        "route": "/sales/recurring-invoices",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Plantillas de Factura",
-        "Icon": "ph-duotone ph-receipt",
-        "active_link": "/sales/invoice-templates",
-        "route": "/sales/invoice-templates",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Notas de Crédito",
-        "Icon": "ph-duotone ph-money-wavy",
-        "active_link": "/sales/credit-notes",
-        "route": "/sales/credit-notes",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
         "menuValue": "Cotizaciones",
         "Icon": "ph-duotone ph-notification",
         "active_link": "/sales/sales-quotes",
         "route": "/sales/sales-quotes",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Órdenes de Venta",
+        "Icon": "ph-duotone ph-stack",
+        "active_link": "/sales/sales-orders/list",
+        "route": "/sales/sales-orders/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -174,14 +150,6 @@
         "showSubRoute": false
       },
       {
-        "menuValue": "Reembolsos",
-        "Icon": "ph-duotone ph-currency-circle-dollar",
-        "active_link": "/sales/refunds",
-        "route": "/sales/refunds",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
         "menuValue": "Notas de Entrega",
         "Icon": "ph-duotone ph-file",
         "active_link": "/sales/delivery-notes",
@@ -190,26 +158,26 @@
         "showSubRoute": false
       },
       {
-        "menuValue": "Análisis de Ventas",
-        "Icon": "ph-duotone ph-tray",
-        "active_link": "/sales/sales-analytics",
-        "route": "/sales/sales-analytics",
+        "menuValue": "Facturas Recurrentes",
+        "Icon": "ph-duotone ph-note",
+        "active_link": "/sales/recurring-invoices",
+        "route": "/sales/recurring-invoices",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
-        "menuValue": "Monedas",
-        "Icon": "ph-duotone ph-coin",
-        "active_link": "/sales/currency/list",
-        "route": "/sales/currency/list",
+        "menuValue": "Notas de Crédito",
+        "Icon": "ph-duotone ph-money-wavy",
+        "active_link": "/sales/credit-notes",
+        "route": "/sales/credit-notes",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
-        "menuValue": "Métodos de Pago",
-        "Icon": "ph-duotone ph-credit-card",
-        "active_link": "/sales/payment-methods/list",
-        "route": "/sales/payment-methods/list",
+        "menuValue": "Reembolsos",
+        "Icon": "ph-duotone ph-currency-circle-dollar",
+        "active_link": "/sales/refunds",
+        "route": "/sales/refunds",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -230,10 +198,42 @@
         "showSubRoute": false
       },
       {
+        "menuValue": "Métodos de Pago",
+        "Icon": "ph-duotone ph-credit-card",
+        "active_link": "/sales/payment-methods/list",
+        "route": "/sales/payment-methods/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Monedas",
+        "Icon": "ph-duotone ph-coin",
+        "active_link": "/sales/currency/list",
+        "route": "/sales/currency/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
         "menuValue": "Perfiles de Impuestos",
         "Icon": "ph-duotone ph-receipt",
         "active_link": "/sales/tax-profile/list",
         "route": "/sales/tax-profile/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Plantillas de Factura",
+        "Icon": "ph-duotone ph-receipt",
+        "active_link": "/sales/invoice-templates",
+        "route": "/sales/invoice-templates",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Análisis de Ventas",
+        "Icon": "ph-duotone ph-tray",
+        "active_link": "/sales/sales-analytics",
+        "route": "/sales/sales-analytics",
         "hasSubRoute": false,
         "showSubRoute": false
       }
@@ -245,10 +245,10 @@
     "separateRoute": false,
     "menu": [
       {
-        "menuValue": "Compras",
-        "Icon": "ph-duotone ph-clipboard-text",
-        "active_link": "/purchase/purchases",
-        "route": "/purchase/purchases",
+        "menuValue": "Proveedores",
+        "Icon": "ph-duotone ph-users",
+        "active_link": "/purchase/vendors",
+        "route": "/purchase/vendors",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -261,18 +261,18 @@
         "showSubRoute": false
       },
       {
-        "menuValue": "Devolución de Compra",
-        "Icon": "ph-duotone ph-receipt",
-        "active_link": "/purchase/purchase-return",
-        "route": "/purchase/purchase-return",
+        "menuValue": "Compras",
+        "Icon": "ph-duotone ph-clipboard-text",
+        "active_link": "/purchase/purchases",
+        "route": "/purchase/purchases",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
-        "menuValue": "Proveedores",
-        "Icon": "ph-duotone ph-users",
-        "active_link": "/purchase/vendors",
-        "route": "/purchase/vendors",
+        "menuValue": "Devolución de Compra",
+        "Icon": "ph-duotone ph-receipt",
+        "active_link": "/purchase/purchase-return",
+        "route": "/purchase/purchase-return",
         "hasSubRoute": false,
         "showSubRoute": false
       },

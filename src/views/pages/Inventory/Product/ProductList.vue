@@ -39,10 +39,8 @@ export default {
         { label: 'Categoría', fieldName: 'categoryName', type: 'text' },
         { label: 'Marca', fieldName: 'brandName', type: 'text' },
         { label: 'Unidad', fieldName: 'unitName', type: 'text' },
-        { label: 'Cantidad', fieldName: 'quantity', type: 'number' },
         { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: PRODUCT_STATUS_BADGE },
-        { label: 'Precio de Venta', fieldName: 'sellingPrice', type: 'currency' },
-        { label: 'Precio de Compra', fieldName: 'purchasePrice', type: 'currency' },
+        { label: 'Costo', fieldName: 'purchasePrice', type: 'currency' },
         { label: 'Acción', type: 'action', typeAttributes: ACTION_BUTTONS }
       ]
     };
@@ -72,7 +70,9 @@ export default {
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'edit') {
+      if (action.name === 'details') {
+        this.$router.push(`/inventory/product/${row.id}/details`);
+      } else if (action.name === 'edit') {
         this.$router.push(`/inventory/product/${row.id}/edit`);
       } else if (action.name === 'delete') {
         this.handleDelete(row.id);

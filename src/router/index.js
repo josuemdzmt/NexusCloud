@@ -182,6 +182,7 @@ const routes = [
       { path: "", redirect: "/inventory/product/list" },
       { path: "list", component: () => import("@/views/pages/Inventory/Product/ProductList.vue"), meta: { title: "Productos | NexusCloud" } },
       { path: "new", component: () => import("@/views/pages/Inventory/Product/ProductForm.vue"), meta: { title: "Nuevo Producto | NexusCloud" } },
+      { path: ":recordId/details", component: () => import("@/views/pages/Inventory/Product/ProductDetails.vue"), meta: { title: "Detalles Producto | NexusCloud" } },
       { path: ":recordId/edit", component: () => import("@/views/pages/Inventory/Product/ProductForm.vue"), meta: { title: "Editar Producto | NexusCloud" } },
     ],
   },

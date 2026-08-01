@@ -29,7 +29,7 @@
 import CurrencyService from '@/services/sales/CurrencyService';
 import CurrencyForm from '@/views/pages/Sales/Currency/CurrencyForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
-import { STATUS_BADGE, ACTION_BUTTONS } from './CurrencyConstants';
+import { STATUS_BADGE, IS_DEFAULT_BADGE, ACTION_BUTTONS } from './CurrencyConstants';
 
 export default {
   name: 'CurrencyList',
@@ -44,6 +44,7 @@ export default {
         { label: 'Nombre', fieldName: 'name', type: 'text', sortable: true },
         { label: 'Código ISO', fieldName: 'iso_code', type: 'text', sortable: true },
         { label: 'Símbolo', fieldName: 'symbol', type: 'text' },
+        { label: 'Predeterminado', fieldName: 'is_default', type: 'badge', typeAttributes: IS_DEFAULT_BADGE },
         { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: STATUS_BADGE },
         { label: 'Acción', type: 'action', typeAttributes: ACTION_BUTTONS }
       ]
@@ -58,7 +59,10 @@ export default {
       CurrencyService.getAll()
       .then((response) => {
         const lstData = response.data || response;
-        this.lstCurrencies = lstData;
+        this.lstCurrencies = (Array.isArray(lstData) ? lstData : []).map((objCurrency) => ({
+          ...objCurrency,
+          is_default: Boolean(objCurrency.is_default ?? objCurrency.isDefault)
+        }));
       })
       .catch((error) => {
         console.error('Error fetching currencies:', error);
