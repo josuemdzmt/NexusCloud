@@ -66,7 +66,7 @@
               <h2 class="text-lg font-bold text-gray-900 mb-5">Detalles de la Orden</h2>
               <div class="mb-4">
                 <label class="text-sm font-semibold text-gray-900 mb-2 block">ID Orden de Venta <span class="text-danger">*</span></label>
-                <input type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0 text-gray-600 dark:bg-gray-100" :value="recordId ? `SO-${recordId}` : 'Auto-generado'" readonly>
+                <input type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0 text-gray-600 dark:bg-gray-100" :value="recordId ? `SO-${recordId}` : 'Nueva Orden'" readonly>
               </div>
               <div class="mb-4">
                 <label class="text-sm font-semibold text-gray-900 mb-2 block">Fecha <span class="text-danger">*</span></label>
@@ -110,7 +110,7 @@
               </div>
               <div>
                 <label class="text-sm font-semibold text-gray-900 mb-2 block">Términos y Condiciones</label>
-                <Field name="terms" as="textarea" rows="4" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
+                <Field name="termsAndConditions" as="textarea" rows="4" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
               </div>
             </div>
             <div class="space-y-4 xl:col-span-5 xxl:col-span-4">
@@ -165,22 +165,8 @@ import CurrencyService from '@/services/sales/CurrencyService';
 import SalesOrderService from '@/services/sales/SalesOrderService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import SalesOrderItems from '@/views/pages/Sales/SalesOrder/SalesOrderItems.vue';
-import {
-  NUM_TAX_RATE,
-  ORDER_STATUS,
-  handleCanEditOrder,
-  handleGetAvailableStatusOptions,
-  handleValidateStatusTransition
-} from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
-import {
-  handleBuildLineItem,
-  handleCalculateOrderTotals,
-  handleFilterPricebookEntries,
-  handleMapEntryOptions,
-  handleSyncItemsWithEntries,
-  handleValidateOrderItems,
-  handleBuildItemsPayload
-} from '@/views/pages/Sales/SalesOrder/salesOrderTotalsUtils';
+import { NUM_TAX_RATE, ORDER_STATUS, handleCanEditOrder, handleGetAvailableStatusOptions, handleValidateStatusTransition } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
+import { handleBuildLineItem, handleCalculateOrderTotals, handleFilterPricebookEntries, handleMapEntryOptions, handleSyncItemsWithEntries, handleValidateOrderItems, handleBuildItemsPayload } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
 const handleToNumber = (value, originalValue) => (originalValue === '' || originalValue === null ? null : Number(originalValue));
 
@@ -192,7 +178,7 @@ const validationSchema = yup.object({
   discountPercent: yup.number().default(0).transform((value, originalValue) => Number(originalValue) || 0).min(0, 'No puede ser negativo').max(100, 'Máximo 100%'),
   shippingCharge: yup.number().default(0).transform((value, originalValue) => Number(originalValue) || 0).min(0, 'No puede ser negativo'),
   notes: yup.string().nullable().default(''),
-  terms: yup.string().nullable().default('')
+  termsAndConditions: yup.string().nullable().default('')
 });
 
 export default {
@@ -284,10 +270,12 @@ export default {
       CustomerService.getAll({ per_page: 500 })
         .then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstCustomerOptions = (Array.isArray(lstData) ? lstData : []).map((objCustomer) => ({
-            label: objCustomer.legal_name || `${objCustomer.first_name || ''} ${objCustomer.last_name || ''}`.trim() || 'Sin Nombre',
-            value: objCustomer.id
-          }));
+          this.lstCustomerOptions = (Array.isArray(lstData) ? lstData : [])
+            .filter((objCustomer) => CustomerService.handleIsCustomerAccount(objCustomer))
+            .map((objCustomer) => ({
+              label: objCustomer.legal_name || `${objCustomer.first_name || ''} ${objCustomer.last_name || ''}`.trim() || 'Sin Nombre',
+              value: objCustomer.id
+            }));
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los clientes', objError));
     },
@@ -336,7 +324,7 @@ export default {
             discountPercent: objRawOrder.discountPercent || 0,
             shippingCharge: objRawOrder.shippingCharge || 0,
             notes: objRawOrder.notes || '',
-            terms: objRawOrder.terms || ''
+            termsAndConditions: objRawOrder.termsAndConditions || objRawOrder.terms_and_conditions || ''
           };
           this.lstItems = (objRawOrder.items || []).map((objItem) => ({
             ...handleBuildLineItem(objItem.quantity),
@@ -427,8 +415,8 @@ export default {
         subtotal: this.fltCalculatedSubtotal,
         discountAmount: this.fltCalculatedDiscount,
         totalAmount: this.fltCalculatedTotal,
-        notes: objValues.notes || '',
-        terms: objValues.terms || '',
+        notes: objValues.notes || null,
+        termsAndConditions: objValues.termsAndConditions || null,
         items: handleBuildItemsPayload(this.lstItems)
       };
 

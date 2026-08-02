@@ -167,7 +167,7 @@ export default {
      */
     handleOpen(id = null, objDefaults = null) {
       this.numRecordId = id;
-      this.strTitle = id ? 'Editar Precio de Producto' : 'Agregar Precio de Producto';
+      this.strTitle = id ? 'Editar Precio' : 'Agregar Precio';
 
       let defaultPricebookId = null;
       let defaultProductId = null;

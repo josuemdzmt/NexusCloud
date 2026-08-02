@@ -61,6 +61,8 @@ export const all_routes = {
 
   customers: '/sales/customer/list',
   taxProfileList: '/sales/tax-profile/list',
+  banks: '/sales/banks/list',
+  paymentMethods: '/sales/payment-methods/list',
   orgList: '/system/org/list',
   branchList: '/system/branch/list',
 
@@ -94,7 +96,6 @@ export const all_routes = {
   salesDetails: '/sales/sales-details',
 
   // Purchase
-
   purchases: '/purchase/purchases',
   addPurchase: '/purchase/add-purchase',
   editPurchase: '/purchase/edit-purchase',

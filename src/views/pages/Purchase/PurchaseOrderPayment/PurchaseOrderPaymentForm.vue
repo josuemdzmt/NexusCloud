@@ -1,20 +1,26 @@
 <template>
-  <nx-modal-form ref="modalFormRef" id="sales-order-payment-modal" :title="strTitle" size="xl" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
+  <nx-modal-form ref="modalFormRef" id="purchase-order-payment-modal" :title="strTitle" size="xl" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
     <template #default="{ errors }">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div v-if="bSelectOrder" class="md:col-span-2">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Orden de Venta <span class="text-danger">*</span></label>
-          <Field name="salesOrderId" v-slot="{ field, value }">
-            <nx-combobox 
-              :options="lstOrderOptions"
-              :model-value="value"
-              placeholder="Seleccionar orden"
-              :class="{ 'border-danger focus:border-danger': errors.salesOrderId }"
-              class="w-full text-sm border-border-color focus:border-primary" 
-              @update:model-value="(numValue) => { field.onChange(numValue); handleOrderSelected(numValue); }" />
+        <div class="md:col-span-2">
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">ID Abono <span class="text-danger">*</span></label>
+          <input type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0 text-gray-600" value="Nuevo Abono" readonly>
+        </div>
+        <div>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Proveedor <span class="text-danger">*</span></label>
+          <input type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0 text-gray-600" :value="strVendorName" placeholder="—" readonly>
+        </div>
+        <div v-if="bSelectOrder">
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Orden de Compra <span class="text-danger">*</span></label>
+          <Field name="purchaseOrderId" v-slot="{ field, value }">
+            <nx-combobox :options="lstOrderOptions" :model-value="value" placeholder="Seleccionar" :class="{ 'border-danger focus:border-danger': errors.purchaseOrderId }" class="w-full text-sm border-border-color focus:border-primary" @update:model-value="(numValue) => { field.onChange(numValue); handleOrderSelected(numValue); }" />
           </Field>
-          <ErrorMessage name="salesOrderId" class="text-danger text-[11px] mt-1 block" />
-          <p v-if="!lstOrderOptions.length" class="text-[11px] text-default mt-1 mb-0">No hay órdenes activas con saldo pendiente para este cliente.</p>
+          <ErrorMessage name="purchaseOrderId" class="text-danger text-[11px] mt-1 block" />
+          <p v-if="!lstOrderOptions.length" class="text-[11px] text-default mt-1 mb-0">No hay órdenes con saldo pendiente para este proveedor.</p>
+        </div>
+        <div v-else>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Orden de Compra <span class="text-danger">*</span></label>
+          <input type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0 text-gray-600" :value="objOrder?.poLabel || '—'" readonly>
         </div>
         <div v-if="objOrder" class="md:col-span-2 bg-light p-3 rounded-md flex justify-between items-center text-sm">
           <div>
@@ -27,12 +33,6 @@
           </div>
         </div>
         <div>
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Monto a Abonar <span class="text-danger">*</span></label>
-          <Field name="amount" as="input" type="number" min="0.01" step="0.01" :class="{ 'border-danger focus:border-danger': errors.amount }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" :disabled="!objOrder" />
-          <ErrorMessage name="amount" class="text-danger text-[11px] mt-1 block" />
-          <p class="text-[11px] text-default mt-1 mb-0">No puede exceder el saldo restante de la orden.</p>
-        </div>
-        <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Método de Pago <span class="text-danger">*</span></label>
           <Field name="paymentMethodId" as="nx-combobox" :options="lstPaymentMethodOptions" placeholder="Seleccionar" :disabled="!objOrder" :class="{ 'border-danger focus:border-danger': errors.paymentMethodId }" class="w-full text-sm border-border-color focus:border-primary" />
           <ErrorMessage name="paymentMethodId" class="text-danger text-[11px] mt-1 block" />
@@ -41,6 +41,11 @@
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Banco</label>
           <Field name="bankId" as="nx-combobox" :options="lstBankOptions" placeholder="Seleccionar" :disabled="!objOrder" :class="{ 'border-danger focus:border-danger': errors.bankId }" class="w-full text-sm border-border-color focus:border-primary" />
           <ErrorMessage name="bankId" class="text-danger text-[11px] mt-1 block" />
+        </div>
+        <div>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Monto <span class="text-danger">*</span></label>
+          <Field name="amount" as="input" type="number" min="0.01" step="0.01" :disabled="!objOrder" :class="{ 'border-danger focus:border-danger': errors.amount }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
+          <ErrorMessage name="amount" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Referencia</label>
@@ -54,6 +59,11 @@
           </Field>
           <ErrorMessage name="paymentDate" class="text-danger text-[11px] mt-1 block" />
         </div>
+        <div>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Moneda <span class="text-danger">*</span></label>
+          <Field name="currencyId" as="nx-combobox" :options="lstCurrencyOptions" placeholder="Seleccionar" :disabled="!objOrder" :class="{ 'border-danger focus:border-danger': errors.currencyId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <ErrorMessage name="currencyId" class="text-danger text-[11px] mt-1 block" />
+        </div>
       </div>
     </template>
   </nx-modal-form>
@@ -64,9 +74,10 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import PaymentMethodService from '@/services/sales/PaymentMethodService';
 import BankService from '@/services/sales/BankService';
-import SalesOrderService from '@/services/sales/SalesOrderService';
-import SalesOrderPaymentService from '@/services/sales/SalesOrderPaymentService';
-import { ORDER_STATUS } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
+import CurrencyService from '@/services/sales/CurrencyService';
+import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
+import PurchaseOrderPaymentService from '@/services/purchasing/PurchaseOrderPaymentService';
+import { ORDER_STATUS, handleCanRegisterPayment } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const handleToNumber = (value, originalValue) => (originalValue === '' || originalValue === null || originalValue === undefined ? undefined : Number(originalValue));
@@ -81,18 +92,19 @@ const validationSchemaBase = {
   paymentMethodId: yup.number().nullable().transform(handleToNumber).required('El método de pago es obligatorio'),
   bankId: yup.number().nullable().transform(handleToNumber),
   paymentReference: yup.string().nullable().default('').max(100, 'Máximo 100 caracteres'),
-  paymentDate: yup.string().nullable().required('La fecha del pago es obligatoria')
+  paymentDate: yup.string().nullable().required('La fecha del pago es obligatoria'),
+  currencyId: yup.number().nullable().transform(handleToNumber).required('La moneda es obligatoria')
 };
 
 const validationSchema = yup.object(validationSchemaBase);
 
 const validationSchemaWithOrder = yup.object({
-  salesOrderId: yup.number().nullable().required('La orden es obligatoria'),
+  purchaseOrderId: yup.number().nullable().transform(handleToNumber).required('La orden es obligatoria'),
   ...validationSchemaBase
 });
 
 export default {
-  name: 'SalesOrderPaymentForm',
+  name: 'PurchaseOrderPaymentForm',
   components: {
     Field,
     ErrorMessage
@@ -100,25 +112,17 @@ export default {
   emits: ['refresh'],
   data() {
     return {
-      // 1. Booleanos
       bSpinner: false,
       bSelectOrder: false,
-
-      // 2. Números
-      numCurrencyId: null,
       numAccountId: null,
-
-      // 3. Cadenas
       strTitle: 'Registrar Abono',
-
-      // 4. Objetos
+      strVendorName: '—',
       objOrder: null,
       objValidationSchema: validationSchema,
       objInitialData: validationSchema.getDefault(),
-
-      // 5. Listas
       lstPaymentMethodOptions: [],
       lstBankOptions: [],
+      lstCurrencyOptions: [],
       lstOrders: [],
       lstOrderOptions: []
     };
@@ -131,6 +135,7 @@ export default {
   mounted() {
     this.handleGetPaymentMethods();
     this.handleGetBanks();
+    this.handleGetCurrencies();
   },
   methods: {
     handleGetToday() {
@@ -146,10 +151,19 @@ export default {
         maximumFractionDigits: 2
       });
     },
+    handleFormatReference(numId) {
+      return `#PO${String(numId).padStart(4, '0')}`;
+    },
+    handleGetVendorName(objOrder) {
+      const objAccount = objOrder?.account;
+      if (!objAccount) return this.strVendorName || '—';
+      return objAccount.legal_name || `${objAccount.first_name || ''} ${objAccount.last_name || ''}`.trim() || '—';
+    },
     handleNormalizeOrder(objOrder) {
       if (!objOrder) return null;
       return {
         ...objOrder,
+        poLabel: this.handleFormatReference(objOrder.id),
         totalAmount: parseFloat(objOrder.totalAmount ?? objOrder.total_amount) || 0,
         balanceAmount: parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0,
         currencyId: objOrder.currencyId ?? objOrder.currency_id ?? objOrder.currency?.id ?? null
@@ -179,20 +193,20 @@ export default {
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los bancos', objError));
     },
-    handleDefaultFormValues(objExtra = {}) {
-      return {
-        salesOrderId: null,
-        amount: null,
-        paymentMethodId: this.lstPaymentMethodOptions.length ? this.lstPaymentMethodOptions[0].value : null,
-        bankId: null,
-        paymentReference: '',
-        paymentDate: this.handleGetToday(),
-        ...objExtra
-      };
+    handleGetCurrencies() {
+      CurrencyService.getAll({ per_page: 500 })
+        .then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          this.lstCurrencyOptions = (Array.isArray(lstData) ? lstData : []).map((objCurrency) => ({
+            label: `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`,
+            value: objCurrency.id
+          }));
+        })
+        .catch((objError) => handleError('Error', 'No se pudieron cargar las monedas', objError));
     },
     handleLoadAccountOrders(numAccountId) {
-      return SalesOrderService.getAll({
-        include: 'currency',
+      return PurchaseOrderService.getAll({
+        include: 'account,currency',
         'filter[account_id]': numAccountId,
         per_page: 200
       })
@@ -203,7 +217,8 @@ export default {
             .filter((objOrder) => {
               const numAccountIdOrder = objOrder.accountId ?? objOrder.account_id ?? objOrder.account?.id;
               if (numAccountIdOrder && Number(numAccountIdOrder) !== Number(numAccountId)) return false;
-              if (objOrder.status !== ORDER_STATUS.ACTIVATED) return false;
+              if (!handleCanRegisterPayment(objOrder.status)) return false;
+              if (objOrder.status === ORDER_STATUS.COMPLETED || objOrder.status === ORDER_STATUS.CANCELLED) return false;
               const fltBalance = parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0;
               return fltBalance > 0;
             })
@@ -211,23 +226,40 @@ export default {
 
           this.lstOrders = lstRaw;
           this.lstOrderOptions = lstRaw.map((objOrder) => ({
-            label: `#SO-${objOrder.id} — Saldo $${this.handleFormatAmount(objOrder.balanceAmount)}`,
+            label: `${objOrder.poLabel} — Saldo $${this.handleFormatAmount(objOrder.balanceAmount)}`,
             value: objOrder.id
           }));
+          if (lstRaw.length) {
+            this.strVendorName = this.handleGetVendorName(lstRaw[0]);
+          }
         })
         .catch((objError) => {
-          handleError('Error', 'No se pudieron cargar las órdenes del cliente', objError);
+          handleError('Error', 'No se pudieron cargar las órdenes del proveedor', objError);
           this.lstOrders = [];
           this.lstOrderOptions = [];
         });
+    },
+    handleDefaultFormValues(objExtra = {}) {
+      return {
+        purchaseOrderId: null,
+        amount: null,
+        paymentMethodId: this.lstPaymentMethodOptions.length ? this.lstPaymentMethodOptions[0].value : null,
+        bankId: null,
+        paymentReference: '',
+        paymentDate: this.handleGetToday(),
+        currencyId: null,
+        ...objExtra
+      };
     },
     handleOpen(objOrder = null, objContext = null) {
       this.bSelectOrder = !objOrder && !!objContext?.accountId;
       this.numAccountId = objContext?.accountId ? Number(objContext.accountId) : null;
       this.objOrder = null;
+      this.strVendorName = objContext?.vendorName || '—';
       this.lstOrders = [];
       this.lstOrderOptions = [];
       this.objValidationSchema = this.bSelectOrder ? validationSchemaWithOrder : validationSchema;
+      this.strTitle = 'Registrar Abono';
 
       if (this.bSelectOrder) {
         this.handleLoadAccountOrders(this.numAccountId).then(() => {
@@ -237,9 +269,10 @@ export default {
       }
 
       this.objOrder = this.handleNormalizeOrder(objOrder);
-      this.numCurrencyId = this.objOrder?.currencyId ?? null;
+      this.strVendorName = this.handleGetVendorName(objOrder);
       this.handleOpenModal(this.handleDefaultFormValues({
-        amount: this.fltBalanceAmount || null
+        amount: this.fltBalanceAmount || null,
+        currencyId: this.objOrder?.currencyId ? Number(this.objOrder.currencyId) : null
       }));
     },
     handleOpenModal(objValues) {
@@ -252,12 +285,12 @@ export default {
     handleOrderSelected(numOrderId) {
       const objFound = this.lstOrders.find((objOrder) => Number(objOrder.id) === Number(numOrderId));
       this.objOrder = objFound || null;
-      this.numCurrencyId = this.objOrder?.currencyId ?? null;
-
+      this.strVendorName = this.handleGetVendorName(objFound);
       if (this.$refs.modalFormRef) {
         this.$refs.modalFormRef.handleSetValues(this.handleDefaultFormValues({
-          salesOrderId: numOrderId || null,
-          amount: this.fltBalanceAmount || null
+          purchaseOrderId: numOrderId || null,
+          amount: this.fltBalanceAmount || null,
+          currencyId: this.objOrder?.currencyId ? Number(this.objOrder.currencyId) : null
         }));
       }
     },
@@ -268,7 +301,7 @@ export default {
     },
     handleSubmit(objValues) {
       if (!this.objOrder) {
-        handleError('Error de Validación', 'Debes seleccionar una orden de venta.');
+        handleError('Error de Validación', 'Debes seleccionar una orden de compra.');
         return;
       }
 
@@ -279,14 +312,14 @@ export default {
       }
 
       this.bSpinner = true;
-      SalesOrderPaymentService.create({
-        salesOrderId: this.objOrder.id,
+      PurchaseOrderPaymentService.create({
+        purchaseOrderId: this.objOrder.id,
         amount: fltAmount,
         paymentMethodId: Number(objValues.paymentMethodId),
         bankId: objValues.bankId ? Number(objValues.bankId) : null,
         paymentReference: objValues.paymentReference || null,
         paymentDate: `${objValues.paymentDate} 12:00:00`,
-        currencyId: this.numCurrencyId ? Number(this.numCurrencyId) : null
+        currencyId: Number(objValues.currencyId)
       })
         .then(() => {
           handleSuccess('Abono registrado exitosamente');

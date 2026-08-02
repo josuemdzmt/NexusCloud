@@ -113,58 +113,10 @@
         "showSubRoute": false
       },
       {
-        "menuValue": "Cotizaciones",
-        "Icon": "ph-duotone ph-notification",
-        "active_link": "/sales/sales-quotes",
-        "route": "/sales/sales-quotes",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
         "menuValue": "Órdenes de Venta",
         "Icon": "ph-duotone ph-stack",
         "active_link": "/sales/sales-orders/list",
         "route": "/sales/sales-orders/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Ventas al Contado",
-        "Icon": "ph-duotone ph-wallet",
-        "active_link": "/sales/cash-sales",
-        "route": "/sales/cash-sales",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Notas de Entrega",
-        "Icon": "ph-duotone ph-file",
-        "active_link": "/sales/delivery-notes",
-        "route": "/sales/delivery-notes",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Facturas Recurrentes",
-        "Icon": "ph-duotone ph-note",
-        "active_link": "/sales/recurring-invoices",
-        "route": "/sales/recurring-invoices",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Notas de Crédito",
-        "Icon": "ph-duotone ph-money-wavy",
-        "active_link": "/sales/credit-notes",
-        "route": "/sales/credit-notes",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Reembolsos",
-        "Icon": "ph-duotone ph-currency-circle-dollar",
-        "active_link": "/sales/refunds",
-        "route": "/sales/refunds",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -193,6 +145,14 @@
         "showSubRoute": false
       },
       {
+        "menuValue": "Bancos",
+        "Icon": "ph-duotone ph-bank",
+        "active_link": "/sales/banks/list",
+        "route": "/sales/banks/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
         "menuValue": "Monedas",
         "Icon": "ph-duotone ph-coin",
         "active_link": "/sales/currency/list",
@@ -205,14 +165,6 @@
         "Icon": "ph-duotone ph-receipt",
         "active_link": "/sales/tax-profile/list",
         "route": "/sales/tax-profile/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Plantillas de Factura",
-        "Icon": "ph-duotone ph-receipt",
-        "active_link": "/sales/invoice-templates",
-        "route": "/sales/invoice-templates",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -234,40 +186,24 @@
       {
         "menuValue": "Proveedores",
         "Icon": "ph-duotone ph-user",
-        "active_link": "/inventory/vendor/list",
-        "route": "/inventory/vendor/list",
+        "active_link": "/purchase/vendor/list",
+        "route": "/purchase/vendor/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
         "menuValue": "Órdenes de Compra",
         "Icon": "ph-duotone ph-note",
-        "active_link": "/purchase/purchase-orders",
-        "route": "/purchase/purchase-orders",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Compras",
-        "Icon": "ph-duotone ph-clipboard-text",
-        "active_link": "/purchase/purchases",
-        "route": "/purchase/purchases",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Devolución de Compra",
-        "Icon": "ph-duotone ph-receipt",
-        "active_link": "/purchase/purchase-return",
-        "route": "/purchase/purchase-return",
+        "active_link": "/purchase/purchase-orders/list",
+        "route": "/purchase/purchase-orders/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
         "menuValue": "Análisis de Compras",
         "Icon": "ph-duotone ph-package",
-        "active_link": "/purchase/procurement-analytics",
-        "route": "/purchase/procurement-analytics",
+        "active_link": "/purchase/procurement-analytics/list",
+        "route": "/purchase/procurement-analytics/list",
         "hasSubRoute": false,
         "showSubRoute": false
       }

@@ -1,6 +1,6 @@
 export const ACCOUNT_TYPE_BADGE = {
   classMap: { Customer: 'bg-primary-transparent text-primary', Vendor: 'bg-warning-transparent text-warning', Both: 'bg-info-transparent text-info' },
-  labelMap: { Customer: 'Cliente', Vendor: 'Proveedor', Both: 'Ambos' }
+  labelMap: { Customer: 'Cliente', Vendor: 'Proveedor', Both: 'Cliente/Proveedor' }
 };
 
 export const IS_PERSON_BADGE = {

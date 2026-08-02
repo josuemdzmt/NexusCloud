@@ -17,30 +17,24 @@
 </template>
 
 <script>
-import SalesOrderService from '@/services/sales/SalesOrderService';
-import SalesOrderPaymentService from '@/services/sales/SalesOrderPaymentService';
+import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
+import PurchaseOrderPaymentService from '@/services/purchasing/PurchaseOrderPaymentService';
 import PaymentMethodService from '@/services/sales/PaymentMethodService';
 import BankService from '@/services/sales/BankService';
-import {
-  PAYMENT_COLUMNS,
-  ACCOUNT_PAYMENT_COLUMNS
-} from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentConstants';
+import { PAYMENT_COLUMNS, ACCOUNT_PAYMENT_COLUMNS } from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentConstants';
 import { handleError } from '@/utils/toastUtils';
 
 export default {
-  name: 'SalesOrderPaymentRelatedList',
+  name: 'PurchaseOrderPaymentRelatedList',
   props: {
-    salesOrderId: { type: [Number, String], default: null },
+    purchaseOrderId: { type: [Number, String], default: null },
     accountId: { type: [Number, String], default: null },
     bCanRegister: { type: Boolean, default: false }
   },
   emits: ['register'],
   data() {
     return {
-      // 1. Booleanos
       bSpinner: false,
-
-      // 5. Listas
       lstPayments: [],
       lstPaymentMethods: [],
       lstBanks: []
@@ -48,14 +42,14 @@ export default {
   },
   computed: {
     bAccountMode() {
-      return this.accountId != null && this.accountId !== '' && !this.salesOrderId;
+      return this.accountId != null && this.accountId !== '' && !this.purchaseOrderId;
     },
     lstVisibleColumns() {
       return this.bAccountMode ? ACCOUNT_PAYMENT_COLUMNS : PAYMENT_COLUMNS;
     }
   },
   watch: {
-    salesOrderId() {
+    purchaseOrderId() {
       this.handleGetData();
     },
     accountId() {
@@ -89,9 +83,9 @@ export default {
         this.handleGetAccountPayments();
         return;
       }
-      if (!this.salesOrderId) return;
+      if (!this.purchaseOrderId) return;
       this.bSpinner = true;
-      SalesOrderPaymentService.getAll({ sales_order_id: this.salesOrderId })
+      PurchaseOrderPaymentService.getAll({ purchase_order_id: this.purchaseOrderId })
         .then((objResponse) => {
           const lstData = objResponse.data || objResponse;
           const lstRaw = Array.isArray(lstData) ? lstData : [];
@@ -105,7 +99,7 @@ export default {
     handleGetAccountPayments() {
       if (!this.accountId) return;
       this.bSpinner = true;
-      SalesOrderService.getAll({
+      PurchaseOrderService.getAll({
         'filter[account_id]': this.accountId,
         per_page: 200
       })
@@ -124,7 +118,7 @@ export default {
 
           return Promise.all(
             lstOrders.map((objOrder) =>
-              SalesOrderPaymentService.getAll({ sales_order_id: objOrder.id }).then((objPayResponse) => {
+              PurchaseOrderPaymentService.getAll({ purchase_order_id: objOrder.id }).then((objPayResponse) => {
                 const lstPayData = objPayResponse.data || objPayResponse;
                 const lstRaw = Array.isArray(lstPayData) ? lstPayData : [];
                 return lstRaw.map((objPayment) => this.handleMapPayment(objPayment, objOrder.id));
@@ -149,14 +143,14 @@ export default {
       const strReference = objPayment.paymentReference ?? objPayment.payment_reference ?? '';
       const strDate = objPayment.paymentDate || objPayment.payment_date || '';
       const fltAmount = parseFloat(objPayment.amount) || 0;
-      const numSalesOrderId = numOrderId ?? objPayment.salesOrderId ?? objPayment.sales_order_id;
+      const numPurchaseOrderId = numOrderId ?? objPayment.purchaseOrderId ?? objPayment.purchase_order_id;
       return {
         ...objPayment,
         paymentDateLabel: strDate ? String(strDate).split(' ')[0] : '—',
         paymentMethodLabel: this.handleGetPaymentMethodLabel(numMethodId),
         bankLabel: this.handleGetBankLabel(numBankId),
         paymentReferenceLabel: strReference || '—',
-        salesOrderLabel: numSalesOrderId ? `#SO-${numSalesOrderId}` : '—',
+        purchaseOrderLabel: numPurchaseOrderId ? `#PO-${numPurchaseOrderId}` : '—',
         amountLabel: `+$${fltAmount.toLocaleString('en-US', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2

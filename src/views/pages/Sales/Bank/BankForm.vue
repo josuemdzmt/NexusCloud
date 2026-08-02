@@ -1,20 +1,20 @@
 <template>
-  <nx-modal-form ref="modalFormRef" id="payment-method-modal" :title="strTitle" size="lg" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
+  <nx-modal-form ref="modalFormRef" id="bank-modal" :title="strTitle" size="lg" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
     <template #default="{ errors }">
       <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Nombre <span class="text-danger">*</span></label>
-          <Field name="name" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.name }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Ej. Tarjeta de Crédito" maxlength="100" />
+          <Field name="name" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.name }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Ej. BBVA" maxlength="255" />
           <ErrorMessage name="name" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Código <span class="text-danger">*</span></label>
-          <Field name="code" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.code }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0 uppercase" placeholder="Ej. TC" maxlength="50" />
+          <Field name="code" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.code }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0 uppercase" placeholder="Ej. BBVA" maxlength="50" />
           <ErrorMessage name="code" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div class="col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Descripción</label>
-          <Field name="description" as="textarea" rows="3" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Descripción adicional del método de pago..." maxlength="255"></Field>
+          <Field name="description" as="textarea" rows="3" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Descripción adicional del banco..." maxlength="255"></Field>
         </div>
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Configuración</h4>
@@ -22,7 +22,7 @@
         <div class="col-span-1">
           <label class="flex items-center gap-2 cursor-pointer mt-1">
             <Field name="status" as="input" type="checkbox" :value="'Active'" :unchecked-value="'Inactive'" class="size-4 rounded border-border-color text-primary focus:ring-0" />
-            <span class="text-sm font-semibold text-gray-900">Método de Pago Activo</span>
+            <span class="text-sm font-semibold text-gray-900">Banco Activo</span>
           </label>
         </div>
       </div>
@@ -33,7 +33,7 @@
 <script>
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
-import PaymentMethodService from '@/services/sales/PaymentMethodService';
+import BankService from '@/services/sales/BankService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
@@ -44,7 +44,7 @@ const validationSchema = yup.object({
 });
 
 export default {
-  name: 'PaymentMethodForm',
+  name: 'BankForm',
   components: {
     Field,
     ErrorMessage
@@ -54,7 +54,7 @@ export default {
     return {
       bSpinner: false,
       recordId: null,
-      strTitle: 'Método de Pago',
+      strTitle: 'Banco',
       objValidationSchema: validationSchema,
       objInitialData: validationSchema.getDefault()
     };
@@ -63,10 +63,10 @@ export default {
     handleOpen(recordId = null) {
       this.recordId = recordId;
       if (recordId) {
-        this.strTitle = 'Editar Método de Pago';
+        this.strTitle = 'Editar Banco';
         this.handleInitForm(recordId);
       } else {
-        this.strTitle = 'Nuevo Método de Pago';
+        this.strTitle = 'Nuevo Banco';
         if (this.$refs.modalFormRef) {
           this.$refs.modalFormRef.handleSetValues(this.objValidationSchema.getDefault());
         }
@@ -85,7 +85,7 @@ export default {
     },
     handleInitForm(recordId) {
       this.bSpinner = true;
-      PaymentMethodService.getById(recordId)
+      BankService.getById(recordId)
         .then((objResponse) => {
           const objData = objResponse.data || objResponse;
           if (this.$refs.modalFormRef) {
@@ -93,7 +93,7 @@ export default {
           }
         })
         .catch((objError) => {
-          handleError('Error', objError);
+          handleError('Error', 'No se pudo cargar el banco', objError);
         })
         .finally(() => {
           this.bSpinner = false;
@@ -108,14 +108,14 @@ export default {
     },
     handleCreate(objForm) {
       this.bSpinner = true;
-      PaymentMethodService.create(objForm)
+      BankService.create(objForm)
         .then(() => {
-          handleSuccess('Éxito', 'Método de pago creado correctamente');
+          handleSuccess('Éxito', 'Banco creado correctamente');
           this.$emit('success');
           this.handleClose();
         })
         .catch((objError) => {
-          handleError('Error de Validación', objError);
+          handleError('Error de Validación', objError.response?.data?.message || 'Error al crear el banco');
         })
         .finally(() => {
           this.bSpinner = false;
@@ -123,14 +123,14 @@ export default {
     },
     handleUpdate(objForm) {
       this.bSpinner = true;
-      PaymentMethodService.update(this.recordId, objForm)
+      BankService.update(this.recordId, objForm)
         .then(() => {
-          handleSuccess('Actualizado', 'Método de pago actualizado correctamente');
+          handleSuccess('Actualizado', 'Banco actualizado correctamente');
           this.handleClose();
           this.$emit('success');
         })
         .catch((objError) => {
-          handleError('Error de Validación', objError);
+          handleError('Error de Validación', objError.response?.data?.message || 'Error al actualizar el banco');
         })
         .finally(() => {
           this.bSpinner = false;

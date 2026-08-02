@@ -89,7 +89,7 @@
 <script>
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
-import VendorService from '@/services/inventory/VendorService';
+import VendorService from '@/services/purchasing/VendorService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({

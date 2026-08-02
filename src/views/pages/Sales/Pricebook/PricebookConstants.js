@@ -18,7 +18,7 @@ export const ACTION_BUTTONS = {
 
 export const ENTRY_ACTION_BUTTONS = {
   rowActions: [
-    { label: 'Editar Precio', name: 'edit', icon: 'icon-pencil-line' },
+    { label: 'Editar', name: 'edit', icon: 'icon-pencil-line' },
     { label: 'Remover', name: 'delete', icon: 'icon-trash-2', class: 'text-danger' }
   ]
 };

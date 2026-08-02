@@ -1,11 +1,11 @@
 import api from '@/services/api';
 
 const ENDPOINT = '/api/v1/core/accounts';
-const ACCOUNT_TYPE = 'Customer';
-const ACCOUNT_TYPES = ['Customer', 'Both'];
+const ACCOUNT_TYPE = 'Vendor';
+const ACCOUNT_TYPES = ['Vendor', 'Both'];
 
 /**
- * Merge account pages from Customer + Both and de-dupe by id.
+ * Merge account pages from Vendor + Both and de-dupe by id.
  * @param {Array} lstResponses
  * @returns {Array}
  */
@@ -28,7 +28,7 @@ export default {
   ACCOUNT_TYPES,
 
   /**
-   * Get a paginated list of customers (Customer | Both)
+   * Get a paginated list of vendors (Vendor | Both)
    * @param {Object} objParams - Query parameters
    */
   getAll(objParams = {}) {
@@ -51,44 +51,44 @@ export default {
   },
 
   /**
-   * Get a single customer by its ID
-   * @param {Number|String} recordId - Customer ID
+   * Get a single vendor by its ID
+   * @param {Number|String} recordId - Vendor ID
    */
   getById(recordId) {
     return api.get(`${ENDPOINT}/${recordId}`);
   },
 
   /**
-   * Create a new customer
-   * @param {Object} objData - Customer payload
+   * Create a new vendor
+   * @param {Object} objData - Vendor payload
    */
   create(objData) {
     return api.post(ENDPOINT, { ...objData, account_type: ACCOUNT_TYPE });
   },
 
   /**
-   * Update an existing customer
-   * @param {Number|String} recordId - Customer ID
-   * @param {Object} objData - Customer payload to update
+   * Update an existing vendor
+   * @param {Number|String} recordId - Vendor ID
+   * @param {Object} objData - Vendor payload to update
    */
   update(recordId, objData) {
     return api.put(`${ENDPOINT}/${recordId}`, { ...objData, account_type: ACCOUNT_TYPE });
   },
 
   /**
-   * Delete a customer
-   * @param {Number|String} recordId - Customer ID
+   * Delete a vendor
+   * @param {Number|String} recordId - Vendor ID
    */
   delete(recordId) {
     return api.delete(`${ENDPOINT}/${recordId}`);
   },
 
   /**
-   * True if account type is Customer or Both
+   * True if account type is Vendor or Both
    * @param {Object} objAccount
    * @returns {Boolean}
    */
-  handleIsCustomerAccount(objAccount) {
+  handleIsVendorAccount(objAccount) {
     const strType = objAccount?.account_type || objAccount?.accountType;
     return !strType || ACCOUNT_TYPES.includes(strType);
   }

@@ -259,16 +259,6 @@ const routes = [
     ],
   },
 
-  //Vendor
-  {
-    path: "/inventory/vendor",
-    component: () => import("@/views/pages/Inventory/Vendor/Vendor.vue"),
-    children: [
-      { path: "", redirect: "/inventory/vendor/list" },
-      { path: "list", component: () => import("@/views/pages/Inventory/Vendor/VendorList.vue"), meta: { title: "Proveedores | NexusCloud" } },
-    ],
-  },
-
 
   // Inventory General
   {
@@ -305,6 +295,14 @@ const routes = [
     children: [
       { path: "", redirect: "/sales/payment-methods/list" },
       { path: "list", component: () => import("@/views/pages/Sales/PaymentMethod/PaymentMethodList.vue"), meta: { title: "Métodos de Pago | NexusCloud" } }
+    ]
+  },
+  {
+    path: "/sales/banks",
+    component: () => import("@/views/pages/Sales/Bank/Bank.vue"),
+    children: [
+      { path: "", redirect: "/sales/banks/list" },
+      { path: "list", component: () => import("@/views/pages/Sales/Bank/BankList.vue"), meta: { title: "Bancos | NexusCloud" } }
     ]
   },
   //Customer
@@ -411,6 +409,37 @@ const routes = [
       { path: "edit-sales", component: () => import("@/views/pages/sales-module/edit-sales.vue"), meta: { title: "Edit Sales | NexusCloud" } },
       { path: "sales-details", component: () => import("@/views/pages/sales-module/sales-details.vue"), meta: { title: "Sales Details | NexusCloud" } },
     ],
+  },
+  // Vendor (Purchase)
+  {
+    path: "/purchase/vendor",
+    component: () => import("@/views/pages/Purchase/Vendor/Vendor.vue"),
+    children: [
+      { path: "", redirect: "/purchase/vendor/list" },
+      { path: "list", component: () => import("@/views/pages/Purchase/Vendor/VendorList.vue"), meta: { title: "Proveedores | NexusCloud" } },
+      { path: ":recordId/details", component: () => import("@/views/pages/Purchase/Vendor/VendorDetails.vue"), meta: { title: "Detalles Proveedor | NexusCloud" } }
+    ]
+  },
+  // Purchase Orders
+  {
+    path: "/purchase/purchase-orders",
+    component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrder.vue"),
+    children: [
+      { path: "", redirect: "/purchase/purchase-orders/list" },
+      { path: "list", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderList.vue"), meta: { title: "Órdenes de Compra | NexusCloud" } },
+      { path: "new", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue"), meta: { title: "Nueva OC | NexusCloud" } },
+      { path: ":recordId/edit", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue"), meta: { title: "Editar OC | NexusCloud" } },
+      { path: ":recordId/details", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderDetails.vue"), meta: { title: "Detalles OC | NexusCloud" } }
+    ]
+  },
+  // Procurement Analytics (cuentas por pagar / deuda a proveedores)
+  {
+    path: "/purchase/procurement-analytics",
+    component: () => import("@/views/pages/Purchase/ProcurementAnalytics/ProcurementAnalytics.vue"),
+    children: [
+      { path: "", redirect: "/purchase/procurement-analytics/list" },
+      { path: "list", component: () => import("@/views/pages/Purchase/ProcurementAnalytics/ProcurementAnalyticsList.vue"), meta: { title: "Análisis de Compras | NexusCloud" } }
+    ]
   },
   {
     path: "/purchase",

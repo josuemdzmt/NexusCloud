@@ -29,7 +29,7 @@
 import CustomerService from '@/services/sales/CustomerService';
 import CustomerForm from '@/views/pages/Sales/Customer/CustomerForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
-import { IS_PERSON_BADGE, STATUS_BADGE, ACTION_BUTTONS } from './CustomerConstants';
+import { ACCOUNT_TYPE_BADGE, IS_PERSON_BADGE, STATUS_BADGE, ACTION_BUTTONS } from './CustomerConstants';
 
 export default {
   name: 'CustomerList',
@@ -43,6 +43,7 @@ export default {
       lstColumns: [
         { label: 'Razón Social / Nombre', fieldName: 'legal_name', type: 'text', sortable: true },
         { label: 'RFC / Tax ID', fieldName: 'tax_id', type: 'text', sortable: true },
+        { label: 'Tipo Cuenta', fieldName: 'account_type', type: 'badge', typeAttributes: ACCOUNT_TYPE_BADGE },
         { label: 'Tipo Persona', fieldName: 'is_person', type: 'badge', typeAttributes: IS_PERSON_BADGE },
         { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: STATUS_BADGE },
         { label: 'Límite Crédito', fieldName: 'credit_limit', type: 'currency', sortable: true },
@@ -63,14 +64,12 @@ export default {
           const lstAccounts = Array.isArray(lstData) ? lstData : [];
 
           this.lstCustomers = lstAccounts
-            .filter((objItem) => {
-              const strType = objItem.account_type || objItem.accountType;
-              return !strType || strType === CustomerService.ACCOUNT_TYPE;
-            })
+            .filter((objItem) => CustomerService.handleIsCustomerAccount(objItem))
             .map((objItem) => {
               if (objItem.is_person) {
                 objItem.legal_name = `${objItem.first_name || ''} ${objItem.last_name || ''} ${objItem.second_last_name || ''}`.trim();
               }
+              objItem.account_type = objItem.account_type || objItem.accountType || 'Customer';
               return objItem;
             });
         })

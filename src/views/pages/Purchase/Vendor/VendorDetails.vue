@@ -2,7 +2,7 @@
   <main>
     <div class="p-3 lg:py-6 lg:px-0">
       <div class="flex flex-wrap items-center gap-2 text-sm text-default mb-3">
-        <router-link to="/sales/customer/list" class="hover:text-primary">Clientes</router-link>
+        <router-link to="/purchase/vendor/list" class="hover:text-primary">Proveedores</router-link>
         <i class="ph ph-caret-right text-[10px]"></i>
         <span>Detalles</span>
       </div>
@@ -11,7 +11,7 @@
           <div class="bg-white border border-border-color rounded-md p-4">
             <div class="flex items-start justify-between mb-3">
               <div class="text-start">
-                <h1 class="text-base font-semibold text-title mb-1">{{ strCustomerName }}</h1>
+                <h1 class="text-base font-semibold text-title mb-1">{{ strVendorName }}</h1>
                 <p class="text-sm text-default mb-0">{{ strTaxId }}</p>
               </div>
               <button type="button" title="Editar" class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light cursor-pointer shrink-0" @click="handleEdit">
@@ -62,13 +62,13 @@
             </nav>
             <div class="p-4">
               <div id="orders-pane" role="tabpanel" aria-labelledby="orders-tab">
-                <SalesOrderRelatedList
+                <PurchaseOrderRelatedList
                   v-if="recordId"
                   :account-id="recordId"
                 />
               </div>
               <div id="payments-pane" class="hidden" role="tabpanel" aria-labelledby="payments-tab">
-                <SalesOrderPaymentRelatedList
+                <PurchaseOrderPaymentRelatedList
                   v-if="recordId"
                   ref="paymentRelatedListRef"
                   :account-id="recordId"
@@ -80,41 +80,34 @@
           </div>
         </div>
       </div>
-      <CustomerForm ref="customerFormRef" @success="handleFormSuccess" />
-      <SalesOrderPaymentForm ref="paymentFormRef" @refresh="handlePaymentRefresh" />
+      <VendorForm ref="vendorFormRef" @success="handleFormSuccess" />
+      <PurchaseOrderPaymentForm ref="paymentFormRef" @refresh="handlePaymentRefresh" />
     </div>
   </main>
 </template>
 
 <script>
-import CustomerService from '@/services/sales/CustomerService';
-import CustomerForm from '@/views/pages/Sales/Customer/CustomerForm.vue';
-import SalesOrderRelatedList from '@/views/pages/Sales/SalesOrder/SalesOrderRelatedList.vue';
-import SalesOrderPaymentRelatedList from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentRelatedList.vue';
-import SalesOrderPaymentForm from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentForm.vue';
-import { ACCOUNT_TYPE_BADGE, IS_PERSON_BADGE, STATUS_BADGE } from '@/views/pages/Sales/Customer/CustomerConstants';
+import VendorService from '@/services/purchasing/VendorService';
+import VendorForm from '@/views/pages/Purchase/Vendor/VendorForm.vue';
+import PurchaseOrderRelatedList from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderRelatedList.vue';
+import PurchaseOrderPaymentRelatedList from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentRelatedList.vue';
+import PurchaseOrderPaymentForm from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentForm.vue';
+import { ACCOUNT_TYPE_BADGE, IS_PERSON_BADGE, STATUS_BADGE } from '@/views/pages/Purchase/Vendor/VendorConstants';
 import { handleError } from '@/utils/toastUtils';
 
 export default {
-  name: 'CustomerDetails',
+  name: 'VendorDetails',
   components: {
-    CustomerForm,
-    SalesOrderRelatedList,
-    SalesOrderPaymentRelatedList,
-    SalesOrderPaymentForm
+    VendorForm,
+    PurchaseOrderRelatedList,
+    PurchaseOrderPaymentRelatedList,
+    PurchaseOrderPaymentForm
   },
   data() {
     return {
-      // 1. Booleanos
       bSpinner: false,
-
-      // 2. Números / IDs
       recordId: null,
-
-      // 4. Objetos
-      objCustomer: null,
-
-      // 5. Listas
+      objVendor: null,
       lstTabs: [
         { id: 'orders', label: 'Órdenes' },
         { id: 'payments', label: 'Abonos' }
@@ -122,19 +115,19 @@ export default {
     };
   },
   computed: {
-    strCustomerName() {
-      if (!this.objCustomer) return 'Cargando...';
+    strVendorName() {
+      if (!this.objVendor) return 'Cargando...';
       if (this.bIsPerson) {
-        const strName = `${this.objCustomer.first_name || this.objCustomer.firstName || ''} ${this.objCustomer.last_name || this.objCustomer.lastName || ''} ${this.objCustomer.second_last_name || this.objCustomer.secondLastName || ''}`.trim();
+        const strName = `${this.objVendor.first_name || this.objVendor.firstName || ''} ${this.objVendor.last_name || this.objVendor.lastName || ''} ${this.objVendor.second_last_name || this.objVendor.secondLastName || ''}`.trim();
         return strName || '—';
       }
-      return this.objCustomer.legal_name || this.objCustomer.legalName || '—';
+      return this.objVendor.legal_name || this.objVendor.legalName || '—';
     },
     bIsPerson() {
-      return Boolean(this.objCustomer?.is_person ?? this.objCustomer?.isPerson);
+      return Boolean(this.objVendor?.is_person ?? this.objVendor?.isPerson);
     },
     strAccountType() {
-      return this.objCustomer?.account_type || this.objCustomer?.accountType || 'Customer';
+      return this.objVendor?.account_type || this.objVendor?.accountType || 'Vendor';
     },
     strAccountTypeLabel() {
       return ACCOUNT_TYPE_BADGE.labelMap[this.strAccountType] || this.strAccountType;
@@ -143,19 +136,19 @@ export default {
       return IS_PERSON_BADGE.labelMap[this.bIsPerson] || '—';
     },
     strStatus() {
-      return this.objCustomer?.status || 'Inactive';
+      return this.objVendor?.status || 'Inactive';
     },
     strStatusLabel() {
       return STATUS_BADGE.labelMap[this.strStatus] || this.strStatus || '—';
     },
     strTaxId() {
-      return this.objCustomer?.tax_id || this.objCustomer?.taxId || '—';
+      return this.objVendor?.tax_id || this.objVendor?.taxId || '—';
     },
     fltCreditLimit() {
-      return parseFloat(this.objCustomer?.credit_limit ?? this.objCustomer?.creditLimit) || 0;
+      return parseFloat(this.objVendor?.credit_limit ?? this.objVendor?.creditLimit) || 0;
     },
     numCreditDays() {
-      const numDays = this.objCustomer?.credit_days ?? this.objCustomer?.creditDays;
+      const numDays = this.objVendor?.credit_days ?? this.objVendor?.creditDays;
       return numDays != null && numDays !== '' ? numDays : '—';
     }
   },
@@ -172,19 +165,19 @@ export default {
     handleGetData() {
       if (!this.recordId) return;
       this.bSpinner = true;
-      CustomerService.getById(this.recordId)
+      VendorService.getById(this.recordId)
         .then((objResponse) => {
-          this.objCustomer = objResponse.data || objResponse;
+          this.objVendor = objResponse.data || objResponse;
         })
-        .catch((objError) => handleError('Ocurrió un problema al obtener el cliente', objError))
+        .catch((objError) => handleError('Ocurrió un problema al obtener el proveedor', objError))
         .finally(() => {
           this.bSpinner = false;
         });
     },
     handleEdit() {
-      const numId = this.objCustomer?.id || this.recordId;
-      if (numId && this.$refs.customerFormRef) {
-        this.$refs.customerFormRef.handleOpen(numId);
+      const numId = this.objVendor?.id || this.recordId;
+      if (numId && this.$refs.vendorFormRef) {
+        this.$refs.vendorFormRef.handleOpen(numId);
       }
     },
     handleFormSuccess() {

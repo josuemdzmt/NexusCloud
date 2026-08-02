@@ -7,22 +7,22 @@
           <tr class="text-sm font-bold text-gray-900 border-b border-border-color">
             <th class="text-left py-3 px-2 text-sm font-semibold">Producto</th>
             <th class="text-left py-3 px-2 text-sm font-semibold">Cantidad</th>
-            <th class="text-left py-3 px-2 text-sm font-semibold">Precio Unit. ($)</th>
+            <th class="text-left py-3 px-2 text-sm font-semibold">Costo Unit. ($)</th>
             <th class="text-left py-3 px-2 text-sm font-semibold">Descuento (%)</th>
             <th class="text-left py-3 px-2 text-sm font-semibold">Importe ($)</th>
             <th class="py-3 px-2"></th>
           </tr>
         </thead>
-        <tbody id="invoice-items">
+        <tbody>
           <tr v-for="(objItem, numIndex) in modelValue" :key="objItem.id">
             <td class="py-3 px-2 w-1/3">
               <nx-combobox
-                v-model="objItem.pricebookEntryId"
-                :options="lstEntryOptions"
+                v-model="objItem.productId"
+                :options="lstProductOptions"
                 placeholder="Seleccionar"
                 class="w-20 sm:w-full text-sm border-border-color focus:border-primary"
-                @update:model-value="handleItemProductChange(objItem)">
-              </nx-combobox>
+                @update:model-value="handleItemProductChange(objItem)"
+              />
             </td>
             <td class="py-3 px-2">
               <div class="flex items-center border border-border-color rounded-md w-max px-2 py-1 bg-white h-[38px]">
@@ -36,13 +36,13 @@
               </div>
             </td>
             <td class="py-3 px-2">
-              <input v-model="objItem.unitPrice" type="text" readonly class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0">
+              <input v-model="objItem.unitCost" type="number" min="0" step="0.01" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" @input="handleEmitChange">
             </td>
             <td class="py-3 px-2">
               <input v-model.number="objItem.discountPercent" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" @input="handleEmitChange">
             </td>
             <td class="py-3 px-2">
-              <input :value="handleGetItemAmount(objItem)" type="text" readonly class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0">
+              <input :value="handleGetItemAmount(objItem)" type="text" readonly class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0">
             </td>
             <td class="py-3 px-2 text-center">
               <button v-if="numIndex > 0" type="button" class="delete-item-btn size-7 bg-danger-transparent text-danger hover:bg-danger hover:text-white rounded-md inline-flex justify-center items-center cursor-pointer transition-colors" @click="handleRemoveItem(numIndex)">
@@ -54,7 +54,7 @@
       </table>
     </div>
 
-    <button type="button" id="add-item-btn" class="btn-sm bg-light border border-border-color text-gray-700 hover:bg-gray-100 cursor-pointer mb-8 rounded-md shadow-sm" :disabled="!bCanAdd" @click="handleAddNewItem">
+    <button type="button" class="btn-sm bg-light border border-border-color text-gray-700 hover:bg-gray-100 cursor-pointer mb-8 rounded-md shadow-sm" :disabled="!bCanAdd" @click="handleAddNewItem">
       <i class="ph ph-plus mr-1"></i> Agregar Nueva
     </button>
   </div>
@@ -62,15 +62,15 @@
 
 <script>
 import { handleError } from '@/utils/toastUtils';
-import { handleBuildLineItem, handleGetItemAmount } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
+import { handleBuildLineItem, handleGetItemAmount } from '@/views/pages/Purchase/PurchaseOrder/purchaseOrderUtils';
 
 export default {
-  name: 'SalesOrderItems',
+  name: 'PurchaseOrderItems',
   props: {
     modelValue: { type: Array, default: () => [] },
-    lstEntries: { type: Array, default: () => [] },
-    lstEntryOptions: { type: Array, default: () => [] },
-    bCanAdd: { type: Boolean, default: false }
+    lstProducts: { type: Array, default: () => [] },
+    lstProductOptions: { type: Array, default: () => [] },
+    bCanAdd: { type: Boolean, default: true }
   },
   emits: ['update:modelValue', 'change'],
   methods: {
@@ -81,7 +81,7 @@ export default {
     },
     handleAddNewItem() {
       if (!this.bCanAdd) {
-        handleError('Aviso', 'Selecciona lista de precios y moneda con productos asociados.');
+        handleError('Aviso', 'No hay productos disponibles en el catálogo.');
         return;
       }
       const lstItems = [...this.modelValue, handleBuildLineItem()];
@@ -89,12 +89,8 @@ export default {
       this.$emit('change');
     },
     handleItemProductChange(objItem) {
-      const objEntry = this.lstEntries.find((objEntry) => objEntry.id === Number(objItem.pricebookEntryId));
-      if (objEntry) {
-        objItem.productId = objEntry.productId ?? objEntry.product_id;
-        objItem.productName = objEntry.product?.name || 'Desconocido';
-        objItem.unitPrice = objEntry.unitPrice ?? objEntry.unit_price;
-      }
+      const objProduct = this.lstProducts.find((objP) => Number(objP.id) === Number(objItem.productId));
+      objItem.productName = objProduct?.name || '';
       this.handleEmitChange();
     },
     handleToggleQty(objItem, numDelta) {
