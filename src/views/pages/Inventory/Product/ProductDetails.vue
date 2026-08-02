@@ -49,8 +49,13 @@
         </div>
         <div class="col-span-12 lg:col-span-8">
           <div class="bg-white border border-border-color rounded-md">
-            <nav class="flex items-center gap-1 border-b border-border-color flex-wrap" aria-label="Tabs" role="tablist">
-              <button type="button" class="px-4 py-3 text-sm text-default whitespace-nowrap border-b-2 border-primary text-gray-900 font-semibold focus:outline-hidden" id="pricebooks-tab" role="tab">Listas de Precios</button>
+            <nav class="flex items-center gap-1 border-b border-border-color flex-wrap" aria-label="Tabs" role="tablist" aria-orientation="horizontal">
+              <button v-for="(objTab, numIndex) in lstTabs" :key="objTab.id" type="button" :id="`${objTab.id}-tab`"
+                role="tab" :aria-selected="numIndex === 0" :aria-controls="`${objTab.id}-pane`" :data-hs-tab="`#${objTab.id}-pane`"
+                class="px-4 py-3 text-sm text-default whitespace-nowrap border-b-2 border-transparent -mb-px hover:text-gray-900 hs-tab-active:font-semibold hs-tab-active:text-gray-900 hs-tab-active:border-primary focus:outline-hidden"
+                :class="{ active: numIndex === 0 }">
+                {{ objTab.label }}
+              </button>
             </nav>
             <div class="p-4">
               <div id="pricebooks-pane" role="tabpanel" aria-labelledby="pricebooks-tab">
@@ -59,14 +64,32 @@
                     <i class="ph ph-plus"></i> Agregar Precio
                   </button>
                 </div>
-                <nx-datatable 
-                  key-field="id" 
-                  :data="lstEntries" 
-                  :columns="lstColumns" 
-                  :is-loading="bSpinnerEntries" 
-                  :show-date-range="false" 
-                  @rowaction="handleRowAction" 
-                  @refresh="handleGetEntries" 
+                <nx-datatable
+                  key-field="id"
+                  :data="lstEntries"
+                  :columns="lstColumns"
+                  :is-loading="bSpinnerEntries"
+                  :show-date-range="false"
+                  @rowaction="handleRowAction"
+                  @refresh="handleGetEntries"
+                />
+              </div>
+              <div id="stock-pane" class="hidden" role="tabpanel" aria-labelledby="stock-tab">
+                <ProductItemRelatedList
+                  v-if="recordId"
+                  :product-id="recordId"
+                />
+              </div>
+              <div id="transactions-pane" class="hidden" role="tabpanel" aria-labelledby="transactions-tab">
+                <ProductItemTransactionRelatedList
+                  v-if="recordId"
+                  :product-id="recordId"
+                />
+              </div>
+              <div id="transfers-pane" class="hidden" role="tabpanel" aria-labelledby="transfers-tab">
+                <ProductTransferLineItemRelatedList
+                  v-if="recordId"
+                  :product-id="recordId"
                 />
               </div>
             </div>
@@ -82,6 +105,9 @@
 import ProductService from '@/services/inventory/ProductService';
 import PricebookEntryService from '@/services/sales/PricebookEntryService';
 import PricebookEntryForm from '@/views/pages/Sales/PricebookEntry/PricebookEntryForm.vue';
+import ProductItemRelatedList from '@/views/pages/Inventory/ProductItem/ProductItemRelatedList.vue';
+import ProductItemTransactionRelatedList from '@/views/pages/Inventory/ProductItemTransaction/ProductItemTransactionRelatedList.vue';
+import ProductTransferLineItemRelatedList from '@/views/pages/Inventory/ProductTransferLineItem/ProductTransferLineItemRelatedList.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { ENTRY_ACTION_BUTTONS } from '@/views/pages/Sales/Pricebook/PricebookConstants';
 import { ENTRY_STATUS_BADGE } from '@/views/pages/Inventory/Product/ProductConstants';
@@ -89,7 +115,10 @@ import { ENTRY_STATUS_BADGE } from '@/views/pages/Inventory/Product/ProductConst
 export default {
   name: 'ProductDetails',
   components: {
-    PricebookEntryForm
+    PricebookEntryForm,
+    ProductItemRelatedList,
+    ProductItemTransactionRelatedList,
+    ProductTransferLineItemRelatedList
   },
   data() {
     return {
@@ -97,10 +126,19 @@ export default {
       bSpinnerInfo: false,
       bSpinnerEntries: false,
 
+      // 2. Números / IDs
+      recordId: null,
+
       // 4. Objetos
       objProduct: null,
 
       // 5. Listas
+      lstTabs: [
+        { id: 'pricebooks', label: 'Listas de Precios' },
+        { id: 'stock', label: 'Existencias' },
+        { id: 'transactions', label: 'Movimientos' },
+        { id: 'transfers', label: 'Traspasos' }
+      ],
       lstEntries: [],
       lstColumns: [
         { label: 'Lista de Precios', fieldName: 'pricebookName', type: 'text', sortable: true },
@@ -120,13 +158,19 @@ export default {
     }
   },
   mounted() {
+    this.recordId = this.$route.params.recordId;
     this.handleGetData();
     this.handleGetEntries();
+    this.$nextTick(() => {
+      if (window.HSStaticMethods) {
+        window.HSStaticMethods.autoInit();
+      }
+    });
   },
   methods: {
     handleGetData() {
       this.bSpinnerInfo = true;
-      ProductService.getById(this.$route.params.recordId, { include: 'category,brand' })
+      ProductService.getById(this.recordId, { include: 'category,brand' })
         .then((objResponse) => {
           this.objProduct = objResponse.data || objResponse;
         })
@@ -136,12 +180,11 @@ export default {
         });
     },
     handleGetEntries() {
-      const numProductId = this.$route.params.recordId;
-      if (!numProductId) return;
+      if (!this.recordId) return;
 
       this.bSpinnerEntries = true;
       PricebookEntryService.getAll({
-        'filter[product_id]': numProductId,
+        'filter[product_id]': this.recordId,
         include: 'pricebook,currency',
         per_page: 200
       })
@@ -152,7 +195,7 @@ export default {
           this.lstEntries = lstRaw
             .filter((objEntry) => {
               const entryProductId = objEntry.productId ?? objEntry.product_id;
-              return !entryProductId || Number(entryProductId) === Number(numProductId);
+              return !entryProductId || Number(entryProductId) === Number(this.recordId);
             })
             .map((objEntry) => {
               const objCurrency = objEntry.currency || {};
@@ -170,7 +213,7 @@ export default {
         });
     },
     handleCreateEntry() {
-      const numProductId = this.objProduct?.id || this.$route.params.recordId;
+      const numProductId = this.objProduct?.id || this.recordId;
       if (!numProductId || !this.$refs.pricebookEntryFormRef) return;
       this.$refs.pricebookEntryFormRef.handleOpen(null, { productId: Number(numProductId) });
     },
@@ -178,7 +221,7 @@ export default {
       const { action, row } = objEvent.detail;
       if (action.name === 'edit') {
         if (this.$refs.pricebookEntryFormRef) {
-          this.$refs.pricebookEntryFormRef.handleOpen(row.id, { productId: Number(this.$route.params.recordId) });
+          this.$refs.pricebookEntryFormRef.handleOpen(row.id, { productId: Number(this.recordId) });
         }
       } else if (action.name === 'delete') {
         this.handleDeleteEntry(row.id);
@@ -193,7 +236,7 @@ export default {
         .catch((objError) => handleError('Ocurrió un problema al eliminar el precio', objError));
     },
     handleEdit() {
-      const numId = this.objProduct?.id || this.$route.params.recordId;
+      const numId = this.objProduct?.id || this.recordId;
       if (numId) {
         this.$router.push(`/inventory/product/${numId}/edit`);
       }

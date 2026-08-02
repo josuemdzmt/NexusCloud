@@ -4,6 +4,12 @@ export const LOCATION_TYPE_BADGE = {
     Van: 'bg-warning-transparent text-warning',
     Virtual: 'bg-info-transparent text-info',
     Site: 'bg-secondary-transparent text-secondary'
+  },
+  labelMap: {
+    Warehouse: 'Almacén',
+    Van: 'Furgoneta',
+    Virtual: 'Virtual',
+    Site: 'Sitio'
   }
 };
 
@@ -19,6 +25,7 @@ export const STATUS_BADGE = {
 
 export const ACTION_BUTTONS = {
   rowActions: [
+    { label: 'Detalles', name: 'details', icon: 'icon-eye' },
     { label: 'Editar', name: 'edit', icon: 'icon-pencil-line' },
     { label: 'Eliminar', name: 'delete', icon: 'icon-trash-2', class: 'text-danger' }
   ]

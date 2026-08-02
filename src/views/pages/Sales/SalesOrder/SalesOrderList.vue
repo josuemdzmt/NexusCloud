@@ -36,6 +36,7 @@ export default {
       lstColumns: [
         { label: 'Cliente', fieldName: 'accountName', type: 'text', sortable: true },
         { label: 'Fecha Venta', fieldName: 'effectiveDate', type: 'text', sortable: true },
+        { label: 'Moneda', fieldName: 'currencyLabel', type: 'text', sortable: true },
         { label: 'Total', fieldName: 'totalAmount', type: 'currency' },
         { label: 'Saldo Pendiente', fieldName: 'balanceAmount', type: 'currency' },
         { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: ORDER_STATUS_BADGE },
@@ -49,13 +50,17 @@ export default {
   methods: {
     handleGetData() {
       this.bSpinner = true;
-      SalesOrderService.getAll({ include: 'account' })
+      SalesOrderService.getAll({ include: 'account,currency' })
         .then((data) => {
           const lstOrders = data.data || data;
-          this.lstOrders = lstOrders.map(objOrder => ({
-            ...objOrder,
-            accountName: objOrder.account ? (objOrder.account.legal_name || `${objOrder.account.first_name || ''} ${objOrder.account.last_name || ''}`.trim() || 'Sin Nombre') : 'Desconocido'
-          }));
+          this.lstOrders = lstOrders.map(objOrder => {
+            const objCurrency = objOrder.currency || {};
+            return {
+              ...objOrder,
+              accountName: objOrder.account ? (objOrder.account.legal_name || `${objOrder.account.first_name || ''} ${objOrder.account.last_name || ''}`.trim() || 'Sin Nombre') : 'Desconocido',
+              currencyLabel: objCurrency.iso_code || objCurrency.code || objCurrency.name || '—'
+            };
+          });
         })
         .catch((error) => {
           handleError('Ocurrió un problema al obtener las órdenes de venta', error);

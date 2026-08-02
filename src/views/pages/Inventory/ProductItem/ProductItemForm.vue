@@ -4,12 +4,12 @@
       <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Producto <span class="text-danger">*</span></label>
-          <Field name="productId" as="nx-combobox" :options="lstProductOptions" placeholder="Seleccionar" :disabled="!!numRecordId" :class="{ 'border-danger focus:border-danger': errors.productId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="productId" as="nx-combobox" :options="lstProductOptions" placeholder="Seleccionar" :disabled="bProductLocked || !!numRecordId" :class="{ 'border-danger focus:border-danger': errors.productId }" class="w-full text-sm border-border-color focus:border-primary" />
           <ErrorMessage name="productId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Almacén <span class="text-danger">*</span></label>
-          <Field name="locationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="!!numRecordId" :class="{ 'border-danger focus:border-danger': errors.locationId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="locationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="bLocationLocked || !!numRecordId" :class="{ 'border-danger focus:border-danger': errors.locationId }" class="w-full text-sm border-border-color focus:border-primary" />
           <ErrorMessage name="locationId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div v-if="!numRecordId">
@@ -70,6 +70,8 @@ export default {
     return {
       // 1. Booleanos
       bSpinner: false,
+      bLocationLocked: false,
+      bProductLocked: false,
 
       // 2. Números
       numRecordId: null,
@@ -121,10 +123,12 @@ export default {
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los almacenes', objError));
     },
-    handleOpen(recordId = null) {
+    handleOpen(recordId = null, objContext = null) {
       this.numRecordId = recordId;
       this.strTitle = recordId ? 'Editar Inventario' : 'Agregar Inventario';
       this.objValidationSchema = recordId ? updateSchema : createSchema;
+      this.bLocationLocked = !recordId && !!objContext?.locationId;
+      this.bProductLocked = !recordId && !!objContext?.productId;
 
       if (this.$refs.modalFormRef) {
         this.$refs.modalFormRef.handleOpen();
@@ -136,7 +140,11 @@ export default {
       }
 
       this.numQuantityOnHand = 0;
-      this.objInitialData = createSchema.getDefault();
+      this.objInitialData = {
+        ...createSchema.getDefault(),
+        locationId: objContext?.locationId ? Number(objContext.locationId) : null,
+        productId: objContext?.productId ? Number(objContext.productId) : null
+      };
       if (this.$refs.modalFormRef) {
         this.$refs.modalFormRef.handleSetValues(this.objInitialData);
       }

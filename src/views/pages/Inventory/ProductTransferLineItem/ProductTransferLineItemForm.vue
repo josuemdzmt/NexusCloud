@@ -6,8 +6,16 @@
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Producto <span class="text-danger">*</span></label>
           <Field name="productId" v-slot="{ field, value }">
-            <nx-combobox v-bind="field" :options="lstProductOptions" :model-value="value" placeholder="Seleccionar producto" :disabled="!!recordId"
-              :class="{ 'border-danger focus:border-danger': errors.productId }" class="w-full text-sm border-border-color focus:border-primary" @update:model-value="field.onChange" />
+            <nx-combobox
+              v-bind="field"
+              :options="lstProductOptions"
+              :model-value="value"
+              placeholder="Seleccionar producto"
+              :disabled="!!recordId"
+              :class="{ 'border-danger focus:border-danger': errors.productId }"
+              class="w-full text-sm border-border-color focus:border-primary"
+              @update:model-value="field.onChange"
+            />
           </Field>
           <ErrorMessage name="productId" class="text-danger text-[11px] mt-1 block" />
         </div>

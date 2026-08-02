@@ -224,6 +224,7 @@ const routes = [
     children: [
       { path: "", redirect: "/inventory/location/list" },
       { path: "list", component: () => import("@/views/pages/Inventory/Location/LocationList.vue"), meta: { title: "Ubicaciones | NexusCloud" } },
+      { path: ":recordId/details", component: () => import("@/views/pages/Inventory/Location/LocationDetails.vue"), meta: { title: "Detalle Almacén | NexusCloud" } },
     ],
   },
 
@@ -312,7 +313,8 @@ const routes = [
     component: () => import("@/views/pages/Sales/Customer/Customer.vue"),
     children: [
       { path: "", redirect: "/sales/customer/list" },
-      { path: "list", component: () => import("@/views/pages/Sales/Customer/CustomerList.vue"), meta: { title: "Clientes | NexusCloud" } }
+      { path: "list", component: () => import("@/views/pages/Sales/Customer/CustomerList.vue"), meta: { title: "Clientes | NexusCloud" } },
+      { path: ":recordId/details", component: () => import("@/views/pages/Sales/Customer/CustomerDetails.vue"), meta: { title: "Detalles Cliente | NexusCloud" } }
     ]
   },
   

@@ -90,18 +90,6 @@ export function handleCanRegisterPayment(strStatus) {
   return strStatus === ORDER_STATUS.ACTIVATED;
 }
 
-export function handleCanActivateOrder(strStatus) {
-  return strStatus === ORDER_STATUS.DRAFT;
-}
-
-export function handleCanCompleteOrder(strStatus, fltBalanceAmount = 0) {
-  return strStatus === ORDER_STATUS.ACTIVATED && Number(fltBalanceAmount) <= 0;
-}
-
-export function handleCanCancelOrder(strStatus) {
-  return strStatus === ORDER_STATUS.DRAFT || strStatus === ORDER_STATUS.ACTIVATED;
-}
-
 /**
  * Valida si una transición de estado es permitida.
  * @param {String|null} strFromStatus - null al crear

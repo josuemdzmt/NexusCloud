@@ -5,7 +5,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Almacén origen <span class="text-danger">*</span></label>
-          <Field name="sourceLocationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="bIsLocked"
+          <Field name="sourceLocationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="bIsLocked || bSourceLocked"
             :class="{ 'border-danger focus:border-danger': errors.sourceLocationId }" class="w-full text-sm border-border-color focus:border-primary" />
           <ErrorMessage name="sourceLocationId" class="text-danger text-[11px] mt-1 block" />
         </div>
@@ -64,6 +64,7 @@ export default {
       // 1. Booleanos
       bSpinner: false,
       bIsLocked: false,
+      bSourceLocked: false,
 
       // 2. Números / IDs
       recordId: null,
@@ -107,9 +108,10 @@ export default {
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los almacenes', objError));
     },
-    handleOpen(numId = null) {
+    handleOpen(numId = null, objContext = null) {
       this.recordId = numId;
       this.bIsLocked = false;
+      this.bSourceLocked = !numId && !!objContext?.sourceLocationId;
       this.strStatus = TRANSFER_STATUS.DRAFT;
       this.strTitle = numId ? 'Editar Traspaso' : 'Nuevo Traspaso';
 
@@ -125,7 +127,8 @@ export default {
       this.objInitialData = {
         ...validationSchema.getDefault(),
         transferDate: this.handleGetToday(),
-        status: TRANSFER_STATUS.DRAFT
+        status: TRANSFER_STATUS.DRAFT,
+        sourceLocationId: objContext?.sourceLocationId ? Number(objContext.sourceLocationId) : null
       };
       if (this.$refs.modalFormRef) {
         this.$refs.modalFormRef.handleSetValues(this.objInitialData);

@@ -107,6 +107,7 @@ export default {
       this.bSpinner = true;
       ProductItemTransactionService.getAll({
         'filter[product_item_id]': this.recordId,
+        include: 'productItem.product,productItem.location',
         per_page: 500,
         sort: '-created_at'
       })

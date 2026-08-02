@@ -4,12 +4,12 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div class="md:col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Producto <span class="text-danger">*</span></label>
-          <Field name="productId" as="nx-combobox" :options="lstProductOptions" placeholder="Seleccionar producto" :disabled="bLocked" :class="{ 'border-danger focus:border-danger': errors.productId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="productId" as="nx-combobox" :options="lstProductOptions" placeholder="Seleccionar producto" :disabled="bLocked || bProductLocked" :class="{ 'border-danger focus:border-danger': errors.productId }" class="w-full text-sm border-border-color focus:border-primary" />
           <ErrorMessage name="productId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Almacén <span class="text-danger">*</span></label>
-          <Field name="locationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="bLocked" :class="{ 'border-danger focus:border-danger': errors.locationId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="locationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="bLocked || bLocationLocked" :class="{ 'border-danger focus:border-danger': errors.locationId }" class="w-full text-sm border-border-color focus:border-primary" />
           <ErrorMessage name="locationId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
@@ -70,6 +70,8 @@ export default {
       // 1. Booleanos
       bSpinner: false,
       bLocked: false,
+      bLocationLocked: false,
+      bProductLocked: false,
 
       // 2. Números
       numProductItemId: null,
@@ -134,7 +136,7 @@ export default {
         .catch((objError) => handleError('Error', 'No se pudieron cargar las existencias', objError));
     },
     /**
-     * @param {Object|null} objProductItem - Fila de existencia (opcional). Si viene, bloquea producto/almacén.
+     * @param {Object|null} objProductItem - Fila de existencia o contexto { locationId } / { productId }.
      * @param {String} strTransactionType - Tipo de movimiento (default Adjusted)
      */
     handleOpen(objProductItem = null, strTransactionType = TRANSACTION_TYPE.ADJUSTED) {
@@ -149,6 +151,8 @@ export default {
 
       if (objProductItem?.id) {
         this.bLocked = true;
+        this.bLocationLocked = false;
+        this.bProductLocked = false;
         this.numProductItemId = objProductItem.id;
         this.numQuantityOnHand = objProductItem.quantityOnHand ?? objProductItem.quantity_on_hand ?? 0;
         this.objInitialData = {
@@ -160,8 +164,16 @@ export default {
         };
       } else {
         this.bLocked = false;
+        this.bLocationLocked = objProductItem?.locationId != null || objProductItem?.location_id != null;
+        this.bProductLocked = objProductItem?.productId != null || objProductItem?.product_id != null;
         this.numProductItemId = null;
         this.numQuantityOnHand = 0;
+        if (this.bLocationLocked) {
+          this.objInitialData.locationId = Number(objProductItem.locationId ?? objProductItem.location_id);
+        }
+        if (this.bProductLocked) {
+          this.objInitialData.productId = Number(objProductItem.productId ?? objProductItem.product_id);
+        }
       }
 
       if (this.$refs.modalFormRef) {

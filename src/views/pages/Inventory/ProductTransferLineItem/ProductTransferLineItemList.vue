@@ -5,7 +5,15 @@
         <i class="ph ph-plus"></i> Agregar línea
       </button>
     </div>
-    <nx-datatable key-field="id" :data="lstLineItems" :columns="lstColumns" :is-loading="bSpinner" :show-date-range="false" @rowaction="handleRowAction" @refresh="handleGetData" />
+    <nx-datatable
+      key-field="id"
+      :data="lstLineItems"
+      :columns="lstColumns"
+      :is-loading="bSpinner"
+      :show-date-range="false"
+      @rowaction="handleRowAction"
+      @refresh="handleGetData"
+    />
     <ProductTransferLineItemForm ref="lineItemFormRef" @success="handleGetData" />
   </div>
 </template>
