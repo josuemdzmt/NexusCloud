@@ -85,11 +85,20 @@ export default {
       }
       if (!this.purchaseOrderId) return;
       this.bSpinner = true;
-      PurchaseOrderPaymentService.getAll({ purchase_order_id: this.purchaseOrderId })
+      PurchaseOrderPaymentService.getAll({
+        'filter[purchase_order_id]': this.purchaseOrderId,
+        per_page: 200
+      })
         .then((objResponse) => {
           const lstData = objResponse.data || objResponse;
           const lstRaw = Array.isArray(lstData) ? lstData : [];
-          this.lstPayments = lstRaw.map((objPayment) => this.handleMapPayment(objPayment));
+          const numOrderId = Number(this.purchaseOrderId);
+          this.lstPayments = lstRaw
+            .filter((objPayment) => {
+              const numPaymentOrderId = Number(objPayment.purchaseOrderId ?? objPayment.purchase_order_id);
+              return numPaymentOrderId === numOrderId;
+            })
+            .map((objPayment) => this.handleMapPayment(objPayment));
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los abonos', objError))
         .finally(() => {
@@ -118,10 +127,19 @@ export default {
 
           return Promise.all(
             lstOrders.map((objOrder) =>
-              PurchaseOrderPaymentService.getAll({ purchase_order_id: objOrder.id }).then((objPayResponse) => {
+              PurchaseOrderPaymentService.getAll({
+                'filter[purchase_order_id]': objOrder.id,
+                per_page: 200
+              }).then((objPayResponse) => {
                 const lstPayData = objPayResponse.data || objPayResponse;
                 const lstRaw = Array.isArray(lstPayData) ? lstPayData : [];
-                return lstRaw.map((objPayment) => this.handleMapPayment(objPayment, objOrder.id));
+                const numOrderId = Number(objOrder.id);
+                return lstRaw
+                  .filter((objPayment) => {
+                    const numPaymentOrderId = Number(objPayment.purchaseOrderId ?? objPayment.purchase_order_id);
+                    return numPaymentOrderId === numOrderId;
+                  })
+                  .map((objPayment) => this.handleMapPayment(objPayment, objOrder));
               })
             )
           ).then((lstGrouped) => {
@@ -137,20 +155,27 @@ export default {
           this.bSpinner = false;
         });
     },
-    handleMapPayment(objPayment, numOrderId = null) {
+    handleMapPayment(objPayment, objOrderOrId = null) {
       const numMethodId = objPayment.paymentMethodId ?? objPayment.payment_method_id;
       const numBankId = objPayment.bankId ?? objPayment.bank_id;
       const strReference = objPayment.paymentReference ?? objPayment.payment_reference ?? '';
       const strDate = objPayment.paymentDate || objPayment.payment_date || '';
       const fltAmount = parseFloat(objPayment.amount) || 0;
-      const numPurchaseOrderId = numOrderId ?? objPayment.purchaseOrderId ?? objPayment.purchase_order_id;
+      const objOrder = objOrderOrId && typeof objOrderOrId === 'object' ? objOrderOrId : null;
+      const numPurchaseOrderId = objOrder?.id ?? objOrderOrId ?? objPayment.purchaseOrderId ?? objPayment.purchase_order_id;
+      const strPurchaseNumber =
+        objOrder?.purchaseNumber ||
+        objOrder?.purchase_number ||
+        objPayment.purchaseOrder?.purchaseNumber ||
+        objPayment.purchase_order?.purchase_number ||
+        (numPurchaseOrderId ? `PO-${numPurchaseOrderId}` : null);
       return {
         ...objPayment,
         paymentDateLabel: strDate ? String(strDate).split(' ')[0] : '—',
         paymentMethodLabel: this.handleGetPaymentMethodLabel(numMethodId),
         bankLabel: this.handleGetBankLabel(numBankId),
         paymentReferenceLabel: strReference || '—',
-        purchaseOrderLabel: numPurchaseOrderId ? `#PO-${numPurchaseOrderId}` : '—',
+        purchaseOrderLabel: strPurchaseNumber || '—',
         amountLabel: `+$${fltAmount.toLocaleString('en-US', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2

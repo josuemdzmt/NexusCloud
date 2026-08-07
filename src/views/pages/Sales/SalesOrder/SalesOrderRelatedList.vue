@@ -14,23 +14,25 @@
       @rowaction="handleRowAction"
       @refresh="handleGetData"
     />
+    <SalesOrderForm ref="salesOrderFormRef" @success="handleFormSuccess" />
   </div>
 </template>
 
 <script>
 import SalesOrderService from '@/services/sales/SalesOrderService';
-import {
-  ORDER_STATUS_BADGE,
-  ACTION_BUTTONS
-} from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
+import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
+import { ORDER_STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import { handleError } from '@/utils/toastUtils';
 
 const RELATED_ACTION_BUTTONS = {
-  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => objAction.name === 'details')
+  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => objAction.name === 'detail')
 };
 
 export default {
   name: 'SalesOrderRelatedList',
+  components: { 
+    SalesOrderForm 
+  },
   props: {
     accountId: { type: [Number, String], default: null }
   },
@@ -43,10 +45,10 @@ export default {
       // 5. Listas
       lstOrders: [],
       lstColumns: [
-        { label: 'Orden', fieldName: 'orderLabel', type: 'text', sortable: true },
+        { label: 'Orden', fieldName: 'orderNumber', type: 'text', sortable: true },
         { label: 'Fecha Venta', fieldName: 'effectiveDate', type: 'text', sortable: true },
         { label: 'Moneda', fieldName: 'currencyLabel', type: 'text', sortable: true },
-        { label: 'Total', fieldName: 'totalAmount', type: 'currency' },
+        { label: 'Total', fieldName: 'grandTotalAmount', type: 'currency' },
         { label: 'Pagado', fieldName: 'paidAmount', type: 'currency' },
         { label: 'Saldo Pendiente', fieldName: 'balanceAmount', type: 'currency' },
         { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: ORDER_STATUS_BADGE },
@@ -86,10 +88,10 @@ export default {
             const objCurrency = objOrder.currency || {};
             return {
               ...objOrder,
-              orderLabel: `#SO-${objOrder.id}`,
+              orderNumber: objOrder.orderNumber || objOrder.order_number || `SO-${objOrder.id}`,
               effectiveDate: objOrder.effectiveDate || objOrder.effective_date || '—',
               currencyLabel: objCurrency.iso_code || objCurrency.code || objCurrency.name || '—',
-              totalAmount: parseFloat(objOrder.totalAmount ?? objOrder.total_amount) || 0,
+              grandTotalAmount: parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0,
               paidAmount: parseFloat(objOrder.paidAmount ?? objOrder.paid_amount) || 0,
               balanceAmount: parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0
             };
@@ -102,12 +104,15 @@ export default {
         });
     },
     handleCreate() {
-      this.$router.push('/sales/sales-orders/new');
+      this.$refs.salesOrderFormRef?.handleOpen(null, { accountId: this.accountId });
+    },
+    handleFormSuccess() {
+      this.handleGetData();
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'details') {
-        this.$router.push(`/sales/sales-orders/${row.id}/details`);
+      if (action.name === 'detail') {
+        this.$router.push(`/sales/sales-orders/${row.id}/detail`);
       }
     }
   }

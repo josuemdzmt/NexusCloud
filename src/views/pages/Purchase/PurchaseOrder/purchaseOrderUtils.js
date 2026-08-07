@@ -1,104 +1,57 @@
-let numNextItemId = 1;
+import { AMOUNT_SOURCE } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 
-/**
- * Crea una partida vacía de orden de compra (producto de catálogo requerido).
- * @param {Number} numQty
- * @returns {Object}
- */
-export function handleBuildLineItem(numQty = 1) {
-  return {
-    id: numNextItemId++,
-    productId: null,
-    productName: '',
-    quantity: numQty,
-    unitCost: '',
-    discountPercent: '',
-    lineTotal: 0
-  };
-}
-
-/**
- * Importe de una partida (qty * unitCost * (1 - discount%)).
- * @param {Object} objItem
- * @returns {String}
- */
-export function handleGetItemAmount(objItem) {
+/** (unitCost * quantity) - discountAmount */
+export function handleGetLineTotalPrice(objItem) {
   const fltCost = parseFloat(objItem.unitCost) || 0;
   const numQty = parseFloat(objItem.quantity) || 0;
-  const fltDiscPercent = parseFloat(objItem.discountPercent) || 0;
-  const fltLineTotal = (fltCost * numQty) * (1 - fltDiscPercent / 100);
-  return fltLineTotal ? fltLineTotal.toFixed(2) : '';
+  const fltDisc = parseFloat(objItem.discountAmount) || 0;
+  return parseFloat(Math.max(0, fltCost * numQty - fltDisc).toFixed(2));
 }
 
-/**
- * Recalcula lineTotal por línea y totales de cabecera.
- * @param {Object} objParams
- * @returns {{ fltSubtotal: Number, fltDiscount: Number, fltTotal: Number }}
- */
-export function handleCalculateOrderTotals({
-  lstItems = [],
-  fltDiscountPercent = 0,
-  fltDiscountAmount = 0
-} = {}) {
-  let fltSubtotal = 0;
+/** subtotal - discountAmount */
+export function handleGetGrandTotalPreview(fltSubtotal, fltDiscountAmount = 0) {
+  return parseFloat(Math.max(0, (parseFloat(fltSubtotal) || 0) - (parseFloat(fltDiscountAmount) || 0)).toFixed(2));
+}
 
-  lstItems.forEach((objItem) => {
-    const numQty = parseFloat(objItem.quantity) || 0;
-    const fltCost = parseFloat(objItem.unitCost) || 0;
-    const fltDiscPercent = parseFloat(objItem.discountPercent) || 0;
-    const fltLineDisc = (fltCost * numQty) * (fltDiscPercent / 100);
-    objItem.lineTotal = parseFloat(((fltCost * numQty) - fltLineDisc).toFixed(2));
-    fltSubtotal += objItem.lineTotal;
-  });
-
-  fltSubtotal = parseFloat(fltSubtotal.toFixed(2));
-  const fltPercentDisc = parseFloat((fltSubtotal * ((parseFloat(fltDiscountPercent) || 0) / 100)).toFixed(2));
-  const fltFixedDisc = parseFloat(fltDiscountAmount) || 0;
-  const fltDiscount = parseFloat((fltPercentDisc + fltFixedDisc).toFixed(2));
-  const fltTotal = parseFloat(Math.max(0, fltSubtotal - fltDiscount).toFixed(2));
-
+/** Normaliza cabecera PO (camelCase / snake_case). */
+export function handleNormalizePurchaseOrder(objRaw) {
+  if (!objRaw) return null;
   return {
-    fltSubtotal,
-    fltDiscount,
-    fltTotal
+    ...objRaw,
+    id: objRaw.id,
+    purchaseNumber: objRaw.purchaseNumber ?? objRaw.purchase_number ?? null,
+    accountId: objRaw.accountId ?? objRaw.account_id ?? objRaw.account?.id ?? null,
+    currencyId: objRaw.currencyId ?? objRaw.currency_id ?? objRaw.currency?.id ?? null,
+    status: objRaw.status,
+    effectiveDate: objRaw.effectiveDate ?? objRaw.effective_date ?? null,
+    amountSource: objRaw.amountSource ?? objRaw.amount_source ?? AMOUNT_SOURCE.LINE_ITEMS,
+    discountAmount: Number(objRaw.discountAmount ?? objRaw.discount_amount ?? 0),
+    subtotal: Number(objRaw.subtotal ?? 0),
+    grandTotalAmount: Number(objRaw.grandTotalAmount ?? objRaw.grand_total_amount ?? objRaw.totalAmount ?? objRaw.total_amount ?? 0),
+    paidAmount: Number(objRaw.paidAmount ?? objRaw.paid_amount ?? 0),
+    balanceAmount: Number(objRaw.balanceAmount ?? objRaw.balance_amount ?? 0),
+    supplierDocumentType: objRaw.supplierDocumentType ?? objRaw.supplier_document_type ?? null,
+    supplierDocumentNumber: objRaw.supplierDocumentNumber ?? objRaw.supplier_document_number ?? null,
+    notes: objRaw.notes ?? null,
+    termsAndConditions: objRaw.termsAndConditions ?? objRaw.terms_and_conditions ?? null,
+    account: objRaw.account || null,
+    currency: objRaw.currency || null
   };
 }
 
-/**
- * Valida partidas: al menos 1 y productId en todas.
- * @param {Array} lstItems
- * @returns {{ bValid: Boolean, strMessage: String }}
- */
-export function handleValidateOrderItems(lstItems) {
-  if (!lstItems || lstItems.length === 0) {
-    return { bValid: false, strMessage: 'Debes agregar al menos un producto a la orden.' };
-  }
-
-  const bMissingProduct = lstItems.some((objItem) => !objItem.productId);
-  if (bMissingProduct) {
-    return { bValid: false, strMessage: 'Todas las partidas deben tener un producto seleccionado.' };
-  }
-
-  const bInvalidQty = lstItems.some((objItem) => !(parseFloat(objItem.quantity) > 0));
-  if (bInvalidQty) {
-    return { bValid: false, strMessage: 'Todas las líneas deben tener cantidad mayor a 0.' };
-  }
-
-  return { bValid: true, strMessage: '' };
-}
-
-/**
- * Payload de items para create/update.
- * description = nombre del producto (campo requerido por API).
- * @param {Array} lstItems
- * @returns {Array}
- */
-export function handleBuildItemsPayload(lstItems) {
-  return (lstItems || []).map((objItem) => ({
-    description: String(objItem.productName || '').trim(),
-    productId: Number(objItem.productId),
-    quantity: Number(objItem.quantity) || 0,
-    unitCost: Number(objItem.unitCost) || 0,
-    discountPercent: Number(objItem.discountPercent) || 0
-  }));
+export function handleNormalizePurchaseOrderLineItem(objRaw) {
+  if (!objRaw) return null;
+  const objProduct = objRaw.product || {};
+  return {
+    ...objRaw,
+    id: objRaw.id,
+    purchaseOrderId: objRaw.purchaseOrderId ?? objRaw.purchase_order_id ?? null,
+    productId: objRaw.productId ?? objRaw.product_id ?? objProduct.id ?? null,
+    productName: objProduct.name || objRaw.description || '—',
+    quantity: Number(objRaw.quantity ?? 0),
+    unitCost: Number(objRaw.unitCost ?? objRaw.unit_cost ?? 0),
+    discountAmount: Number(objRaw.discountAmount ?? objRaw.discount_amount ?? 0),
+    totalPrice: Number(objRaw.totalPrice ?? objRaw.total_price ?? 0),
+    description: objRaw.description ?? null
+  };
 }

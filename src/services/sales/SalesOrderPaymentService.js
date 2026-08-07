@@ -4,7 +4,8 @@ const ENDPOINT = '/api/v1/sales/sales-order-payments';
 
 export default {
   /**
-   * Get payments (can filter by sales_order_id)
+   * Get payments
+   * Filter with Spatie: filter[sales_order_id]
    * @param {Object} objParams
    */
   getAll(objParams = {}) {
@@ -12,10 +13,36 @@ export default {
   },
 
   /**
+   * Get single payment by ID
+   * @param {Number|String} recordId
+   * @param {Object} objParams
+   */
+  getById(recordId, objParams = {}) {
+    return api.get(`${ENDPOINT}/${recordId}`, { params: objParams });
+  },
+
+  /**
    * Create/register a new payment for a sales order
-   * @param {Object} objData
+   * @param {Object} objData - { salesOrderId, amount, paymentMethodId, bankId?, paymentReference?, paymentDate, currencyId }
    */
   create(objData) {
     return api.post(ENDPOINT, objData);
+  },
+
+  /**
+   * Update payment
+   * @param {Number|String} recordId
+   * @param {Object} objData
+   */
+  update(recordId, objData) {
+    return api.put(`${ENDPOINT}/${recordId}`, objData);
+  },
+
+  /**
+   * Delete payment
+   * @param {Number|String} recordId
+   */
+  delete(recordId) {
+    return api.delete(`${ENDPOINT}/${recordId}`);
   }
 };

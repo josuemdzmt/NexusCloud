@@ -18,26 +18,30 @@
         @rowaction="handleRowAction" 
         @refresh="handleGetData"
       />
+      <SalesOrderForm ref="salesOrderFormRef" @success="handleFormSuccess" />
     </div>
   </main>
 </template>
 
 <script>
 import SalesOrderService from '@/services/sales/SalesOrderService';
+import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { ORDER_STATUS_BADGE, ACTION_BUTTONS, handleCanEditOrder, handleCanDeleteOrder } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 
 export default {
   name: 'SalesOrderList',
+  components: { SalesOrderForm },
   data() {
     return {
       bSpinner: false,
       lstOrders: [],
       lstColumns: [
+        { label: 'Orden', fieldName: 'orderNumber', type: 'text', sortable: true },
         { label: 'Cliente', fieldName: 'accountName', type: 'text', sortable: true },
         { label: 'Fecha Venta', fieldName: 'effectiveDate', type: 'text', sortable: true },
         { label: 'Moneda', fieldName: 'currencyLabel', type: 'text', sortable: true },
-        { label: 'Total', fieldName: 'totalAmount', type: 'currency' },
+        { label: 'Total', fieldName: 'grandTotalAmount', type: 'currency' },
         { label: 'Saldo Pendiente', fieldName: 'balanceAmount', type: 'currency' },
         { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: ORDER_STATUS_BADGE },
         { label: 'Acción', type: 'action', typeAttributes: ACTION_BUTTONS }
@@ -57,8 +61,11 @@ export default {
             const objCurrency = objOrder.currency || {};
             return {
               ...objOrder,
+              orderNumber: objOrder.orderNumber || objOrder.order_number || `SO-${objOrder.id}`,
               accountName: objOrder.account ? (objOrder.account.legal_name || `${objOrder.account.first_name || ''} ${objOrder.account.last_name || ''}`.trim() || 'Sin Nombre') : 'Desconocido',
-              currencyLabel: objCurrency.iso_code || objCurrency.code || objCurrency.name || '—'
+              currencyLabel: objCurrency.iso_code || objCurrency.code || objCurrency.name || '—',
+              grandTotalAmount: parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0,
+              balanceAmount: parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0
             };
           });
         })
@@ -70,18 +77,21 @@ export default {
         });
     },
     handleCreate() {
-      this.$router.push('/sales/sales-orders/new');
+      this.$refs.salesOrderFormRef?.handleOpen();
+    },
+    handleFormSuccess() {
+      this.handleGetData();
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'details') {
-        this.$router.push(`/sales/sales-orders/${row.id}/details`);
+      if (action.name === 'detail') {
+        this.$router.push(`/sales/sales-orders/${row.id}/detail`);
       } else if (action.name === 'edit') {
         if (!handleCanEditOrder(row.status)) {
           handleError('No permitido', 'Solo puedes editar órdenes en estado Borrador.');
           return;
         }
-        this.$router.push(`/sales/sales-orders/${row.id}/edit`);
+        this.$refs.salesOrderFormRef?.handleOpen(row.id);
       } else if (action.name === 'delete') {
         if (!handleCanDeleteOrder(row.status)) {
           handleError('No permitido', 'Solo puedes eliminar órdenes en estado Borrador.');

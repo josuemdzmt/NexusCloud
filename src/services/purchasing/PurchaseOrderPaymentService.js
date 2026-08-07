@@ -4,7 +4,8 @@ const ENDPOINT = '/api/v1/purchasing/purchase-order-payments';
 
 export default {
   /**
-   * Get payments (filter: purchase_order_id)
+   * Get payments
+   * Filter with Spatie: filter[purchase_order_id]
    * @param {Object} objParams
    */
   getAll(objParams = {}) {
@@ -22,7 +23,7 @@ export default {
 
   /**
    * Register a payment against a purchase order
-   * @param {Object} objData
+   * @param {Object} objData - { purchaseOrderId, amount, paymentMethodId, bankId?, paymentReference?, paymentDate, currencyId }
    */
   create(objData) {
     return api.post(ENDPOINT, objData);

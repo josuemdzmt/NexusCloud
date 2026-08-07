@@ -1,170 +1,138 @@
 <template>
   <main>
     <div class="p-3 lg:py-6 lg:px-0">
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-3 lg:mb-6">
-        <div>
-          <div class="flex items-center gap-2 text-sm text-default mb-1">
-            <router-link :to="`${all_routes.purchaseOrders}/list`" class="hover:text-primary">Órdenes de Compra</router-link>
-            <i class="ph ph-caret-right text-[10px]"></i>
-            <span>{{ strPoLabel }}</span>
-          </div>
-          <h1 class="text-gray-900 text-xl font-bold mb-0">Vista Previa de Orden</h1>
-        </div>
-        <div class="flex items-center gap-2 flex-wrap">
-          <button v-if="bCanCancel" type="button" class="btn-sm bg-white border border-secondary text-secondary hover:bg-secondary hover:text-white cursor-pointer inline-flex items-center gap-1" @click="handleCancelOrder">
-            <i class="ph ph-x"></i> Cancelar Orden
-          </button>
-          <button v-if="bCanRegisterPayment" type="button" class="btn-sm bg-dark text-white border border-dark hover:bg-primary-hover cursor-pointer inline-flex items-center gap-1" @click="handleOpenPaymentModal">
-            <i class="ph ph-currency-dollar"></i> Registrar Abono
-          </button>
-          <router-link v-if="bCanEdit" :to="`${all_routes.purchaseOrders}/${objOrder.id}/edit`" class="btn-sm bg-dark text-white border border-dark hover:bg-primary-hover cursor-pointer inline-flex items-center gap-1">
-            <i class="ph ph-pencil"></i> Editar
-          </router-link>
-        </div>
+      <div class="flex flex-wrap items-center gap-2 text-sm text-default mb-3">
+        <router-link :to="`${all_routes.purchaseOrders}/list`" class="hover:text-primary">Órdenes de Compra</router-link>
+        <i class="ph ph-caret-right text-[10px]"></i>
+        <span>Detalle</span>
       </div>
 
-      <div class="bg-white border border-border-color rounded-md">
-        <nav class="flex items-center gap-1 border-b border-border-color flex-wrap" aria-label="Tabs" role="tablist" aria-orientation="horizontal">
-          <button v-for="(objTab, numIndex) in lstTabs" :key="objTab.id" type="button" :id="`${objTab.id}-tab`" role="tab"
-            :aria-selected="numIndex === 0" :aria-controls="`${objTab.id}-pane`" :data-hs-tab="`#${objTab.id}-pane`"
-            class="px-4 py-3 text-sm text-default whitespace-nowrap border-b-2 border-transparent -mb-px hover:text-gray-900 hs-tab-active:font-semibold hs-tab-active:text-gray-900 hs-tab-active:border-primary focus:outline-hidden"
-            :class="{ active: numIndex === 0 }">
-            {{ objTab.label }}
-          </button>
-        </nav>
-
-        <div class="p-4 sm:p-5">
-          <div id="detail-pane" role="tabpanel" aria-labelledby="detail-tab">
-            <div v-if="objOrder" class="w-full">
-              <div class="flex justify-between items-start mb-8 flex-wrap gap-5 lg:flex-nowrap">
+      <div class="grid grid-cols-12 gap-3 mb-3">
+        <div class="col-span-12 lg:col-span-4">
+          <div class="bg-white border border-border-color rounded-md p-4">
+            <div v-if="objOrder" class="text-start">
+              <div class="flex items-start justify-between mb-3 gap-2">
                 <div>
-                  <div class="invoice-logo block dark:hidden">
-                    <img src="@/assets/img/logo.svg" class="h-10 mb-3" alt="logo">
-                  </div>
-                  <div class="invoice-logo-white hidden dark:block">
-                    <img src="@/assets/img/logo-white.svg" class="h-10 mb-3" alt="logo">
-                  </div>
-                  <div class="text-sm text-default mb-0">NexusCloud
-                    <span class="block pt-1">Sistema Integrado de Gestión</span>
-                  </div>
-                </div>
-                <div class="text-start sm:text-right">
-                  <h2 class="text-xl font-bold text-title uppercase mb-1">Orden de Compra</h2>
-                  <p class="text-sm text-default mb-0">{{ strPoLabel }}</p>
-                  <span :class="handleGetStatusClass(objOrder.status)" class="text-[11px] px-2 py-0.5 rounded mt-2 inline-block">
+                  <h2 class="text-base font-semibold text-title mb-1">{{ strPoLabel }}</h2>
+                  <span :class="handleGetStatusClass(objOrder.status)" class="text-[11px] px-2 py-0.5 rounded inline-block">
                     {{ handleGetStatusLabel(objOrder.status) }}
                   </span>
                 </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 pb-6 border-b border-border-color">
-                <div>
-                  <p class="text-sm text-default mb-2">Proveedor</p>
-                  <p class="text-sm font-semibold text-title mb-2">{{ strVendorName }}</p>
-                  <p class="text-sm text-default mb-0">{{ objOrder.account?.tax_id || 'Sin NIT' }}
-                    <span class="block pt-1">{{ objOrder.account?.email || '' }}</span>
-                  </p>
-                </div>
-                <div class="text-start sm:text-right text-sm space-y-2">
-                  <div>
-                    <span class="text-default">Fecha:</span>
-                    <span class="text-gray-900 font-semibold">{{ objOrder.effectiveDate || objOrder.effective_date }}</span>
-                  </div>
-                  <div v-if="strSupplierDoc">
-                    <span class="text-default">Doc. proveedor: </span>
-                    <span class="text-gray-900 font-semibold">{{ strSupplierDoc }}</span>
-                  </div>
-                  <div>
-                    <span class="text-default">Moneda: </span>
-                    <span class="text-gray-900 font-semibold">{{ strCurrencyLabel }}</span>
-                  </div>
+                <div class="flex flex-wrap items-center justify-end gap-1 shrink-0">
+                  <button v-if="bCanEdit" type="button" title="Editar" @click="handleEdit"
+                    class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light cursor-pointer">
+                    <i class="ph ph-pencil-simple"></i>
+                  </button>
+                  <router-link :to="`${all_routes.purchaseOrders}/${objOrder.id}/preview`" title="Vista previa"
+                    class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light">
+                    <i class="ph ph-eye"></i>
+                  </router-link>
+                  <button v-if="bCanRegisterPayment" type="button" title="Abonar" @click="handleOpenPaymentModal"
+                    class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light cursor-pointer">
+                    <i class="ph ph-currency-dollar"></i>
+                  </button>
+                  <button v-if="bCanCancel" type="button" title="Cancelar orden" @click="handleCancelOrder"
+                    class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light cursor-pointer text-danger">
+                    <i class="ph ph-x"></i>
+                  </button>
                 </div>
               </div>
-
-              <div class="overflow-x-auto mb-6">
-                <table class="w-full text-sm">
-                  <thead>
-                    <tr class="text-sm text-default border-b border-border-color bg-light">
-                      <th class="text-left py-3 px-3 font-semibold text-gray-900">Producto</th>
-                      <th class="text-right py-3 px-3 font-semibold text-gray-900">Cant.</th>
-                      <th class="text-right py-3 px-3 font-semibold text-gray-900">Costo Unit.</th>
-                      <th class="text-right py-3 px-3 font-semibold text-gray-900">Desc. (%)</th>
-                      <th class="text-right py-3 px-3 font-semibold text-gray-900">Importe</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="objItem in objOrder.items" :key="objItem.id" class="border-b border-border-color">
-                      <td class="py-3 px-3 text-sm font-semibold text-title">
-                        {{ objItem.product?.name || 'Desconocido' }}
-                        <span v-if="objItem.product?.sku" class="text-xs text-default block font-normal">{{ objItem.product.sku }}</span>
-                      </td>
-                      <td class="py-3 px-3 text-sm text-right">{{ objItem.quantity }}</td>
-                      <td class="py-3 px-3 text-sm text-right">${{ handleFormatAmount(objItem.unitCost ?? objItem.unit_cost) }}</td>
-                      <td class="py-3 px-3 text-sm text-right">{{ (objItem.discountPercent ?? objItem.discount_percent) || 0 }}%</td>
-                      <td class="py-3 px-3 text-sm text-right font-semibold">${{ handleFormatAmount(handleGetLineTotal(objItem)) }}</td>
-                    </tr>
-                    <tr v-if="!objOrder.items || objOrder.items.length === 0">
-                      <td colspan="5" class="py-4 text-center text-default text-sm">Sin productos asociados a esta orden.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="grid xl:grid-cols-12 grid-cols-1 gap-8">
-                <div class="xl:col-span-7 xxl:col-span-8">
-                  <div class="mb-4">
-                    <h4 class="text-sm font-semibold text-gray-900 mb-1">Notas</h4>
-                    <p class="text-sm text-default whitespace-pre-wrap mb-0">{{ objOrder.notes || '—' }}</p>
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-semibold text-gray-900 mb-1">Términos y Condiciones</h4>
-                    <p class="text-sm text-default whitespace-pre-wrap mb-0">{{ objOrder.termsAndConditions || objOrder.terms_and_conditions || '—' }}</p>
-                  </div>
+              <div class="text-sm text-default space-y-3 pt-3 border-t border-border-color">
+                <div class="flex justify-between gap-2">
+                  <span>Proveedor</span>
+                  <span class="text-gray-900 font-semibold text-right">{{ strVendorName }}</span>
                 </div>
-                <div class="xl:col-span-5 xxl:col-span-4">
-                  <div class="text-sm space-y-2">
-                    <div class="flex justify-between">
-                      <span class="text-default">Subtotal</span>
-                      <span class="text-gray-900 font-semibold">${{ handleFormatAmount(fltSubtotal) }}</span>
-                    </div>
-                    <div v-if="fltDiscountAmount > 0" class="flex justify-between">
-                      <span class="text-default">Descuento</span>
-                      <span class="text-danger font-semibold">-${{ handleFormatAmount(fltDiscountAmount) }}</span>
-                    </div>
-                    <div class="flex justify-between border-t border-border-color pt-2 text-base">
-                      <span class="font-bold text-title">Total</span>
-                      <span class="text-primary font-bold">${{ handleFormatAmount(fltTotalAmount) }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-default">Pagado</span>
-                      <span class="text-success font-semibold">${{ handleFormatAmount(objOrder.paidAmount ?? objOrder.paid_amount) }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="text-default">Saldo</span>
-                      <span class="text-danger font-semibold">${{ handleFormatAmount(objOrder.balanceAmount ?? objOrder.balance_amount) }}</span>
-                    </div>
-                  </div>
+                <div class="flex justify-between gap-2">
+                  <span>Fecha</span>
+                  <span class="text-gray-900 font-semibold">{{ objOrder.effectiveDate }}</span>
+                </div>
+                <div v-if="strSupplierDoc" class="flex justify-between gap-2">
+                  <span>Doc. proveedor</span>
+                  <span class="text-gray-900 font-semibold text-right">{{ strSupplierDoc }}</span>
+                </div>
+                <div class="flex justify-between gap-2">
+                  <span>Moneda</span>
+                  <span class="text-gray-900 font-semibold">{{ strCurrencyLabel }}</span>
+                </div>
+                <div class="flex justify-between gap-2 pt-2 border-t border-border-color">
+                  <span>Subtotal</span>
+                  <span class="text-gray-900 font-semibold">${{ handleFormatAmount(objOrder.subtotal) }}</span>
+                </div>
+                <div v-if="objOrder.discountAmount > 0" class="flex justify-between gap-2">
+                  <span>Descuento</span>
+                  <span class="text-danger font-semibold">-${{ handleFormatAmount(objOrder.discountAmount) }}</span>
+                </div>
+                <div class="flex justify-between gap-2">
+                  <span class="font-bold text-title">Total</span>
+                  <span class="text-primary font-bold">${{ handleFormatAmount(objOrder.grandTotalAmount) }}</span>
+                </div>
+                <div class="flex justify-between gap-2">
+                  <span>Pagado</span>
+                  <span class="text-success font-semibold">${{ handleFormatAmount(objOrder.paidAmount) }}</span>
+                </div>
+                <div class="flex justify-between gap-2">
+                  <span>Saldo</span>
+                  <span class="text-danger font-semibold">${{ handleFormatAmount(objOrder.balanceAmount) }}</span>
+                </div>
+              </div>
+              <div v-if="objOrder.notes || objOrder.termsAndConditions" class="mt-4 pt-3 border-t border-border-color text-sm space-y-3">
+                <div v-if="objOrder.notes">
+                  <h4 class="font-semibold text-gray-900 mb-1">Notas</h4>
+                  <p class="text-default whitespace-pre-wrap mb-0">{{ objOrder.notes }}</p>
+                </div>
+                <div v-if="objOrder.termsAndConditions">
+                  <h4 class="font-semibold text-gray-900 mb-1">Términos</h4>
+                  <p class="text-default whitespace-pre-wrap mb-0">{{ objOrder.termsAndConditions }}</p>
                 </div>
               </div>
             </div>
-            <div v-else-if="bSpinner" class="text-center p-12">
-              <span class="text-default">Cargando detalles de la orden...</span>
-            </div>
+            <div v-else-if="bSpinner" class="text-center p-6 text-default text-sm">Cargando...</div>
           </div>
-
-          <div id="payments-pane" class="hidden" role="tabpanel" aria-labelledby="payments-tab">
-            <PurchaseOrderPaymentRelatedList
-              v-if="objOrder"
-              ref="paymentRelatedListRef"
-              :purchase-order-id="objOrder.id"
-              :b-can-register="bCanRegisterPayment"
-              @register="handleOpenPaymentModal"
-            />
+        </div>
+        <div class="col-span-12 lg:col-span-8">
+          <div class="bg-white border border-border-color rounded-md">
+            <nav class="flex items-center gap-1 border-b border-border-color flex-wrap" aria-label="Tabs" role="tablist">
+              <button
+                v-for="(objTab, numIndex) in lstTabs"
+                :key="objTab.id"
+                type="button"
+                :id="`${objTab.id}-tab`"
+                role="tab"
+                :aria-selected="numIndex === 0"
+                :aria-controls="`${objTab.id}-pane`"
+                :data-hs-tab="`#${objTab.id}-pane`"
+                class="px-4 py-3 text-sm text-default whitespace-nowrap border-b-2 border-transparent -mb-px hover:text-gray-900 hs-tab-active:font-semibold hs-tab-active:text-gray-900 hs-tab-active:border-primary focus:outline-hidden"
+                :class="{ active: numIndex === 0 }"
+              >
+                {{ objTab.label }}
+              </button>
+            </nav>
+            <div class="p-4">
+              <div id="lines-pane" role="tabpanel" aria-labelledby="lines-tab">
+                <PurchaseOrderLineItemList
+                  v-if="objOrder"
+                  :purchase-order-id="objOrder.id"
+                  :status="objOrder.status"
+                  :currency-id="objOrder.currencyId"
+                  @refresh="handleLinesRefresh"
+                />
+              </div>
+              <div id="payments-pane" class="hidden" role="tabpanel" aria-labelledby="payments-tab">
+                <PurchaseOrderPaymentRelatedList
+                  v-if="objOrder"
+                  ref="paymentRelatedListRef"
+                  :purchase-order-id="objOrder.id"
+                  :b-can-register="bCanRegisterPayment"
+                  @register="handleOpenPaymentModal"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <PurchaseOrderPaymentForm ref="paymentFormRef" @refresh="handlePaymentRefresh" />
+      <PurchaseOrderForm ref="purchaseOrderFormRef" @success="handleFormSuccess" />
     </div>
   </main>
 </template>
@@ -174,6 +142,8 @@ import { all_routes } from '@/router/all_routes';
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
 import PurchaseOrderPaymentForm from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentForm.vue';
 import PurchaseOrderPaymentRelatedList from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentRelatedList.vue';
+import PurchaseOrderLineItemList from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderLineItemList.vue';
+import PurchaseOrderForm from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import {
   ORDER_STATUS,
@@ -184,12 +154,15 @@ import {
   handleCanRegisterPayment,
   handleCanCancelOrder
 } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
+import { handleNormalizePurchaseOrder } from '@/views/pages/Purchase/PurchaseOrder/purchaseOrderUtils';
 
 export default {
   name: 'PurchaseOrderDetails',
   components: {
     PurchaseOrderPaymentForm,
-    PurchaseOrderPaymentRelatedList
+    PurchaseOrderPaymentRelatedList,
+    PurchaseOrderLineItemList,
+    PurchaseOrderForm
   },
   setup() {
     return {
@@ -203,7 +176,7 @@ export default {
       bSpinner: false,
       objOrder: null,
       lstTabs: [
-        { id: 'detail', label: 'Detalle' },
+        { id: 'lines', label: 'Líneas' },
         { id: 'payments', label: 'Abonos' }
       ]
     };
@@ -211,7 +184,7 @@ export default {
   computed: {
     strPoLabel() {
       if (!this.objOrder) return '...';
-      return `#PO-${this.objOrder.id}`;
+      return this.objOrder.purchaseNumber || `PO-${this.objOrder.id}`;
     },
     strVendorName() {
       if (!this.objOrder?.account) return 'Desconocido';
@@ -224,20 +197,11 @@ export default {
       return `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`;
     },
     strSupplierDoc() {
-      const strType = this.objOrder?.supplierDocumentType || this.objOrder?.supplier_document_type;
-      const strNumber = this.objOrder?.supplierDocumentNumber || this.objOrder?.supplier_document_number;
+      const strType = this.objOrder?.supplierDocumentType;
+      const strNumber = this.objOrder?.supplierDocumentNumber;
       if (!strType && !strNumber) return '';
       const strTypeLabel = SUPPLIER_DOCUMENT_TYPE_LABEL[strType] || strType || '';
       return [strTypeLabel, strNumber].filter(Boolean).join(' · ');
-    },
-    fltSubtotal() {
-      return parseFloat(this.objOrder?.subtotal) || 0;
-    },
-    fltDiscountAmount() {
-      return parseFloat(this.objOrder?.discountAmount ?? this.objOrder?.discount_amount) || 0;
-    },
-    fltTotalAmount() {
-      return parseFloat(this.objOrder?.totalAmount ?? this.objOrder?.total_amount) || 0;
     },
     bCanEdit() {
       return this.objOrder && handleCanEditOrder(this.objOrder.status);
@@ -262,14 +226,22 @@ export default {
       const recordId = this.$route.params.recordId;
       this.bSpinner = true;
 
-      PurchaseOrderService.getById(recordId, { include: 'account,currency,items,items.product,payments' })
+      PurchaseOrderService.getById(recordId, { include: 'account,currency' })
         .then((objResponse) => {
-          this.objOrder = objResponse.data || objResponse;
+          this.objOrder = handleNormalizePurchaseOrder(objResponse.data || objResponse);
+          this.$nextTick(() => {
+            if (window.HSStaticMethods) {
+              window.HSStaticMethods.autoInit();
+            }
+          });
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los detalles de la orden de compra', objError))
         .finally(() => {
           this.bSpinner = false;
         });
+    },
+    handleLinesRefresh() {
+      this.handleGetData();
     },
     handlePaymentRefresh() {
       this.handleGetData();
@@ -286,6 +258,13 @@ export default {
         this.$refs.paymentFormRef.handleOpen(this.objOrder);
       }
     },
+    handleEdit() {
+      if (!this.objOrder) return;
+      this.$refs.purchaseOrderFormRef?.handleOpen(this.objOrder.id);
+    },
+    handleFormSuccess() {
+      this.handleGetData();
+    },
     handleCancelOrder() {
       if (!this.bCanCancel || !this.objOrder) return;
       this.bSpinner = true;
@@ -298,15 +277,6 @@ export default {
         .finally(() => {
           this.bSpinner = false;
         });
-    },
-    handleGetLineTotal(objItem) {
-      if (objItem.lineTotal != null || objItem.line_total != null) {
-        return objItem.lineTotal ?? objItem.line_total;
-      }
-      const fltCost = parseFloat(objItem.unitCost ?? objItem.unit_cost) || 0;
-      const numQty = parseFloat(objItem.quantity) || 0;
-      const fltDisc = parseFloat(objItem.discountPercent ?? objItem.discount_percent) || 0;
-      return (fltCost * numQty) * (1 - fltDisc / 100);
     },
     handleFormatAmount(fltValue) {
       const fltAmount = parseFloat(fltValue) || 0;

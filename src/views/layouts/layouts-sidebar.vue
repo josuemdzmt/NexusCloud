@@ -7,17 +7,19 @@
             <div class="flex items-center">
                 <!-- Logo Normal -->
                 <router-link :to="all_routes.hrmDashboard" class="logo logo-normal">
-                    <img src="@/assets/img/logo.svg" alt="Logo">
+                    <img src="@/assets/img/logo-small.svg" alt="Logo">
+                    <span class="logo-text text-base font-semibold text-gray-900 leading-none">NexusCloud</span>
                 </router-link>
 
-                <!-- Logo Small -->
+                <!-- Logo Small (mini-sidebar) -->
                 <router-link :to="all_routes.hrmDashboard" class="logo-small">
                     <img src="@/assets/img/logo-small.svg" alt="Logo">
                 </router-link>
 
                 <!-- Logo Dark -->
                 <router-link :to="all_routes.hrmDashboard" class="dark-logo">
-                    <img src="@/assets/img/logo-white.svg" alt="Logo">
+                    <img src="@/assets/img/logo-small.svg" alt="Logo">
+                    <span class="logo-text text-base font-semibold text-white leading-none">NexusCloud</span>
                 </router-link>
             </div>
             <button class="sidenav-toggle-btn btn border-0 p-0 active" id="toggle_btn" aria-label="toggle" @click="toggleSidebar"> 

@@ -14,23 +14,25 @@
       @rowaction="handleRowAction"
       @refresh="handleGetData"
     />
+    <PurchaseOrderForm ref="purchaseOrderFormRef" @success="handleFormSuccess" />
   </div>
 </template>
 
 <script>
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
-import {
-  ORDER_STATUS_BADGE,
-  ACTION_BUTTONS
-} from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
+import PurchaseOrderForm from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue';
+import { ORDER_STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleError } from '@/utils/toastUtils';
 
 const RELATED_ACTION_BUTTONS = {
-  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => objAction.name === 'details')
+  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => objAction.name === 'detail')
 };
 
 export default {
   name: 'PurchaseOrderRelatedList',
+  components: { 
+    PurchaseOrderForm,
+  },
   props: {
     accountId: { type: [Number, String], default: null }
   },
@@ -40,11 +42,11 @@ export default {
       bSpinner: false,
       lstOrders: [],
       lstColumns: [
-        { label: 'OC', fieldName: 'poLabel', type: 'text', sortable: true },
+        { label: 'PO', fieldName: 'purchaseNumber', type: 'text', sortable: true },
         { label: 'Doc. Proveedor', fieldName: 'supplierDocumentNumber', type: 'text', sortable: true },
         { label: 'Fecha', fieldName: 'effectiveDate', type: 'text', sortable: true },
         { label: 'Moneda', fieldName: 'currencyLabel', type: 'text', sortable: true },
-        { label: 'Total', fieldName: 'totalAmount', type: 'currency' },
+        { label: 'Total', fieldName: 'grandTotalAmount', type: 'currency' },
         { label: 'Pagado', fieldName: 'paidAmount', type: 'currency' },
         { label: 'Saldo', fieldName: 'balanceAmount', type: 'currency' },
         { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: ORDER_STATUS_BADGE },
@@ -83,11 +85,11 @@ export default {
           const objCurrency = objOrder.currency || {};
           return {
             ...objOrder,
-            poLabel: `#PO-${objOrder.id}`,
+            purchaseNumber: objOrder.purchaseNumber || objOrder.purchase_number || `PO-${objOrder.id}`,
             supplierDocumentNumber: objOrder.supplierDocumentNumber || objOrder.supplier_document_number || '—',
             effectiveDate: objOrder.effectiveDate || objOrder.effective_date || '—',
             currencyLabel: objCurrency.iso_code || objCurrency.code || objCurrency.name || '—',
-            totalAmount: parseFloat(objOrder.totalAmount ?? objOrder.total_amount) || 0,
+            grandTotalAmount: parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0,
             paidAmount: parseFloat(objOrder.paidAmount ?? objOrder.paid_amount) || 0,
             balanceAmount: parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0
           };
@@ -100,12 +102,15 @@ export default {
       });
     },
     handleCreate() {
-      this.$router.push('/purchase/purchase-orders/new');
+      this.$refs.purchaseOrderFormRef?.handleOpen(null, { accountId: this.accountId });
+    },
+    handleFormSuccess() {
+      this.handleGetData();
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'details') {
-        this.$router.push(`/purchase/purchase-orders/${row.id}/details`);
+      if (action.name === 'detail') {
+        this.$router.push(`/purchase/purchase-orders/${row.id}/detail`);
       }
     }
   }

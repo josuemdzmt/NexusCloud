@@ -359,9 +359,9 @@ const routes = [
     children: [
       { path: "", redirect: "/sales/sales-orders/list" },
       { path: "list", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderList.vue"), meta: { title: "Pedidos | NexusCloud" } },
-      { path: "new", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderForm.vue"), meta: { title: "Nuevo Pedido | NexusCloud" } },
-      { path: ":recordId/edit", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderForm.vue"), meta: { title: "Editar Pedido | NexusCloud" } },
-      { path: ":recordId/details", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderDetails.vue"), meta: { title: "Detalles Pedido | NexusCloud" } }
+      { path: "new", redirect: "/sales/sales-orders/list" },
+      { path: ":recordId/detail", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderDetails.vue"), meta: { title: "Detalle Pedido | NexusCloud" } },
+      { path: ":recordId/preview", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderPreview.vue"), meta: { title: "Vista previa Pedido | NexusCloud" } }
     ]
   },
 
@@ -427,9 +427,8 @@ const routes = [
     children: [
       { path: "", redirect: "/purchase/purchase-orders/list" },
       { path: "list", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderList.vue"), meta: { title: "Órdenes de Compra | NexusCloud" } },
-      { path: "new", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue"), meta: { title: "Nueva OC | NexusCloud" } },
-      { path: ":recordId/edit", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue"), meta: { title: "Editar OC | NexusCloud" } },
-      { path: ":recordId/details", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderDetails.vue"), meta: { title: "Detalles OC | NexusCloud" } }
+      { path: ":recordId/detail", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderDetails.vue"), meta: { title: "Detalle OC | NexusCloud" } },
+      { path: ":recordId/preview", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderPreview.vue"), meta: { title: "Vista previa OC | NexusCloud" } }
     ]
   },
   // Procurement Analytics (cuentas por pagar / deuda a proveedores)

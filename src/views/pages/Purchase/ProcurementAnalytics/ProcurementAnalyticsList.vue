@@ -122,7 +122,7 @@ export default {
       lstColumns: [
         { label: 'Proveedor', fieldName: 'accountName', type: 'text', sortable: true, cellAttributes: { class: 'font-semibold text-title' } },
         { label: '# OC', fieldName: 'poCount', type: 'text', sortable: true },
-        { label: 'Total', fieldName: 'totalAmount', type: 'currency', sortable: true },
+        { label: 'Total', fieldName: 'grandTotalAmount', type: 'currency', sortable: true },
         { label: 'Pagado', fieldName: 'paidAmount', type: 'currency', sortable: true },
         { label: 'Saldo', fieldName: 'balanceAmount', type: 'currency', sortable: true },
         { label: '% Pagado', fieldName: 'paidPercentLabel', type: 'text', sortable: true },
@@ -168,7 +168,7 @@ export default {
 
       lstOrders.forEach((objOrder) => {
         const numAccountId = objOrder.accountId ?? objOrder.account_id ?? objOrder.account?.id ?? 0;
-        const fltTotal = parseFloat(objOrder.totalAmount ?? objOrder.total_amount) || 0;
+        const fltTotal = parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0;
         const fltPaid = parseFloat(objOrder.paidAmount ?? objOrder.paid_amount) || 0;
         const fltBalance = parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0;
 
@@ -178,26 +178,26 @@ export default {
             accountId: numAccountId,
             accountName: this.handleGetAccountName(objOrder.account),
             poCount: 0,
-            totalAmount: 0,
+            grandTotalAmount: 0,
             paidAmount: 0,
             balanceAmount: 0
           };
         }
 
         objMap[numAccountId].poCount += 1;
-        objMap[numAccountId].totalAmount += fltTotal;
+        objMap[numAccountId].grandTotalAmount += fltTotal;
         objMap[numAccountId].paidAmount += fltPaid;
         objMap[numAccountId].balanceAmount += fltBalance;
       });
 
       return Object.values(objMap)
         .map((objVendor) => {
-          const fltPaidPercent = objVendor.totalAmount > 0
-            ? (objVendor.paidAmount / objVendor.totalAmount) * 100
+          const fltPaidPercent = objVendor.grandTotalAmount > 0
+            ? (objVendor.paidAmount / objVendor.grandTotalAmount) * 100
             : 0;
           return {
             ...objVendor,
-            totalAmount: parseFloat(objVendor.totalAmount.toFixed(2)),
+            grandTotalAmount: parseFloat(objVendor.grandTotalAmount.toFixed(2)),
             paidAmount: parseFloat(objVendor.paidAmount.toFixed(2)),
             balanceAmount: parseFloat(objVendor.balanceAmount.toFixed(2)),
             paidPercent: fltPaidPercent,
@@ -224,7 +224,7 @@ export default {
 
           this.numActivePoCount = lstRaw.length;
           this.fltTotalAmount = lstRaw.reduce((fltSum, objOrder) => {
-            return fltSum + (parseFloat(objOrder.totalAmount ?? objOrder.total_amount) || 0);
+            return fltSum + (parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0);
           }, 0);
           this.fltTotalBalance = lstRaw.reduce((fltSum, objOrder) => {
             return fltSum + (parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0);

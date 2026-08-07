@@ -19,7 +19,7 @@
         <div v-if="objOrder" class="md:col-span-2 bg-light p-3 rounded-md flex justify-between items-center text-sm">
           <div>
             <span class="text-default block text-xs">Total de la Orden</span>
-            <span class="text-gray-900 font-bold">${{ handleFormatAmount(objOrder.totalAmount) }}</span>
+            <span class="text-gray-900 font-bold">${{ handleFormatAmount(objOrder.grandTotalAmount) }}</span>
           </div>
           <div class="text-right">
             <span class="text-danger block text-xs font-semibold">Saldo Pendiente</span>
@@ -53,6 +53,12 @@
             <a-date-picker :value="value" valueFormat="YYYY-MM-DD" class="w-full" placeholder="dd/mm/yyyy" :disabled="!objOrder" @update:value="field.onChange" />
           </Field>
           <ErrorMessage name="paymentDate" class="text-danger text-[11px] mt-1 block" />
+        </div>
+        <div>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Moneda</label>
+          <input type="text" :value="strCurrencyLabel" readonly
+            class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0 text-gray-600"
+          >
         </div>
       </div>
     </template>
@@ -110,6 +116,7 @@ export default {
 
       // 3. Cadenas
       strTitle: 'Registrar Abono',
+      strCurrencyLabel: '—',
 
       // 4. Objetos
       objOrder: null,
@@ -150,10 +157,21 @@ export default {
       if (!objOrder) return null;
       return {
         ...objOrder,
-        totalAmount: parseFloat(objOrder.totalAmount ?? objOrder.total_amount) || 0,
+        grandTotalAmount: parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0,
         balanceAmount: parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0,
-        currencyId: objOrder.currencyId ?? objOrder.currency_id ?? objOrder.currency?.id ?? null
+        currencyId: objOrder.currencyId ?? objOrder.currency_id ?? objOrder.currency?.id ?? null,
+        currency: objOrder.currency || null
       };
+    },
+    handleGetCurrencyLabel(objOrder) {
+      const objCurrency = objOrder?.currency;
+      if (!objCurrency) return '—';
+      const strCode = objCurrency.code || objCurrency.iso_code || '';
+      return objCurrency.name ? `${objCurrency.name}${strCode ? ` (${strCode})` : ''}` : strCode || '—';
+    },
+    handleApplyOrderCurrency(objOrder) {
+      this.numCurrencyId = objOrder?.currencyId ? Number(objOrder.currencyId) : null;
+      this.strCurrencyLabel = this.handleGetCurrencyLabel(objOrder);
     },
     handleGetPaymentMethods() {
       PaymentMethodService.getAll({ per_page: 100 })
@@ -211,7 +229,7 @@ export default {
 
           this.lstOrders = lstRaw;
           this.lstOrderOptions = lstRaw.map((objOrder) => ({
-            label: `#SO-${objOrder.id} — Saldo $${this.handleFormatAmount(objOrder.balanceAmount)}`,
+            label: `${objOrder.orderNumber || objOrder.order_number || `SO-${objOrder.id}`} — Saldo $${this.handleFormatAmount(objOrder.balanceAmount)}`,
             value: objOrder.id
           }));
         })
@@ -225,6 +243,8 @@ export default {
       this.bSelectOrder = !objOrder && !!objContext?.accountId;
       this.numAccountId = objContext?.accountId ? Number(objContext.accountId) : null;
       this.objOrder = null;
+      this.numCurrencyId = null;
+      this.strCurrencyLabel = '—';
       this.lstOrders = [];
       this.lstOrderOptions = [];
       this.objValidationSchema = this.bSelectOrder ? validationSchemaWithOrder : validationSchema;
@@ -237,7 +257,7 @@ export default {
       }
 
       this.objOrder = this.handleNormalizeOrder(objOrder);
-      this.numCurrencyId = this.objOrder?.currencyId ?? null;
+      this.handleApplyOrderCurrency(this.objOrder);
       this.handleOpenModal(this.handleDefaultFormValues({
         amount: this.fltBalanceAmount || null
       }));
@@ -252,7 +272,7 @@ export default {
     handleOrderSelected(numOrderId) {
       const objFound = this.lstOrders.find((objOrder) => Number(objOrder.id) === Number(numOrderId));
       this.objOrder = objFound || null;
-      this.numCurrencyId = this.objOrder?.currencyId ?? null;
+      this.handleApplyOrderCurrency(this.objOrder);
 
       if (this.$refs.modalFormRef) {
         this.$refs.modalFormRef.handleSetValues(this.handleDefaultFormValues({
@@ -271,6 +291,10 @@ export default {
         handleError('Error de Validación', 'Debes seleccionar una orden de venta.');
         return;
       }
+      if (!this.numCurrencyId) {
+        handleError('Error de Validación', 'La orden no tiene moneda asignada.');
+        return;
+      }
 
       const fltAmount = Number(objValues.amount);
       if (fltAmount > this.fltBalanceAmount) {
@@ -286,7 +310,7 @@ export default {
         bankId: objValues.bankId ? Number(objValues.bankId) : null,
         paymentReference: objValues.paymentReference || null,
         paymentDate: `${objValues.paymentDate} 12:00:00`,
-        currencyId: this.numCurrencyId ? Number(this.numCurrencyId) : null
+        currencyId: Number(this.numCurrencyId)
       })
         .then(() => {
           handleSuccess('Abono registrado exitosamente');

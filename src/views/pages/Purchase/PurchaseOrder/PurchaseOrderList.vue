@@ -21,18 +21,20 @@
         @rowaction="handleRowAction"
         @refresh="handleGetData"
       >
-        <template #cell-poLabel="{ row }">
-          <router-link :to="`/purchase/purchase-orders/${row.id}/details`" class="text-sm text-default hover:text-primary">
-            {{ row.poLabel }}
+        <template #cell-purchaseNumber="{ row }">
+          <router-link :to="`/purchase/purchase-orders/${row.id}/detail`" class="text-sm text-default hover:text-primary">
+            {{ row.purchaseNumber }}
           </router-link>
         </template>
       </nx-datatable>
+      <PurchaseOrderForm ref="purchaseOrderFormRef" @success="handleFormSuccess" />
     </div>
   </main>
 </template>
 
 <script>
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
+import PurchaseOrderForm from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import {
   ORDER_STATUS_BADGE,
@@ -56,16 +58,16 @@ const PAYMENT_STATUS_BADGE = {
 
 export default {
   name: 'PurchaseOrderList',
+  components: { PurchaseOrderForm },
   data() {
     return {
       bSpinner: false,
       lstOrders: [],
       lstColumns: [
-        { label: 'Referencia', fieldName: 'poLabel', type: 'text', sortable: true },
+        { label: 'Referencia', fieldName: 'purchaseNumber', type: 'text', sortable: true },
         { label: 'Proveedor', fieldName: 'accountName', type: 'text', sortable: true, cellAttributes: { class: 'font-semibold text-title' } },
         { label: 'Fecha', fieldName: 'effectiveDateLabel', type: 'text', sortable: true },
-        { label: 'Ítems', fieldName: 'itemsCount', type: 'text', sortable: true },
-        { label: 'Monto', fieldName: 'totalAmount', type: 'currency', sortable: true },
+        { label: 'Monto', fieldName: 'grandTotalAmount', type: 'currency', sortable: true },
         { label: 'Pago', fieldName: 'paymentStatus', type: 'badge', typeAttributes: PAYMENT_STATUS_BADGE },
         { label: 'Estado', fieldName: 'status', type: 'badge', typeAttributes: ORDER_STATUS_BADGE },
         { label: 'Acción', type: 'action', typeAttributes: ACTION_BUTTONS }
@@ -81,9 +83,6 @@ export default {
     });
   },
   methods: {
-    handleFormatReference(numId) {
-      return `#PO${String(numId).padStart(4, '0')}`;
-    },
     handleFormatDate(strDate) {
       if (!strDate || strDate === '—') return '—';
       const strRaw = String(strDate).split(' ')[0];
@@ -103,29 +102,27 @@ export default {
     handleGetData() {
       this.bSpinner = true;
       PurchaseOrderService.getAll({
-        include: 'account,currency,items',
+        include: 'account,currency',
         sort: '-effective_date',
         per_page: 200
       })
         .then((objResponse) => {
           const lstOrders = objResponse.data || objResponse;
           this.lstOrders = (Array.isArray(lstOrders) ? lstOrders : []).map((objOrder) => {
-            const fltTotal = parseFloat(objOrder.totalAmount ?? objOrder.total_amount) || 0;
+            const fltTotal = parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0;
             const fltPaid = parseFloat(objOrder.paidAmount ?? objOrder.paid_amount) || 0;
             const fltBalance = parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0;
-            const lstItems = objOrder.items || [];
             const strEffective = objOrder.effectiveDate || objOrder.effective_date || '';
 
             return {
               ...objOrder,
-              poLabel: this.handleFormatReference(objOrder.id),
+              purchaseNumber: objOrder.purchaseNumber || objOrder.purchase_number || `PO-${objOrder.id}`,
               accountName: objOrder.account
                 ? (objOrder.account.legal_name || `${objOrder.account.first_name || ''} ${objOrder.account.last_name || ''}`.trim() || 'Sin Nombre')
                 : 'Desconocido',
               effectiveDate: strEffective,
               effectiveDateLabel: this.handleFormatDate(strEffective),
-              itemsCount: Array.isArray(lstItems) ? lstItems.length : 0,
-              totalAmount: fltTotal,
+              grandTotalAmount: fltTotal,
               paidAmount: fltPaid,
               balanceAmount: fltBalance,
               paymentStatus: this.handleGetPaymentStatus(fltPaid, fltBalance)
@@ -140,18 +137,21 @@ export default {
         });
     },
     handleCreate() {
-      this.$router.push('/purchase/purchase-orders/new');
+      this.$refs.purchaseOrderFormRef?.handleOpen();
+    },
+    handleFormSuccess() {
+      this.handleGetData();
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'details') {
-        this.$router.push(`/purchase/purchase-orders/${row.id}/details`);
+      if (action.name === 'detail') {
+        this.$router.push(`/purchase/purchase-orders/${row.id}/detail`);
       } else if (action.name === 'edit') {
         if (!handleCanEditOrder(row.status)) {
           handleError('No permitido', 'Solo puedes editar órdenes en estado Borrador.');
           return;
         }
-        this.$router.push(`/purchase/purchase-orders/${row.id}/edit`);
+        this.$refs.purchaseOrderFormRef?.handleOpen(row.id);
       } else if (action.name === 'delete') {
         if (!handleCanDeleteOrder(row.status)) {
           handleError('No permitido', 'Solo puedes eliminar órdenes en estado Borrador.');

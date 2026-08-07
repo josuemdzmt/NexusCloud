@@ -5,9 +5,9 @@
       <nx-modal-header :label="title"></nx-modal-header>
 
       <nx-form-page ref="formPageRef" variant="custom" :validationSchema="validationSchema" :initialValues="initialValues" @submit="handleSubmit" @cancel="handleCancel">
-        <template #default="{ errors, isSubmitting, setValues }">
+        <template #default="{ errors, isSubmitting, setValues, values }">
           <nx-modal-body>
-            <slot :errors="errors" :isSubmitting="isSubmitting" :setValues="setValues"></slot>
+            <slot :errors="errors" :isSubmitting="isSubmitting" :setValues="setValues" :values="values"></slot>
           </nx-modal-body>
         </template>
 
