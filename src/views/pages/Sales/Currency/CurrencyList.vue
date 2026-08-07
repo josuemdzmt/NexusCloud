@@ -16,8 +16,11 @@
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
-        @refresh="handleGetData" 
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
     </div>
 
     <!-- Formulario Modal Integrado -->
@@ -30,6 +33,7 @@ import CurrencyService from '@/services/sales/CurrencyService';
 import CurrencyForm from '@/views/pages/Sales/Currency/CurrencyForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, IS_DEFAULT_BADGE, ACTION_BUTTONS } from './CurrencyConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'CurrencyList',
@@ -38,6 +42,7 @@ export default {
   },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstCurrencies: [],
       lstColumns: [
@@ -54,12 +59,21 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       this.bSpinner = true;
-      CurrencyService.getAll()
+      CurrencyService.getAll(handlePagerParams(this.currentPage, this.pageSize))
       .then((response) => {
-        const lstData = response.data || response;
-        this.lstCurrencies = (Array.isArray(lstData) ? lstData : []).map((objCurrency) => ({
+        const { data, current_page, last_page } = handleParseList(response, this.currentPage);
+        this.totalPages = last_page;
+        this.currentPage = current_page;
+
+        this.lstCurrencies = (Array.isArray(data) ? data : []).map((objCurrency) => ({
           ...objCurrency,
           is_default: Boolean(objCurrency.is_default ?? objCurrency.isDefault)
         }));

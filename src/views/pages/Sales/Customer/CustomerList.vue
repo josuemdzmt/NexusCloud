@@ -16,8 +16,11 @@
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
-        @refresh="handleGetData" 
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
     </div>
 
     <!-- Formulario Modal Integrado -->
@@ -30,6 +33,7 @@ import CustomerService from '@/services/sales/CustomerService';
 import CustomerForm from '@/views/pages/Sales/Customer/CustomerForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { ACCOUNT_TYPE_BADGE, IS_PERSON_BADGE, STATUS_BADGE, ACTION_BUTTONS } from './CustomerConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'CustomerList',
@@ -38,6 +42,7 @@ export default {
   },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstCustomers: [],
       lstColumns: [
@@ -56,12 +61,21 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       this.bSpinner = true;
-      CustomerService.getAll()
+      CustomerService.getAll(handlePagerParams(this.currentPage, this.pageSize))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstAccounts = Array.isArray(lstData) ? lstData : [];
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          const lstAccounts = Array.isArray(data) ? data : [];
 
           this.lstCustomers = lstAccounts
             .filter((objItem) => CustomerService.handleIsCustomerAccount(objItem))

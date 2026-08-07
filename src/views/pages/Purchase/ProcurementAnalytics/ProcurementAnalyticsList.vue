@@ -77,8 +77,11 @@
         :show-filters="true"
         :hide-checkbox-column="true"
         @rowaction="handleRowAction"
-        @refresh="handleGetData"
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
     </div>
   </main>
 </template>
@@ -87,6 +90,7 @@
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
 import { handleError } from '@/utils/toastUtils';
 import { ORDER_STATUS } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 /** Salud de pago por proveedor (equivalente visual Excellent/Good/Average/Poor) */
 export const VENDOR_HEALTH_BADGE = {
@@ -114,6 +118,7 @@ export default {
   name: 'ProcurementAnalyticsList',
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       numActivePoCount: 0,
       fltTotalAmount: 0,
@@ -148,6 +153,12 @@ export default {
     });
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handlePrint() {
       window.print();
     },
@@ -209,15 +220,15 @@ export default {
     },
     handleGetData() {
       this.bSpinner = true;
-      PurchaseOrderService.getAll({
-        'filter[status]': ORDER_STATUS.ACTIVATED,
+      PurchaseOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, {'filter[status]': ORDER_STATUS.ACTIVATED,
         include: 'account,currency',
-        sort: '-balance_amount',
-        per_page: 200
-      })
+        sort: '-balance_amount'}))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstRaw = (Array.isArray(lstData) ? lstData : []).filter((objOrder) => {
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          const lstRaw = (Array.isArray(data) ? data : []).filter((objOrder) => {
             const fltBalance = parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0;
             return fltBalance > 0;
           });

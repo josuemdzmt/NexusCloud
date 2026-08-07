@@ -16,8 +16,11 @@
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
-        @refresh="handleGetData"
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
       <PricebookEntryForm ref="pricebookEntryFormRef" @refresh="handleGetData" />
     </div>
   </main>
@@ -28,6 +31,7 @@ import PricebookEntryForm from './PricebookEntryForm.vue';
 import PricebookEntryService from '@/services/sales/PricebookEntryService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Sales/PricebookEntry/PricebookEntryConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'PricebookEntryList',
@@ -36,6 +40,7 @@ export default {
   },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstEntries: [],
       lstColumns: [
@@ -52,12 +57,21 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       this.bSpinner = true;
-      PricebookEntryService.getAll({ include: 'product,pricebook,currency' })
+      PricebookEntryService.getAll(handlePagerParams(this.currentPage, this.pageSize, {include: 'product,pricebook,currency'}))
         .then((response) => {
-          const lstEntries = response.data || response;
-          this.lstEntries = lstEntries.map(objEntry => ({
+          const { data, current_page, last_page } = handleParseList(response, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          this.lstEntries = data.map(objEntry => ({
             ...objEntry,
             productName: objEntry.product ? objEntry.product.name : 'Desconocido',
             pricebookName: objEntry.pricebook ? objEntry.pricebook.name : 'Desconocido',

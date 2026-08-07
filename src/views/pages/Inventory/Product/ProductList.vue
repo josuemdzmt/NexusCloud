@@ -15,8 +15,11 @@
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
-        @refresh="handleGetData"
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
     </div>
   </main>
 </template>
@@ -25,11 +28,13 @@
 import ProductService from '@/services/inventory/ProductService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { PRODUCT_STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/Product/ProductConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductList',
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstProducts: [],
       lstColumns: [
@@ -49,12 +54,21 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       this.bSpinner = true;
-      ProductService.getAll()
-        .then((data) => {
-          const lstProducts = data.data || data;
-          this.lstProducts = lstProducts.map((objProducto) => ({
+      ProductService.getAll(handlePagerParams(this.currentPage, this.pageSize))
+        .then((objResponse) => {
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          this.lstProducts = data.map((objProducto) => ({
             ...objProducto,
             categoryName: objProducto.category ? objProducto.category.name : '',
             brandName: objProducto.brand ? objProducto.brand.name : '',

@@ -16,8 +16,11 @@
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
-        @refresh="handleGetData"
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
       <PricebookForm ref="pricebookFormRef" @refresh="handleGetData" />
     </div>
   </main>
@@ -28,6 +31,7 @@ import PricebookForm from '@/views/pages/Sales/Pricebook/PricebookForm.vue';
 import PricebookService from '@/services/sales/PricebookService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, YES_NO_BADGE, ACTION_BUTTONS } from '@/views/pages/Sales/Pricebook/PricebookConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'PricebookList',
@@ -36,6 +40,7 @@ export default {
   },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstPricebooks: [],
       lstColumns: [
@@ -51,10 +56,20 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       this.bSpinner = true;
-      PricebookService.getAll()
-        .then((data) => {
+      PricebookService.getAll(handlePagerParams(this.currentPage, this.pageSize))
+        .then((objResponse) => {
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
           this.lstPricebooks = data.data || data;
         })
         .catch((error) => {

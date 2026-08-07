@@ -16,8 +16,11 @@
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
-        @refresh="handleGetData" 
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
     </div>
 
     <!-- Formulario Modal Integrado -->
@@ -30,6 +33,7 @@ import LocationService from '@/services/inventory/LocationService';
 import LocationForm from '@/views/pages/Inventory/Location/LocationForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { LOCATION_TYPE_BADGE, BOOLEAN_BADGE, STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/Location/LocationConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'LocationList',
@@ -38,6 +42,7 @@ export default {
   },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstLocations: [],
       lstColumns: [
@@ -54,12 +59,21 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       this.bSpinner = true;
-      LocationService.getAll()
+      LocationService.getAll(handlePagerParams(this.currentPage, this.pageSize))
       .then((response) => {
-        const lstData = response.data || response;
-        this.lstLocations = lstData;
+        const { data, current_page, last_page } = handleParseList(response, this.currentPage);
+        this.totalPages = last_page;
+        this.currentPage = current_page;
+
+        this.lstLocations = data;
       })
       .catch((error) => {
         console.error('Error fetching locations:', error);

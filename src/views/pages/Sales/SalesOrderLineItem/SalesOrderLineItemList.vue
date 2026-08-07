@@ -12,8 +12,11 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData"
-    />
+      @refresh="handleGetData">
+      <template #footer>
+        <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+      </template>
+    </nx-datatable>
     <SalesOrderLineItemForm ref="lineItemFormRef" @success="handleLineSuccess" />
   </div>
 </template>
@@ -24,6 +27,7 @@ import SalesOrderLineItemForm from '@/views/pages/Sales/SalesOrderLineItem/Sales
 import { ORDER_STATUS, LINE_ITEM_COLUMNS, handleCanEditOrder } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import { handleNormalizeSalesOrderLineItem } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'SalesOrderLineItemList',
@@ -37,6 +41,7 @@ export default {
   emits: ['refresh'],
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstLineItems: [],
       lstColumns: LINE_ITEM_COLUMNS
@@ -63,17 +68,23 @@ export default {
     }
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       if (!this.salesOrderId) return;
       this.bSpinner = true;
-      SalesOrderLineItemService.getAll({
-        'filter[sales_order_id]': this.salesOrderId,
-        include: 'product',
-        per_page: 200
-      })
+      SalesOrderLineItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, {'filter[sales_order_id]': this.salesOrderId,
+        include: 'product'}))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstRaw = Array.isArray(lstData) ? lstData : [];
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          const lstRaw = Array.isArray(data) ? data : [];
           this.lstLineItems = lstRaw.map(handleNormalizeSalesOrderLineItem);
           this.$emit('refresh', this.lstLineItems);
         })

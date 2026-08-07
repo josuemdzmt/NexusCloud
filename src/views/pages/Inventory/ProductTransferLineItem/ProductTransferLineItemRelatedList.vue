@@ -7,8 +7,11 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData"
-    />
+      @refresh="handleGetData">
+      <template #footer>
+        <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+      </template>
+    </nx-datatable>
   </div>
 </template>
 
@@ -16,6 +19,7 @@
 import ProductTransferLineItemService from '@/services/inventory/ProductTransferLineItemService';
 import { TRANSFER_STATUS_BADGE } from '@/views/pages/Inventory/ProductTransfer/ProductTransferConstants';
 import { handleError } from '@/utils/toastUtils';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const ACTION_BUTTONS = {
   rowActions: [{ label: 'Detalles', name: 'details', icon: 'icon-eye' }]
@@ -29,6 +33,7 @@ export default {
   emits: ['refresh'],
   data() {
     return {
+      ...handleInitPager(),
       // 1. Booleanos
       bSpinner: false,
 
@@ -54,17 +59,23 @@ export default {
     if (this.productId) this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       if (!this.productId) return;
       this.bSpinner = true;
-      ProductTransferLineItemService.getAll({
-        'filter[product_id]': this.productId,
-        include: 'product,productTransfer,productTransfer.sourceLocation,productTransfer.destinationLocation',
-        per_page: 200
-      })
+      ProductTransferLineItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, {'filter[product_id]': this.productId,
+        include: 'product,productTransfer,productTransfer.sourceLocation,productTransfer.destinationLocation'}))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          let lstRaw = Array.isArray(lstData) ? lstData : [];
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          let lstRaw = Array.isArray(data) ? data : [];
           const numProductId = Number(this.productId);
           lstRaw = lstRaw.filter((objLine) => {
             const numLineProductId = Number(

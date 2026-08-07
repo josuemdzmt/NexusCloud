@@ -16,8 +16,11 @@
         :is-loading="bSpinner"
         :show-date-range="false"
         @rowaction="handleRowAction"
-        @refresh="handleGetData"
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
     </div>
 
     <BankForm ref="bankFormRef" @success="handleGetData" />
@@ -29,6 +32,7 @@ import BankService from '@/services/sales/BankService';
 import BankForm from '@/views/pages/Sales/Bank/BankForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, ACTION_BUTTONS } from './BankConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'BankList',
@@ -37,6 +41,7 @@ export default {
   },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstBanks: [],
       lstColumns: [
@@ -52,12 +57,21 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       this.bSpinner = true;
-      BankService.getAll()
+      BankService.getAll(handlePagerParams(this.currentPage, this.pageSize))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          this.lstBanks = Array.isArray(lstData) ? lstData : [];
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          this.lstBanks = Array.isArray(data) ? data : [];
         })
         .catch((objError) => {
           handleError('Error', 'No se pudieron cargar los bancos', objError);

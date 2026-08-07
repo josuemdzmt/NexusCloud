@@ -11,8 +11,11 @@
       :columns="lstVisibleColumns"
       :is-loading="bSpinner"
       :show-date-range="false"
-      @refresh="handleGetData"
-    />
+      @refresh="handleGetData">
+      <template #footer>
+        <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+      </template>
+    </nx-datatable>
   </div>
 </template>
 
@@ -26,6 +29,7 @@ import {
   ACCOUNT_PAYMENT_COLUMNS
 } from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentConstants';
 import { handleError } from '@/utils/toastUtils';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'SalesOrderPaymentRelatedList',
@@ -37,6 +41,7 @@ export default {
   emits: ['register'],
   data() {
     return {
+      ...handleInitPager(),
       // 1. Booleanos
       bSpinner: false,
 
@@ -68,19 +73,25 @@ export default {
     });
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetPaymentMethods() {
       return PaymentMethodService.getAll({ per_page: 100 })
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          this.lstPaymentMethods = Array.isArray(lstData) ? lstData : [];
+          const data = objResponse.data || objResponse;
+          this.lstPaymentMethods = Array.isArray(data) ? data : [];
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los métodos de pago', objError));
     },
     handleGetBanks() {
       return BankService.getAll({ per_page: 100 })
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          this.lstBanks = Array.isArray(lstData) ? lstData : [];
+          const data = objResponse.data || objResponse;
+          this.lstBanks = Array.isArray(data) ? data : [];
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los bancos', objError));
     },
@@ -91,13 +102,13 @@ export default {
       }
       if (!this.salesOrderId) return;
       this.bSpinner = true;
-      SalesOrderPaymentService.getAll({
-        'filter[sales_order_id]': this.salesOrderId,
-        per_page: 200
-      })
+      SalesOrderPaymentService.getAll(handlePagerParams(this.currentPage, this.pageSize, {'filter[sales_order_id]': this.salesOrderId}))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstRaw = Array.isArray(lstData) ? lstData : [];
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          const lstRaw = Array.isArray(data) ? data : [];
           const numOrderId = Number(this.salesOrderId);
           this.lstPayments = lstRaw
             .filter((objPayment) => {
@@ -114,13 +125,10 @@ export default {
     handleGetAccountPayments() {
       if (!this.accountId) return;
       this.bSpinner = true;
-      SalesOrderService.getAll({
-        'filter[account_id]': this.accountId,
-        per_page: 200
-      })
+      SalesOrderService.getAll(handlePagerParams(1, 100, { 'filter[account_id]': this.accountId }))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          let lstOrders = Array.isArray(lstData) ? lstData : [];
+          const { data } = handleParseList(objResponse, 1);
+          let lstOrders = Array.isArray(data) ? data : [];
           lstOrders = lstOrders.filter((objOrder) => {
             const numAccountId = objOrder.accountId ?? objOrder.account_id ?? objOrder.account?.id;
             return !numAccountId || Number(numAccountId) === Number(this.accountId);
@@ -128,16 +136,16 @@ export default {
 
           if (!lstOrders.length) {
             this.lstPayments = [];
+            this.totalPages = 1;
             return;
           }
 
           return Promise.all(
             lstOrders.map((objOrder) =>
-              SalesOrderPaymentService.getAll({
-                'filter[sales_order_id]': objOrder.id,
-                per_page: 200
-              }).then((objPayResponse) => {
-                const lstPayData = objPayResponse.data || objPayResponse;
+              SalesOrderPaymentService.getAll(handlePagerParams(1, 100, {
+                'filter[sales_order_id]': objOrder.id
+              })).then((objPayResponse) => {
+                const { data: lstPayData } = handleParseList(objPayResponse, 1);
                 const lstRaw = Array.isArray(lstPayData) ? lstPayData : [];
                 const numOrderId = Number(objOrder.id);
                 return lstRaw
@@ -154,6 +162,8 @@ export default {
               const strDateB = objB.paymentDate || objB.payment_date || '';
               return String(strDateB).localeCompare(String(strDateA));
             });
+            this.totalPages = Math.max(1, Math.ceil(this.lstPayments.length / this.pageSize));
+            this.currentPage = 1;
           });
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los abonos', objError))

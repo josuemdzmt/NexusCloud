@@ -12,8 +12,11 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData"
-    />
+      @refresh="handleGetData">
+      <template #footer>
+        <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+      </template>
+    </nx-datatable>
     <ProductItemForm ref="productItemFormRef" @success="handleGetData" />
     <ProductItemHistory ref="historyRef" />
   </div>
@@ -25,6 +28,7 @@ import ProductItemForm from '@/views/pages/Inventory/ProductItem/ProductItemForm
 import ProductItemHistory from '@/views/pages/Inventory/ProductItem/ProductItemHistory.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { ACTION_BUTTONS, STOCK_STATUS_BADGE, handleResolveStockStatus } from '@/views/pages/Inventory/ProductItem/ProductItemConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductItemRelatedList',
@@ -39,6 +43,7 @@ export default {
   emits: ['refresh'],
   data() {
     return {
+      ...handleInitPager(),
       // 1. Booleanos
       bSpinner: false,
 
@@ -90,6 +95,12 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleWatchFilters() {
       if (this.bFilteredByLocation && !this.locationId) return;
       if (this.bFilteredByProduct && !this.productId) return;
@@ -97,20 +108,20 @@ export default {
     },
     handleGetData() {
       this.bSpinner = true;
-      const objParams = {
-        include: 'product,location',
-        per_page: 200
-      };
+      const objExtra = { include: 'product,location' };
       if (this.bFilteredByLocation) {
-        objParams['filter[location_id]'] = this.locationId;
+        objExtra['filter[location_id]'] = this.locationId;
       }
       if (this.bFilteredByProduct) {
-        objParams['filter[product_id]'] = this.productId;
+        objExtra['filter[product_id]'] = this.productId;
       }
-      ProductItemService.getAll(objParams)
+      ProductItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, objExtra))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstRaw = Array.isArray(lstData) ? lstData : [];
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          const lstRaw = Array.isArray(data) ? data : [];
           this.lstProductItems = lstRaw.map((objItem) => {
             const objProduct = objItem.product || {};
             const numQty = objItem.quantityOnHand ?? objItem.quantity_on_hand ?? 0;

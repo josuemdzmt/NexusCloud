@@ -17,14 +17,15 @@
         :is-loading="bSpinner"
         :show-date-range="false"
         :show-filters="false"
-        :hide-checkbox-column="true"
         @rowaction="handleRowAction"
-        @refresh="handleGetData"
-      >
+        @refresh="handleGetData">
         <template #cell-purchaseNumber="{ row }">
           <router-link :to="`/purchase/purchase-orders/${row.id}/detail`" class="text-sm text-default hover:text-primary">
             {{ row.purchaseNumber }}
           </router-link>
+        </template>
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
         </template>
       </nx-datatable>
       <PurchaseOrderForm ref="purchaseOrderFormRef" @success="handleFormSuccess" />
@@ -42,6 +43,7 @@ import {
   handleCanEditOrder,
   handleCanDeleteOrder
 } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const PAYMENT_STATUS_BADGE = {
   classMap: {
@@ -61,6 +63,7 @@ export default {
   components: { PurchaseOrderForm },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstOrders: [],
       lstColumns: [
@@ -83,6 +86,12 @@ export default {
     });
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleFormatDate(strDate) {
       if (!strDate || strDate === '—') return '—';
       const strRaw = String(strDate).split(' ')[0];
@@ -101,14 +110,16 @@ export default {
     },
     handleGetData() {
       this.bSpinner = true;
-      PurchaseOrderService.getAll({
+      PurchaseOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
         include: 'account,currency',
-        sort: '-effective_date',
-        per_page: 200
-      })
+        sort: '-effective_date'
+      }))
         .then((objResponse) => {
-          const lstOrders = objResponse.data || objResponse;
-          this.lstOrders = (Array.isArray(lstOrders) ? lstOrders : []).map((objOrder) => {
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          this.lstOrders = (Array.isArray(data) ? data : []).map((objOrder) => {
             const fltTotal = parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0;
             const fltPaid = parseFloat(objOrder.paidAmount ?? objOrder.paid_amount) || 0;
             const fltBalance = parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0;

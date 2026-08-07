@@ -49,10 +49,13 @@
                   :data="lstEntries" 
                   :columns="lstColumns" 
                   :is-loading="bSpinnerEntries" 
-                  :show-date-range="false" 
+                  :show-date-range="false"
                   @rowaction="handleRowAction" 
-                  @refresh="handleGetEntries"
-                />
+                  @refresh="handleGetEntries">
+                  <template #footer>
+                    <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+                  </template>
+                </nx-datatable>
               </div>
             </div>
           </div>
@@ -71,6 +74,7 @@ import PricebookService from '@/services/sales/PricebookService';
 import PricebookEntryService from '@/services/sales/PricebookEntryService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, ENTRY_ACTION_BUTTONS } from '@/views/pages/Sales/Pricebook/PricebookConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'PricebookDetails',
@@ -80,6 +84,7 @@ export default {
   },
   data() {
     return {
+      ...handleInitPager(),
       bSpinnerInfo: false,
       bSpinnerEntries: false,
       objPricebook: null,
@@ -97,6 +102,12 @@ export default {
     this.handleGetEntries();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetEntries();
+    },
+
     handleGetData() {
       this.bSpinnerInfo = true;
       PricebookService.getById(this.$route.params.recordId)
@@ -112,13 +123,16 @@ export default {
     },
     handleGetEntries() {
       this.bSpinnerEntries = true;
-      PricebookEntryService.getAll({
+      PricebookEntryService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
         'filter[pricebook_id]': this.$route.params.recordId,
         include: 'product'
-      })
-        .then((data) => {
-          const lstEntries = data.data || data;
-          this.lstEntries = lstEntries.map(objEntry => ({
+      }))
+        .then((objResponse) => {
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          this.lstEntries = data.map(objEntry => ({
             ...objEntry,
             productName: objEntry.product ? objEntry.product.name : 'Desconocido'
           }));

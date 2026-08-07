@@ -9,7 +9,18 @@
           </button>
         </div>
       </div>
-      <nx-datatable key-field="id" :data="lstCategories" :columns="lstColumns" :is-loading="bSpinner" :show-date-range="false" @rowaction="handleRowAction" @refresh="handleGetData" />
+      <nx-datatable 
+        key-field="id" 
+        :data="lstCategories" 
+        :columns="lstColumns" 
+        :is-loading="bSpinner" 
+        :show-date-range="false" 
+        @rowaction="handleRowAction" 
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
     </div>
 
     <!-- Formulario Modal Integrado -->
@@ -22,6 +33,7 @@ import ProductCategoryService from '@/services/inventory/ProductCategoryService'
 import ProductCategoryForm from '@/views/pages/Inventory/ProductCategory/ProductCategoryForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/ProductCategory/ProductCategoryConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductCategoryList',
@@ -30,6 +42,7 @@ export default {
   },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstCategories: [],
       lstColumns: [
@@ -44,11 +57,19 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
     handleGetData() {
       this.bSpinner = true;
-      ProductCategoryService.getAll()
+      ProductCategoryService.getAll(handlePagerParams(this.currentPage, this.pageSize))
       .then((response) => {
-        const data = response.data || response;
+        const { data, current_page, last_page } = handleParseList(response, this.currentPage);
+        this.totalPages = last_page;
+        this.currentPage = current_page;
+
         this.lstCategories = data;
       })
       .catch((error) => {

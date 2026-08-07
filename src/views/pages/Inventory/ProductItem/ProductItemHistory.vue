@@ -24,8 +24,11 @@
           :hide-checkbox-column="true"
           :show-search="false"
           :show-date-range="false"
-          @refresh="handleGetData"
-        />
+          @refresh="handleGetData">
+          <template #footer>
+            <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+          </template>
+        </nx-datatable>
       </nx-modal-body>
     </nx-modal>
   </div>
@@ -35,11 +38,13 @@
 import ProductItemTransactionService from '@/services/inventory/ProductItemTransactionService';
 import { MOTIVO_BADGE } from '@/views/pages/Inventory/ProductItemTransaction/ProductItemTransactionConstants';
 import { handleError } from '@/utils/toastUtils';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductItemHistory',
   data() {
     return {
+      ...handleInitPager(),
       // 1. Booleanos
       bSpinner: false,
 
@@ -66,6 +71,12 @@ export default {
     };
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     /**
      * @param {Object} objProductItem - Fila de existencia
      */
@@ -80,6 +91,7 @@ export default {
       this.strUnitName =
         objProductItem.product?.unitMeasure?.name || '—';
       this.lstTransactions = [];
+      this.currentPage = 1;
 
       this.handleOpenModal();
       this.handleGetData();
@@ -105,15 +117,17 @@ export default {
       if (!this.recordId) return;
 
       this.bSpinner = true;
-      ProductItemTransactionService.getAll({
+      ProductItemTransactionService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
         'filter[product_item_id]': this.recordId,
         include: 'productItem.product,productItem.location',
-        per_page: 500,
         sort: '-created_at'
-      })
+      }))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstRaw = Array.isArray(lstData) ? lstData : [];
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          const lstRaw = Array.isArray(data) ? data : [];
           this.lstTransactions = this.handleMapTransactions(lstRaw);
         })
         .catch((objError) => handleError('Error', 'No se pudo cargar el historial', objError))

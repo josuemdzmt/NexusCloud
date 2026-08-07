@@ -12,8 +12,11 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData"
-    />
+      @refresh="handleGetData">
+      <template #footer>
+        <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+      </template>
+    </nx-datatable>
     <ProductItemTransactionForm ref="transactionFormRef" @success="handleGetData" />
   </div>
 </template>
@@ -24,6 +27,7 @@ import ProductItemTransactionService from '@/services/inventory/ProductItemTrans
 import ProductItemTransactionForm from '@/views/pages/Inventory/ProductItemTransaction/ProductItemTransactionForm.vue';
 import { handleError } from '@/utils/toastUtils';
 import { MOTIVO_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/ProductItemTransaction/ProductItemTransactionConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductItemTransactionRelatedList',
@@ -38,6 +42,7 @@ export default {
   emits: ['refresh'],
   data() {
     return {
+      ...handleInitPager(),
       // 1. Booleanos
       bSpinner: false,
 
@@ -97,6 +102,12 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleWatchFilters() {
       if (this.bFilteredByProductItem && !this.productItemId) return;
       if (this.bFilteredByLocation && !this.locationId) return;
@@ -104,12 +115,11 @@ export default {
       this.handleGetData();
     },
     handleLedgerParams(numProductItemId) {
-      return {
+      return handlePagerParams(this.currentPage, this.pageSize, {
         'filter[product_item_id]': numProductItemId,
         include: 'productItem.product,productItem.location',
-        per_page: 500,
         sort: '-created_at'
-      };
+      });
     },
     handleGetData() {
       this.bSpinner = true;
@@ -142,14 +152,14 @@ export default {
       }
 
       // Listado global de movimientos (sin filtros de bin)
-      ProductItemTransactionService.getAll({
-        include: 'productItem.product,productItem.location',
-        per_page: 500,
-        sort: '-created_at'
-      })
+      ProductItemTransactionService.getAll(handlePagerParams(this.currentPage, this.pageSize, {include: 'productItem.product,productItem.location',
+        sort: '-created_at'}))
         .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstRaw = Array.isArray(lstData) ? lstData : [];
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          const lstRaw = Array.isArray(data) ? data : [];
           this.lstTransactions = this.handleMapTransactions(lstRaw);
           this.$emit('refresh', this.lstTransactions);
         })
@@ -159,20 +169,17 @@ export default {
         });
     },
     handleResolveProductItemIds() {
-      const objParams = {
-        include: 'product,location',
-        per_page: 500
-      };
+      const objExtra = { include: 'product,location' };
       if (this.bFilteredByLocation) {
-        objParams['filter[location_id]'] = this.locationId;
+        objExtra['filter[location_id]'] = this.locationId;
       }
       if (this.bFilteredByProduct) {
-        objParams['filter[product_id]'] = this.productId;
+        objExtra['filter[product_id]'] = this.productId;
       }
 
-      return ProductItemService.getAll(objParams).then((objResponse) => {
-        const lstData = objResponse.data || objResponse;
-        let lstRaw = Array.isArray(lstData) ? lstData : [];
+      return ProductItemService.getAll(handlePagerParams(1, 100, objExtra)).then((objResponse) => {
+        const { data } = handleParseList(objResponse, 1);
+        let lstRaw = Array.isArray(data) ? data : [];
 
         if (this.bFilteredByLocation) {
           const numLocationId = Number(this.locationId);
@@ -193,17 +200,35 @@ export default {
       });
     },
     handleGetLedgerByProductItemIds(lstIds) {
+      if (lstIds.length === 1) {
+        return ProductItemTransactionService.getAll(this.handleLedgerParams(lstIds[0]))
+          .then((objResponse) => {
+            const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+            this.totalPages = last_page;
+            this.currentPage = current_page;
+            this.lstTransactions = this.handleMapTransactions(data);
+            this.$emit('refresh', this.lstTransactions);
+          })
+          .catch((objError) => handleError('Ocurrió un problema al obtener los ajustes', objError));
+      }
+
       return Promise.all(
         lstIds.map((numId) =>
-          ProductItemTransactionService.getAll(this.handleLedgerParams(numId)).then((objResponse) => {
-            const lstData = objResponse.data || objResponse;
-            return Array.isArray(lstData) ? lstData : [];
+          ProductItemTransactionService.getAll(handlePagerParams(1, 100, {
+            'filter[product_item_id]': numId,
+            include: 'productItem.product,productItem.location',
+            sort: '-created_at'
+          })).then((objResponse) => {
+            const { data } = handleParseList(objResponse, 1);
+            return Array.isArray(data) ? data : [];
           })
         )
       )
         .then((lstGrouped) => {
           const lstRaw = lstGrouped.flat();
           this.lstTransactions = this.handleMapTransactions(lstRaw);
+          this.totalPages = this.lstTransactions.length;
+          this.currentPage = 1;
           this.$emit('refresh', this.lstTransactions);
         })
         .catch((objError) => handleError('Ocurrió un problema al obtener los ajustes', objError));

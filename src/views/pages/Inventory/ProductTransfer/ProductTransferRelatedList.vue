@@ -12,8 +12,11 @@
       :is-loading="bSpinner"
       :show-date-range="!bFilteredByLocation"
       @rowaction="handleRowAction"
-      @refresh="handleGetData"
-    />
+      @refresh="handleGetData">
+      <template #footer>
+        <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+      </template>
+    </nx-datatable>
     <ProductTransferForm ref="productTransferFormRef" @success="handleFormSuccess" />
   </div>
 </template>
@@ -23,6 +26,7 @@ import ProductTransferService from '@/services/inventory/ProductTransferService'
 import ProductTransferForm from '@/views/pages/Inventory/ProductTransfer/ProductTransferForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { TRANSFER_STATUS, TRANSFER_STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/ProductTransfer/ProductTransferConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductTransferRelatedList',
@@ -35,6 +39,7 @@ export default {
   emits: ['refresh'],
   data() {
     return {
+      ...handleInitPager(),
       // 1. Booleanos
       bSpinner: false,
 
@@ -72,6 +77,12 @@ export default {
     }
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleMapTransfers(lstRaw) {
       return lstRaw.map((objTransfer) => {
         const lstLines = objTransfer.lineItems || objTransfer.line_items || [];
@@ -98,32 +109,31 @@ export default {
     },
     handleGetData() {
       this.bSpinner = true;
-      const objInclude = {
-        include: 'lineItems,sourceLocation,destinationLocation',
-        per_page: 200
-      };
+      const objInclude = { include: 'lineItems,sourceLocation,destinationLocation' };
 
       const promiseFetch = this.bFilteredByLocation
         ? Promise.all([
-            ProductTransferService.getAll({
+            ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
               ...objInclude,
               'filter[source_location_id]': this.locationId
-            }),
-            ProductTransferService.getAll({
+            })),
+            ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
               ...objInclude,
               'filter[destination_location_id]': this.locationId
-            })
+            }))
           ]).then(([objSource, objDest]) => {
-            const lstSource = objSource.data || objSource;
-            const lstDest = objDest.data || objDest;
-            return this.handleMergeById(
-              Array.isArray(lstSource) ? lstSource : [],
-              Array.isArray(lstDest) ? lstDest : []
-            );
+            const objNormSource = handleParseList(objSource, this.currentPage);
+            const objNormDest = handleParseList(objDest, this.currentPage);
+            this.totalPages = Math.max(objNormSource.last_page || 1, objNormDest.last_page || 1);
+            this.currentPage = Math.min(objNormSource.current_page, objNormDest.current_page);
+            return this.handleMergeById(objNormSource.data, objNormDest.data);
           })
-        : ProductTransferService.getAll(objInclude).then((objResponse) => {
-            const lstData = objResponse.data || objResponse;
-            return Array.isArray(lstData) ? lstData : [];
+        : ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, objInclude))
+          .then((objResponse) => {
+            const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+            this.totalPages = last_page;
+            this.currentPage = current_page;
+            return data;
           });
 
       promiseFetch

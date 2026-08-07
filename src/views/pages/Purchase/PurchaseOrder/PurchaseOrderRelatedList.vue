@@ -12,8 +12,11 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData"
-    />
+      @refresh="handleGetData">
+      <template #footer>
+        <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+      </template>
+    </nx-datatable>
     <PurchaseOrderForm ref="purchaseOrderFormRef" @success="handleFormSuccess" />
   </div>
 </template>
@@ -23,6 +26,7 @@ import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
 import PurchaseOrderForm from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue';
 import { ORDER_STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleError } from '@/utils/toastUtils';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const RELATED_ACTION_BUTTONS = {
   rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => objAction.name === 'detail')
@@ -39,6 +43,7 @@ export default {
   emits: ['refresh'],
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstOrders: [],
       lstColumns: [
@@ -63,18 +68,24 @@ export default {
     if (this.accountId) this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       if (!this.accountId) return;
 
       this.bSpinner = true;
-      PurchaseOrderService.getAll({
-        include: 'account,currency',
-        'filter[account_id]': this.accountId,
-        per_page: 200
-      })
+      PurchaseOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, {include: 'account,currency',
+        'filter[account_id]': this.accountId}))
       .then((objResponse) => {
-        const lstData = objResponse.data || objResponse;
-        let lstRaw = Array.isArray(lstData) ? lstData : [];
+        const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+        this.totalPages = last_page;
+        this.currentPage = current_page;
+
+        let lstRaw = Array.isArray(data) ? data : [];
 
         lstRaw = lstRaw.filter((objOrder) => {
           const numAccountId = objOrder.accountId ?? objOrder.account_id ?? objOrder.account?.id;

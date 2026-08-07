@@ -3,12 +3,10 @@
     <!-- Toolbar: Search, Date Picker, Filters, Actions -->
     <div v-if="showSearch || showDateRange || showFilters" class="flex flex-wrap items-center justify-between gap-3 mb-3">
       <div class="flex items-center gap-2 flex-wrap">
-        <!-- Search Input -->
         <div v-if="showSearch" class="relative w-64 search-input">
           <i class="ph ph-magnifying-glass absolute right-2.5 top-1/2 -translate-y-1/2 text-default text-sm"></i>
           <input type="text" v-model="strSearch" @input="handleSearch" class="w-full px-3 pe-8 py-2 h-7 text-[12px]! border border-border-color rounded-lg bg-white focus:outline-none focus:ring-0" placeholder="Buscar" />
         </div>
-        <!-- Date Range Picker -->
         <div v-if="showDateRange" class="relative rangepicker-input w-[220px] h-[28px] leading-none">
           <span class="absolute inset-y-0 left-0 flex items-center px-3 text-muted-foreground text-dark text-xs!">
             <i class="icon-calendar"></i>
@@ -19,10 +17,8 @@
         </div>
       </div>
 
-      <!-- Header Action Buttons & Filters -->
       <div class="flex items-center flex-wrap gap-2">
         <slot name="headerActions">
-          <!-- Dropdown Filter -->
           <div v-if="showFilters" class="hs-dropdown [--placement:bottom-left] [--auto-close:inside] relative inline-flex">
             <button type="button" class="hs-dropdown-toggle cursor-pointer btn-sm bg-white border border-border-color text-gray-900 inline-flex items-center gap-2 hover:bg-primary hover:border-primary hover:text-white"
               aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown">
@@ -48,17 +44,13 @@
       </div>
     </div>
 
-    <!-- Table Container -->
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
           <tr class="text-sm text-default border-b border-border-color">
-            <!-- Checkbox Column -->
             <th v-if="!hideCheckboxColumn" class="w-10 py-2 px-2 text-center">
               <input type="checkbox" class="size-4 rounded border-border-color text-primary focus:ring-0 cursor-pointer" :checked="isAllSelected" @change="handleSelectAll" />
             </th>
-
-            <!-- Column Headers -->
             <th v-for="objCol in columns" :key="objCol.fieldName || objCol.label" class="text-left py-2 px-2 font-semibold text-gray-900" :class="{ 'cursor-pointer select-none': objCol.sortable, [objCol.cellAttributes?.class || '']: true }" @click="objCol.sortable && handleSort(objCol.fieldName)">
               <div class="flex items-center gap-1">
                 <span>{{ objCol.label }}</span>
@@ -68,7 +60,6 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Loading Spinner State -->
           <tr v-if="isLoading" class="border-b border-border-color">
             <td :colspan="computedColspan" class="py-6 text-center text-sm text-default">
               <div class="flex items-center justify-center gap-2">
@@ -77,25 +68,15 @@
               </div>
             </td>
           </tr>
-
-          <!-- Empty Data State -->
-          <tr v-else-if="paginatedData.length === 0" class="border-b border-border-color">
+          <tr v-else-if="filteredData.length === 0" class="border-b border-border-color">
             <td :colspan="computedColspan" class="py-6 text-center text-sm text-default">No hay registros disponibles.</td>
           </tr>
-
-          <!-- Data Rows -->
-          <tr v-else v-for="objRow in paginatedData" :key="objRow[keyField]" class="border-b border-border-color hover:bg-light/40 transition-colors">
-            <!-- Checkbox Cell -->
+          <tr v-else v-for="objRow in filteredData" :key="objRow[keyField]" class="border-b border-border-color hover:bg-light/40 transition-colors">
             <td v-if="!hideCheckboxColumn" class="w-10 py-2.5 px-2 text-center">
               <input type="checkbox" class="size-4 rounded border-border-color text-primary focus:ring-0 cursor-pointer" :value="objRow[keyField]" :checked="lstSelectedRowKeys.includes(objRow[keyField])" @change="handleSelectRow(objRow[keyField], $event)" />
             </td>
-
-            <!-- Data Cells -->
             <td v-for="objCol in columns" :key="objCol.fieldName || objCol.label" class="py-2.5 px-2 text-sm text-default" :class="objCol.cellAttributes?.class || ''">
-              <!-- Custom Slot per Column fieldName -->
               <slot v-if="$slots['cell-' + objCol.fieldName]" :name="'cell-' + objCol.fieldName" :row="objRow" :objRow="objRow" :value="objRow[objCol.fieldName]" :column="objCol" :objCol="objCol" />
-
-              <!-- Standard Action Column -->
               <template v-else-if="objCol.type === 'action'">
                 <slot name="action" :row="objRow" :objRow="objRow">
                   <div class="hs-dropdown [--placement:bottom-right] [--auto-close:inside] relative inline-flex">
@@ -118,18 +99,12 @@
                   </div>
                 </slot>
               </template>
-
-              <!-- Badge Type -->
               <template v-else-if="objCol.type === 'badge'">
                 <span class="text-[11px] px-2 py-0.5 rounded" :class="getBadgeClass(objCol, objRow[objCol.fieldName])">
                   {{ getBadgeLabel(objCol, objRow[objCol.fieldName]) }}
                 </span>
               </template>
-
-              <!-- Currency Type -->
               <template v-else-if="objCol.type === 'currency'"> ${{ formatCurrency(objRow[objCol.fieldName]) }} </template>
-
-              <!-- Default / Text Type -->
               <template v-else>
                 {{ objRow[objCol.fieldName] }}
               </template>
@@ -139,30 +114,8 @@
       </table>
     </div>
 
-    <!-- Footer / Pagination -->
-    <div v-if="showPagination" class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border-color">
-      <div class="flex items-center gap-2">
-        <span class="text-sm text-default">Mostrando</span>
-        <select v-model="numPageSize" @change="handlePageSizeChange" class="px-2 py-1 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0 w-28 cursor-pointer">
-          <option :value="10">10 / Página</option>
-          <option :value="25">25 / Página</option>
-          <option :value="50">50 / Página</option>
-          <option :value="100">100 / Página</option>
-        </select>
-      </div>
-      <div class="flex items-center gap-1">
-        <button @click="handlePageChange(numCurrentPage - 1)" :disabled="numCurrentPage === 1"
-          class="size-7 rounded-md text-sm border border-border-color flex items-center justify-center text-default hover:bg-light disabled:opacity-50 cursor-pointer">
-          <i class="ph ph-caret-left text-sm"></i></button>
-        <button v-for="numPage in totalPages" :key="numPage" @click="handlePageChange(numPage)"
-          class="size-7 rounded-md text-sm flex items-center justify-center cursor-pointer"
-          :class="numPage === numCurrentPage ? 'bg-dark text-white' : 'text-gray-900 hover:bg-light'">
-          {{ numPage }}</button>
-        <button @click="handlePageChange(numCurrentPage + 1)" :disabled="numCurrentPage === totalPages || totalPages === 0"
-          class="size-7 rounded-md text-sm border border-border-color flex items-center justify-center text-default hover:bg-light disabled:opacity-50 cursor-pointer">
-          <i class="ph ph-caret-right text-sm"></i></button>
-      </div>
-    </div>
+    <!-- Footer slot: el padre compone nx-pagination (SRP) -->
+    <slot name="footer" />
   </div>
 </template>
 
@@ -174,31 +127,21 @@ export default {
     data: { type: Array, default: () => [] },
     columns: { type: Array, default: () => [] },
     isLoading: { type: Boolean, default: false },
-    hideCheckboxColumn: { type: Boolean, default: false },
+    hideCheckboxColumn: { type: Boolean, default: true },
     selectedRows: { type: Array, default: () => [] },
     sortedBy: { type: String, default: '' },
     sortedDirection: { type: String, default: 'asc' },
     showSearch: { type: Boolean, default: true },
     showDateRange: { type: Boolean, default: false },
-    showFilters: { type: Boolean, default: false },
-    showPagination: { type: Boolean, default: true }
+    showFilters: { type: Boolean, default: false }
   },
   emits: ['rowaction', 'onrowaction', 'sort', 'onsort', 'rowselection', 'onrowselection', 'search', 'onsearch', 'daterangechange', 'refresh'],
   data() {
     return {
-      // 2. Números
-      numCurrentPage: 1,
-      numPageSize: 10,
-
-      // 3. Textos
       strSearch: '',
       strCurrentSortBy: this.sortedBy,
       strCurrentSortDirection: this.sortedDirection,
-
-      // 4. Objetos
       objRangeDate: null,
-
-      // 5. Listas
       lstSelectedRowKeys: [...this.selectedRows]
     };
   },
@@ -206,7 +149,7 @@ export default {
     data() {
       this.reinitPreline();
     },
-    paginatedData() {
+    filteredData() {
       this.reinitPreline();
     },
     selectedRows(newVal) {
@@ -239,18 +182,9 @@ export default {
 
       return lstResult;
     },
-    totalPages() {
-      if (!this.showPagination) return 1;
-      return Math.ceil(this.filteredData.length / this.numPageSize) || 1;
-    },
-    paginatedData() {
-      if (!this.showPagination) return this.filteredData;
-      const start = (this.numCurrentPage - 1) * this.numPageSize;
-      return this.filteredData.slice(start, start + this.numPageSize);
-    },
     isAllSelected() {
-      if (this.paginatedData.length === 0) return false;
-      return this.paginatedData.every((objRow) => this.lstSelectedRowKeys.includes(objRow[this.keyField]));
+      if (this.filteredData.length === 0) return false;
+      return this.filteredData.every((objRow) => this.lstSelectedRowKeys.includes(objRow[this.keyField]));
     }
   },
   mounted() {
@@ -288,7 +222,6 @@ export default {
       return this.strCurrentSortDirection === 'asc' ? 'ph-caret-up text-primary' : 'ph-caret-down text-primary';
     },
     handleSearch() {
-      this.numCurrentPage = 1;
       const eventPayload = { detail: { value: this.strSearch } };
       this.$emit('search', eventPayload);
       this.$emit('onsearch', eventPayload);
@@ -299,10 +232,10 @@ export default {
     },
     handleSelectAll(objEvent) {
       if (objEvent.target.checked) {
-        const keys = this.paginatedData.map((objRow) => objRow[this.keyField]);
+        const keys = this.filteredData.map((objRow) => objRow[this.keyField]);
         this.lstSelectedRowKeys = Array.from(new Set([...this.lstSelectedRowKeys, ...keys]));
       } else {
-        const keys = this.paginatedData.map((objRow) => objRow[this.keyField]);
+        const keys = this.filteredData.map((objRow) => objRow[this.keyField]);
         this.lstSelectedRowKeys = this.lstSelectedRowKeys.filter((k) => !keys.includes(k));
       }
       this.emitRowSelection();
@@ -322,16 +255,6 @@ export default {
       const eventPayload = { detail: { selectedRows: selectedObjects } };
       this.$emit('rowselection', eventPayload);
       this.$emit('onrowselection', eventPayload);
-    },
-    handlePageChange(numPage) {
-      if (numPage >= 1 && numPage <= this.totalPages) {
-        this.numCurrentPage = numPage;
-        this.reinitPreline();
-      }
-    },
-    handlePageSizeChange() {
-      this.numCurrentPage = 1;
-      this.reinitPreline();
     },
     handleRefresh() {
       this.$emit('refresh');

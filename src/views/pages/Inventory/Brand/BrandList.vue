@@ -16,8 +16,11 @@
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
-        @refresh="handleGetData" 
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
     </div>
 
     <!-- Formulario Modal Integrado -->
@@ -30,6 +33,7 @@ import BrandService from '@/services/inventory/BrandService';
 import BrandForm from '@/views/pages/Inventory/Brand/BrandForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/Brand/BrandConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'BrandList',
@@ -38,6 +42,7 @@ export default {
   },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstBrands: [],
       lstColumns: [
@@ -52,11 +57,20 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       this.bSpinner = true;
-      BrandService.getAll()
+      BrandService.getAll(handlePagerParams(this.currentPage, this.pageSize))
       .then((response) => {
-        const data = response.data || response;
+        const { data, current_page, last_page } = handleParseList(response, this.currentPage);
+        this.totalPages = last_page;
+        this.currentPage = current_page;
+
         this.lstBrands = data;
       })
       .catch((error) => {

@@ -14,10 +14,13 @@
         :data="lstOrders" 
         :columns="lstColumns" 
         :is-loading="bSpinner" 
-        :show-date-range="false" 
+        :show-date-range="false"
         @rowaction="handleRowAction" 
-        @refresh="handleGetData"
-      />
+        @refresh="handleGetData">
+        <template #footer>
+          <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+        </template>
+      </nx-datatable>
       <SalesOrderForm ref="salesOrderFormRef" @success="handleFormSuccess" />
     </div>
   </main>
@@ -28,12 +31,14 @@ import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { ORDER_STATUS_BADGE, ACTION_BUTTONS, handleCanEditOrder, handleCanDeleteOrder } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
+import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'SalesOrderList',
   components: { SalesOrderForm },
   data() {
     return {
+      ...handleInitPager(),
       bSpinner: false,
       lstOrders: [],
       lstColumns: [
@@ -52,12 +57,23 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handlePageChange(objEvent) {
+      this.currentPage = objEvent.detail.currentPage;
+      this.pageSize = objEvent.detail.pageSize;
+      this.handleGetData();
+    },
+
     handleGetData() {
       this.bSpinner = true;
-      SalesOrderService.getAll({ include: 'account,currency' })
-        .then((data) => {
-          const lstOrders = data.data || data;
-          this.lstOrders = lstOrders.map(objOrder => {
+      SalesOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
+        include: 'account,currency'
+      }))
+        .then((objResponse) => {
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+
+          this.lstOrders = data.map(objOrder => {
             const objCurrency = objOrder.currency || {};
             return {
               ...objOrder,
