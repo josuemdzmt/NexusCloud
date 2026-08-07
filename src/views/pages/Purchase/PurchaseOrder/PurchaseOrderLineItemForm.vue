@@ -38,6 +38,11 @@
             class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
         </div>
         <div>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Impuesto</label>
+          <Field name="taxAmount" as="input" type="number" step="0.01" min="0"
+            class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
+        </div>
+        <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Descripción</label>
           <Field name="description" as="input" type="text"
             class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
@@ -63,6 +68,7 @@ const validationSchema = yup.object({
   quantity: yup.number().nullable().transform(handleToNumber).required('La cantidad es obligatoria').min(0.01, 'Mínimo 0.01'),
   unitCost: yup.number().nullable().transform(handleToNumber).required('El costo unitario es obligatorio').min(0, 'No puede ser negativo'),
   discountAmount: yup.number().default(0).transform((v, o) => Number(o) || 0).min(0),
+  taxAmount: yup.number().default(0).transform((v, o) => Number(o) || 0).min(0),
   description: yup.string().nullable().default('')
 });
 
@@ -195,6 +201,7 @@ export default {
         quantity: this.objInitialData.quantity ?? 1,
         unitCost: fltUnit != null ? Number(fltUnit) : null,
         discountAmount: this.objInitialData.discountAmount ?? 0,
+        taxAmount: this.objInitialData.taxAmount ?? 0,
         description: strName || this.objInitialData.description || ''
       };
       this.objInitialData = { ...this.objInitialData, ...objValues };
@@ -212,6 +219,7 @@ export default {
             quantity: objData.quantity ?? null,
             unitCost: objData.unitCost ?? objData.unit_cost ?? null,
             discountAmount: objData.discountAmount ?? objData.discount_amount ?? 0,
+            taxAmount: objData.taxAmount ?? objData.tax_amount ?? 0,
             description: objData.description || ''
           };
           if (this.$refs.modalFormRef) {
@@ -230,6 +238,7 @@ export default {
         quantity: Number(objValues.quantity),
         unitCost: Number(objValues.unitCost),
         discountAmount: Number(objValues.discountAmount) || 0,
+        taxAmount: Number(objValues.taxAmount) || 0,
         description: objValues.description || null
       };
 

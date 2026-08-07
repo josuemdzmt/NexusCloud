@@ -60,9 +60,11 @@ export const all_routes = {
   // Sales
 
   customers: '/sales/customer/list',
-  taxProfileList: '/sales/tax-profile/list',
-  banks: '/sales/banks/list',
-  paymentMethods: '/sales/payment-methods/list',
+  taxProfileList: '/system/tax-profile/list',
+  banks: '/system/banks/list',
+  paymentMethods: '/system/payment-methods/list',
+  currencyList: '/system/currency/list',
+  pricebookList: '/system/pricebook/list',
   orgList: '/system/org/list',
   branchList: '/system/branch/list',
 

@@ -1,16 +1,9 @@
 import { AMOUNT_SOURCE } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 
-/** (unitCost * quantity) - discountAmount */
-export function handleGetLineTotalPrice(objItem) {
-  const fltCost = parseFloat(objItem.unitCost) || 0;
-  const numQty = parseFloat(objItem.quantity) || 0;
-  const fltDisc = parseFloat(objItem.discountAmount) || 0;
-  return parseFloat(Math.max(0, fltCost * numQty - fltDisc).toFixed(2));
-}
-
-/** subtotal - discountAmount */
-export function handleGetGrandTotalPreview(fltSubtotal, fltDiscountAmount = 0) {
-  return parseFloat(Math.max(0, (parseFloat(fltSubtotal) || 0) - (parseFloat(fltDiscountAmount) || 0)).toFixed(2));
+/** subtotal - discountAmount + totalTaxAmount */
+export function handleGetGrandTotalPreview(fltSubtotal, fltDiscountAmount = 0, fltTotalTaxAmount = 0) {
+  const fltNet = (parseFloat(fltSubtotal) || 0) - (parseFloat(fltDiscountAmount) || 0) + (parseFloat(fltTotalTaxAmount) || 0);
+  return parseFloat(Math.max(0, fltNet).toFixed(2));
 }
 
 /** Normaliza cabecera PO (camelCase / snake_case). */
@@ -27,6 +20,7 @@ export function handleNormalizePurchaseOrder(objRaw) {
     amountSource: objRaw.amountSource ?? objRaw.amount_source ?? AMOUNT_SOURCE.LINE_ITEMS,
     discountAmount: Number(objRaw.discountAmount ?? objRaw.discount_amount ?? 0),
     subtotal: Number(objRaw.subtotal ?? 0),
+    totalTaxAmount: Number(objRaw.totalTaxAmount ?? objRaw.total_tax_amount ?? 0),
     grandTotalAmount: Number(objRaw.grandTotalAmount ?? objRaw.grand_total_amount ?? objRaw.totalAmount ?? objRaw.total_amount ?? 0),
     paidAmount: Number(objRaw.paidAmount ?? objRaw.paid_amount ?? 0),
     balanceAmount: Number(objRaw.balanceAmount ?? objRaw.balance_amount ?? 0),
@@ -51,6 +45,7 @@ export function handleNormalizePurchaseOrderLineItem(objRaw) {
     quantity: Number(objRaw.quantity ?? 0),
     unitCost: Number(objRaw.unitCost ?? objRaw.unit_cost ?? 0),
     discountAmount: Number(objRaw.discountAmount ?? objRaw.discount_amount ?? 0),
+    taxAmount: Number(objRaw.taxAmount ?? objRaw.tax_amount ?? 0),
     totalPrice: Number(objRaw.totalPrice ?? objRaw.total_price ?? 0),
     description: objRaw.description ?? null
   };

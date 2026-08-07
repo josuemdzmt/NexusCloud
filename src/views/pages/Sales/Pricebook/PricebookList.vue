@@ -72,7 +72,7 @@ export default {
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
       if (action.name === 'details') {
-        this.$router.push(`/sales/pricebook/${row.id}/details`);
+        this.$router.push(`/system/pricebook/${row.id}/details`);
       } else if (action.name === 'edit') {
         if (this.$refs.pricebookFormRef) {
           this.$refs.pricebookFormRef.handleOpen(row.id);

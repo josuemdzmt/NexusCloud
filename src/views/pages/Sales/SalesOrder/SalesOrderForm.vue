@@ -20,12 +20,6 @@
           />
         </div>
         <div>
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Moneda <span class="text-danger">*</span></label>
-          <Field name="currencyId" as="nx-combobox" :options="lstCurrencyOptions" placeholder="Seleccionar moneda"
-            :class="{ 'border-danger focus:border-danger': errors.currencyId }" class="w-full text-sm border-border-color focus:border-primary" />
-          <ErrorMessage name="currencyId" class="text-danger text-[11px] mt-1 block" />
-        </div>
-        <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Fecha <span class="text-danger">*</span></label>
           <Field name="effectiveDate" v-slot="{ field, value }">
             <a-date-picker :value="value" valueFormat="YYYY-MM-DD" class="w-full" placeholder="dd/mm/yyyy" @update:value="field.onChange" />
@@ -33,15 +27,19 @@
           <ErrorMessage name="effectiveDate" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Lista de precios</label>
-          <Field name="pricebookId" as="nx-combobox" :options="lstPricebookOptions" placeholder="Opcional"
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Lista de precios <span class="text-danger">*</span></label>
+          <Field name="pricebookId" as="nx-combobox" :options="lstPricebookOptions" placeholder="Seleccionar lista de precios"
             :disabled="bPricebookLocked"
+            :class="{ 'border-danger focus:border-danger': errors.pricebookId }"
             class="w-full text-sm border-border-color focus:border-primary" />
+          <ErrorMessage name="pricebookId" class="text-danger text-[11px] mt-1 block" />
           <p v-if="bPricebookLocked" class="text-[11px] text-default mt-1">No se puede cambiar cuando ya hay líneas.</p>
         </div>
-        <div v-if="recordId">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Núm. orden</label>
-          <input type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0 text-gray-600" :value="strOrderNumber || '—'" readonly>
+        <div>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Moneda <span class="text-danger">*</span></label>
+          <Field name="currencyId" as="nx-combobox" :options="lstCurrencyOptions" placeholder="Seleccionar moneda"
+            :class="{ 'border-danger focus:border-danger': errors.currencyId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <ErrorMessage name="currencyId" class="text-danger text-[11px] mt-1 block" />
         </div>
 
         <div class="md:col-span-2 mt-1">
@@ -50,13 +48,12 @@
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Subtotal</label>
           <Field name="subtotal" v-slot="{ field }">
-            <input v-bind="field" type="number" min="0" step="0.01" :class="{ 'border-danger focus:border-danger': errors.subtotal }"
+            <input v-bind="field" type="number" min="0" step="0.01" :readonly="bLineItemsMode" :class="{ 'border-danger focus:border-danger': errors.subtotal, 'bg-gray-50 text-gray-600': bLineItemsMode }"
               class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0"
               @input="(e) => { field.onInput(e); handleRecalcTotal({ subtotal: e.target.value }); }"
             >
           </Field>
           <ErrorMessage name="subtotal" class="text-danger text-[11px] mt-1 block" />
-          <p class="text-[11px] text-default mt-1 mb-0">Opcional. Déjalo en 0 si vas a capturar el monto con líneas.</p>
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Descuento</label>
@@ -67,7 +64,16 @@
             >
           </Field>
         </div>
-        <div class="md:col-span-2">
+        <div>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Impuesto</label>
+          <Field name="totalTaxAmount" v-slot="{ field }">
+            <input v-bind="field" type="number" min="0" step="0.01"
+              class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0"
+              @input="(e) => { field.onInput(e); handleRecalcTotal({ totalTaxAmount: e.target.value }); }"
+            >
+          </Field>
+        </div>
+        <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Total</label>
           <input type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0 text-gray-900 font-semibold"
             :value="strGrandTotalLabel" readonly>
@@ -109,7 +115,7 @@ const handleToNumber = (value, originalValue) => (originalValue === '' || origin
 
 const validationSchema = yup.object({
   accountId: yup.number().nullable().transform(handleToNumber).required('El cliente es obligatorio'),
-  pricebookId: yup.number().nullable().transform(handleToNumber),
+  pricebookId: yup.number().nullable().transform(handleToNumber).required('La lista de precios es obligatoria'),
   currencyId: yup.number().nullable().transform(handleToNumber).required('La moneda es obligatoria'),
   effectiveDate: yup.string().nullable().required('La fecha es obligatoria'),
   subtotal: yup
@@ -119,6 +125,7 @@ const validationSchema = yup.object({
     .min(0, 'No puede ser negativo')
     .default(0),
   discountAmount: yup.number().default(0).transform((value, originalValue) => Number(originalValue) || 0).min(0),
+  totalTaxAmount: yup.number().default(0).transform((value, originalValue) => Number(originalValue) || 0).min(0),
   description: yup.string().nullable().default(''),
   notes: yup.string().nullable().default(''),
   termsAndConditions: yup.string().nullable().default('')
@@ -136,8 +143,9 @@ export default {
       fltBalanceAmount: 0,
       fltSubtotal: 0,
       fltDiscountAmount: 0,
-      strTitle: 'Nueva Orden de Venta',
-      strOrderNumber: null,
+      fltTotalTaxAmount: 0,
+      strAmountSource: AMOUNT_SOURCE.MANUAL,
+      strTitle: 'Orden de Venta',
       strCurrentStatus: ORDER_STATUS.DRAFT,
       strStatus: ORDER_STATUS.DRAFT,
       recordId: null,
@@ -150,8 +158,11 @@ export default {
     };
   },
   computed: {
+    bLineItemsMode() {
+      return this.strAmountSource === AMOUNT_SOURCE.LINE_ITEMS;
+    },
     strGrandTotalLabel() {
-      return this.handleFormatTotal(handleGetGrandTotalPreview(this.fltSubtotal, this.fltDiscountAmount));
+      return this.handleFormatTotal(handleGetGrandTotalPreview(this.fltSubtotal, this.fltDiscountAmount, this.fltTotalTaxAmount));
     },
     bCanChangeStatus() {
       if (!this.recordId) return true;
@@ -175,6 +186,9 @@ export default {
       }
       if (objPartial.discountAmount !== undefined) {
         this.fltDiscountAmount = Number(objPartial.discountAmount) || 0;
+      }
+      if (objPartial.totalTaxAmount !== undefined) {
+        this.fltTotalTaxAmount = Number(objPartial.totalTaxAmount) || 0;
       }
     },
     handleFormatTotal(fltValue) {
@@ -229,15 +243,16 @@ export default {
     handleOpen(numId = null, objContext = null) {
       this.recordId = numId;
       this.numDefaultAccountId = objContext?.accountId ? Number(objContext.accountId) : null;
-      this.strOrderNumber = null;
       this.fltBalanceAmount = 0;
       this.fltSubtotal = 0;
       this.fltDiscountAmount = 0;
+      this.fltTotalTaxAmount = 0;
+      this.strAmountSource = AMOUNT_SOURCE.MANUAL;
       this.numLineCount = 0;
       this.bPricebookLocked = false;
       this.strCurrentStatus = ORDER_STATUS.DRAFT;
       this.strStatus = ORDER_STATUS.DRAFT;
-      this.strTitle = numId ? 'Editar Orden de Venta' : 'Nueva Orden de Venta';
+      this.strTitle = 'Orden de Venta';
 
       if (this.$refs.modalFormRef) {
         this.$refs.modalFormRef.handleOpen();
@@ -261,7 +276,8 @@ export default {
         effectiveDate: this.handleGetToday(),
         accountId: this.numDefaultAccountId,
         subtotal: 0,
-        discountAmount: 0
+        discountAmount: 0,
+        totalTaxAmount: 0
       };
       CurrencyService.getDefault()
         .then((objCurrency) => {
@@ -274,7 +290,8 @@ export default {
           this.objInitialData = objDefaults;
           this.handleRecalcTotal({
             subtotal: objDefaults.subtotal,
-            discountAmount: objDefaults.discountAmount
+            discountAmount: objDefaults.discountAmount,
+            totalTaxAmount: objDefaults.totalTaxAmount
           });
           if (this.$refs.modalFormRef) {
             this.$refs.modalFormRef.handleSetValues(this.objInitialData);
@@ -316,8 +333,9 @@ export default {
 
           this.strCurrentStatus = objOrder.status || ORDER_STATUS.DRAFT;
           this.strStatus = this.strCurrentStatus;
-          this.strOrderNumber = objOrder.orderNumber;
+          this.strTitle = objOrder.orderNumber ? `Orden de Venta · ${objOrder.orderNumber}` : 'Orden de Venta';
           this.fltBalanceAmount = objOrder.balanceAmount;
+          this.strAmountSource = objOrder.amountSource || AMOUNT_SOURCE.MANUAL;
           this.objInitialData = {
             accountId: objOrder.accountId,
             pricebookId: objOrder.pricebookId,
@@ -325,13 +343,15 @@ export default {
             effectiveDate: objOrder.effectiveDate,
             subtotal: objOrder.subtotal,
             discountAmount: objOrder.discountAmount,
+            totalTaxAmount: objOrder.totalTaxAmount,
             description: objOrder.description || '',
             notes: objOrder.notes || '',
             termsAndConditions: objOrder.termsAndConditions || ''
           };
           this.handleRecalcTotal({
             subtotal: objOrder.subtotal,
-            discountAmount: objOrder.discountAmount
+            discountAmount: objOrder.discountAmount,
+            totalTaxAmount: objOrder.totalTaxAmount
           });
           if (this.$refs.modalFormRef) {
             this.$refs.modalFormRef.handleSetValues(this.objInitialData);
@@ -346,10 +366,11 @@ export default {
       const strStatus = this.strStatus || ORDER_STATUS.DRAFT;
       const strFromStatus = this.recordId ? this.strCurrentStatus : null;
       const fltSubtotal = Number(objValues.subtotal) || 0;
+      const strAmountSource = this.strAmountSource || AMOUNT_SOURCE.MANUAL;
 
       const objTransition = handleValidateStatusTransition(strFromStatus, strStatus, {
         fltBalanceAmount: this.fltBalanceAmount,
-        strAmountSource: AMOUNT_SOURCE.MANUAL,
+        strAmountSource,
         numLineCount: this.numLineCount,
         fltSubtotal
       });
@@ -363,14 +384,18 @@ export default {
         currencyId: Number(objValues.currencyId),
         status: strStatus,
         effectiveDate: objValues.effectiveDate,
-        amountSource: AMOUNT_SOURCE.MANUAL,
-        subtotal: fltSubtotal,
+        amountSource: strAmountSource,
         discountAmount: Number(objValues.discountAmount) || 0,
-        pricebookId: objValues.pricebookId ? Number(objValues.pricebookId) : null,
+        totalTaxAmount: Number(objValues.totalTaxAmount) || 0,
+        pricebookId: Number(objValues.pricebookId),
         description: objValues.description || null,
         notes: objValues.notes || null,
         termsAndConditions: objValues.termsAndConditions || null
       };
+
+      if (strAmountSource === AMOUNT_SOURCE.MANUAL) {
+        objPayload.subtotal = fltSubtotal;
+      }
 
       if (this.recordId) {
         this.handleUpdate(objPayload);

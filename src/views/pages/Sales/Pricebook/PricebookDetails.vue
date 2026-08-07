@@ -2,7 +2,7 @@
   <main>
     <div class="p-3 lg:py-6 lg:px-0">
       <div class="flex flex-wrap items-center gap-2 text-sm text-default mb-3">
-        <router-link to="/sales/pricebook/list" class="hover:text-primary">Listas de Precios</router-link> 
+        <router-link to="/system/pricebook/list" class="hover:text-primary">Listas de Precios</router-link> 
         <i class="ph ph-caret-right text-[10px]"></i> 
         <span>Detalles</span>
       </div>

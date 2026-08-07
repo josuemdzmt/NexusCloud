@@ -26,7 +26,8 @@ export default {
    * Create a new sales order (header only — no nested items)
    * Write: accountId, currencyId, status, effectiveDate, pricebookId?,
    *   billToContactId?, shipToContactId?, amountSource?, discountAmount?,
-   *   subtotal?, billToAddress?, shipToAddress?, description?, notes?, termsAndConditions?
+   *   subtotal?, totalTaxAmount?, billToAddress?, shipToAddress?,
+   *   description?, notes?, termsAndConditions?
    * Response-only (do not send): id, orderNumber, grandTotalAmount, paidAmount, balanceAmount
    * @param {Object} objData
    */

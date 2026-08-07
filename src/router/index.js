@@ -279,30 +279,47 @@ const routes = [
   },
 
   // ==========================================
-  // SALES
+  // SYSTEM — catálogos compartidos
   // ==========================================
   {
-    path: "/sales/currency",
+    path: "/system/currency",
     component: () => import("@/views/pages/Sales/Currency/Currency.vue"),
     children: [
-      { path: "", redirect: "/sales/currency/list" },
+      { path: "", redirect: "/system/currency/list" },
       { path: "list", component: () => import("@/views/pages/Sales/Currency/CurrencyList.vue"), meta: { title: "Monedas | NexusCloud" } }
     ]
   },
   {
-    path: "/sales/payment-methods",
+    path: "/system/payment-methods",
     component: () => import("@/views/pages/Sales/PaymentMethod/PaymentMethod.vue"),
     children: [
-      { path: "", redirect: "/sales/payment-methods/list" },
+      { path: "", redirect: "/system/payment-methods/list" },
       { path: "list", component: () => import("@/views/pages/Sales/PaymentMethod/PaymentMethodList.vue"), meta: { title: "Métodos de Pago | NexusCloud" } }
     ]
   },
   {
-    path: "/sales/banks",
+    path: "/system/banks",
     component: () => import("@/views/pages/Sales/Bank/Bank.vue"),
     children: [
-      { path: "", redirect: "/sales/banks/list" },
+      { path: "", redirect: "/system/banks/list" },
       { path: "list", component: () => import("@/views/pages/Sales/Bank/BankList.vue"), meta: { title: "Bancos | NexusCloud" } }
+    ]
+  },
+  {
+    path: "/system/tax-profile",
+    component: () => import("@/views/pages/Sales/TaxProfile/TaxProfile.vue"),
+    children: [
+      { path: "", redirect: "/system/tax-profile/list" },
+      { path: "list", component: () => import("@/views/pages/Sales/TaxProfile/TaxProfileList.vue"), meta: { title: "Perfiles Fiscales | NexusCloud" } }
+    ]
+  },
+  {
+    path: "/system/pricebook",
+    component: () => import("@/views/pages/Sales/Pricebook/Pricebook.vue"),
+    children: [
+      { path: "", redirect: "/system/pricebook/list" },
+      { path: "list", component: () => import("@/views/pages/Sales/Pricebook/PricebookList.vue"), meta: { title: "Listas de Precios | NexusCloud" } },
+      { path: ":recordId/details", component: () => import("@/views/pages/Sales/Pricebook/PricebookDetails.vue"), meta: { title: "Detalles Lista de Precio | NexusCloud" } }
     ]
   },
   //Customer
@@ -316,24 +333,6 @@ const routes = [
     ]
   },
   
-  //Tax Profile
-  {
-    path: "/sales/tax-profile",
-    component: () => import("@/views/pages/Sales/TaxProfile/TaxProfile.vue"),
-    children: [
-      { path: "", redirect: "/sales/tax-profile/list" },
-      { path: "list", component: () => import("@/views/pages/Sales/TaxProfile/TaxProfileList.vue"), meta: { title: "Perfiles Fiscales | NexusCloud" } }
-    ]
-  },
-  {
-    path: "/sales/pricebook",
-    component: () => import("@/views/pages/Sales/Pricebook/Pricebook.vue"),
-    children: [
-      { path: "", redirect: "/sales/pricebook/list" },
-      { path: "list", component: () => import("@/views/pages/Sales/Pricebook/PricebookList.vue"), meta: { title: "Listas de Precios | NexusCloud" } },
-      { path: ":recordId/details", component: () => import("@/views/pages/Sales/Pricebook/PricebookDetails.vue"), meta: { title: "Detalles Lista de Precio | NexusCloud" } }
-    ]
-  },
   {
     path: "/sales/product-price",
     component: () => import("@/views/pages/Sales/PricebookEntry/PricebookEntry.vue"),

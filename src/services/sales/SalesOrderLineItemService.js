@@ -22,7 +22,7 @@ export default {
 
   /**
    * Create a new sales order line item
-   * @param {Object} objData - { salesOrderId, pricebookEntryId, productId, quantity, unitPrice?, description?, discountAmount? }
+   * @param {Object} objData - { salesOrderId, pricebookEntryId, productId, quantity, unitPrice?, description?, discountAmount?, taxAmount? }
    */
   create(objData) {
     return api.post(ENDPOINT, objData);

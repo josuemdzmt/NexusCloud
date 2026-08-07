@@ -62,6 +62,10 @@
                   <span>Descuento</span>
                   <span class="text-danger font-semibold">-${{ handleFormatAmount(objOrder.discountAmount) }}</span>
                 </div>
+                <div v-if="objOrder.totalTaxAmount > 0" class="flex justify-between gap-2">
+                  <span>Impuesto</span>
+                  <span class="text-gray-900 font-semibold">${{ handleFormatAmount(objOrder.totalTaxAmount) }}</span>
+                </div>
                 <div class="flex justify-between gap-2">
                   <span class="font-bold text-title">Total</span>
                   <span class="text-primary font-bold">${{ handleFormatAmount(objOrder.grandTotalAmount) }}</span>

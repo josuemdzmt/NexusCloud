@@ -26,6 +26,76 @@
     ]
   },
   {
+    "tittle": "Ventas",
+    "showAsTab": true,
+    "separateRoute": false,
+    "menu": [
+      {
+        "menuValue": "Clientes",
+        "Icon": "ph-duotone ph-address-book",
+        "active_link": "/sales/customer/list",
+        "route": "/sales/customer/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Órdenes de Venta",
+        "Icon": "ph-duotone ph-stack",
+        "active_link": "/sales/sales-orders/list",
+        "route": "/sales/sales-orders/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Precios de Productos",
+        "Icon": "ph-duotone ph-currency-dollar",
+        "active_link": "/sales/product-price/list",
+        "route": "/sales/product-price/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Análisis de Ventas",
+        "Icon": "ph-duotone ph-tray",
+        "active_link": "/sales/sales-analytics",
+        "route": "/sales/sales-analytics",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      }
+    ]
+  },
+  {
+    "tittle": "Compras",
+    "showAsTab": true,
+    "separateRoute": false,
+    "menu": [
+      {
+        "menuValue": "Proveedores",
+        "Icon": "ph-duotone ph-user",
+        "active_link": "/purchase/vendor/list",
+        "route": "/purchase/vendor/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Órdenes de Compra",
+        "Icon": "ph-duotone ph-note",
+        "active_link": "/purchase/purchase-orders/list",
+        "route": "/purchase/purchase-orders/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      },
+      {
+        "menuValue": "Análisis de Compras",
+        "Icon": "ph-duotone ph-package",
+        "active_link": "/purchase/procurement-analytics/list",
+        "route": "/purchase/procurement-analytics/list",
+        "hasSubRoute": false,
+        "showSubRoute": false
+      }
+    ]
+  },
+  {
     "tittle": "Inventario",
     "showAsTab": true,
     "separateRoute": false,
@@ -100,141 +170,47 @@
     ]
   },
   {
-    "tittle": "Ventas",
+    "tittle": "Sistema",
     "showAsTab": true,
     "separateRoute": false,
     "menu": [
       {
-        "menuValue": "Clientes",
-        "Icon": "ph-duotone ph-address-book",
-        "active_link": "/sales/customer/list",
-        "route": "/sales/customer/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Órdenes de Venta",
-        "Icon": "ph-duotone ph-stack",
-        "active_link": "/sales/sales-orders/list",
-        "route": "/sales/sales-orders/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
         "menuValue": "Listas de Precios",
         "Icon": "ph-duotone ph-list-numbers",
-        "active_link": "/sales/pricebook/list",
-        "route": "/sales/pricebook/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Precios de Productos",
-        "Icon": "ph-duotone ph-currency-dollar",
-        "active_link": "/sales/product-price/list",
-        "route": "/sales/product-price/list",
+        "active_link": "/system/pricebook/list",
+        "route": "/system/pricebook/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
         "menuValue": "Métodos de Pago",
         "Icon": "ph-duotone ph-credit-card",
-        "active_link": "/sales/payment-methods/list",
-        "route": "/sales/payment-methods/list",
+        "active_link": "/system/payment-methods/list",
+        "route": "/system/payment-methods/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
         "menuValue": "Bancos",
         "Icon": "ph-duotone ph-bank",
-        "active_link": "/sales/banks/list",
-        "route": "/sales/banks/list",
+        "active_link": "/system/banks/list",
+        "route": "/system/banks/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
         "menuValue": "Monedas",
         "Icon": "ph-duotone ph-coin",
-        "active_link": "/sales/currency/list",
-        "route": "/sales/currency/list",
+        "active_link": "/system/currency/list",
+        "route": "/system/currency/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },
       {
         "menuValue": "Perfiles de Impuestos",
         "Icon": "ph-duotone ph-receipt",
-        "active_link": "/sales/tax-profile/list",
-        "route": "/sales/tax-profile/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Análisis de Ventas",
-        "Icon": "ph-duotone ph-tray",
-        "active_link": "/sales/sales-analytics",
-        "route": "/sales/sales-analytics",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      }
-    ]
-  },
-  {
-    "tittle": "Compras",
-    "showAsTab": true,
-    "separateRoute": false,
-    "menu": [
-      {
-        "menuValue": "Proveedores",
-        "Icon": "ph-duotone ph-user",
-        "active_link": "/purchase/vendor/list",
-        "route": "/purchase/vendor/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Órdenes de Compra",
-        "Icon": "ph-duotone ph-note",
-        "active_link": "/purchase/purchase-orders/list",
-        "route": "/purchase/purchase-orders/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Análisis de Compras",
-        "Icon": "ph-duotone ph-package",
-        "active_link": "/purchase/procurement-analytics/list",
-        "route": "/purchase/procurement-analytics/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      }
-    ]
-  },
-  {
-    "tittle": "Sistema",
-    "showAsTab": true,
-    "separateRoute": false,
-    "menu": [
-      {
-        "menuValue": "Gestión de Usuarios",
-        "Icon": "ph-duotone ph-user",
-        "active_link": "/system/user-management",
-        "route": "/system/user-management",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Roles y Permisos",
-        "Icon": "ph-duotone ph-stack",
-        "active_link": "/system/roles-permissions",
-        "route": "/system/roles-permissions",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Solicitudes de Eliminación",
-        "Icon": "ph-duotone ph-gear",
-        "active_link": "/system/delete-requests",
-        "route": "/system/delete-requests",
+        "active_link": "/system/tax-profile/list",
+        "route": "/system/tax-profile/list",
         "hasSubRoute": false,
         "showSubRoute": false
       },

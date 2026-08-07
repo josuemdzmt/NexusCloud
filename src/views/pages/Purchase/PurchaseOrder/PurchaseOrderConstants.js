@@ -5,7 +5,8 @@
  * Activated → Completed (saldo 0) | Cancelled
  * Completed / Cancelled — terminales
  *
- * amountSource: Manual | LineItems
+ * amountSource: Manual (subtotal + totalTaxAmount cabecera) | LineItems (suma de líneas)
+ * grandTotalAmount = subtotal - discountAmount + totalTaxAmount
  * purchaseNumber es response-only (generado por backend).
  */
 
@@ -41,16 +42,6 @@ export const ORDER_STATUS_BADGE = {
 export const AMOUNT_SOURCE = {
   MANUAL: 'Manual',
   LINE_ITEMS: 'LineItems'
-};
-
-export const AMOUNT_SOURCE_OPTIONS = [
-  { label: 'Líneas de producto', value: AMOUNT_SOURCE.LINE_ITEMS },
-  { label: 'Monto manual', value: AMOUNT_SOURCE.MANUAL }
-];
-
-export const AMOUNT_SOURCE_LABEL = {
-  [AMOUNT_SOURCE.MANUAL]: 'Monto manual',
-  [AMOUNT_SOURCE.LINE_ITEMS]: 'Líneas de producto'
 };
 
 export const ORDER_STATUS_INITIAL = [ORDER_STATUS.DRAFT, ORDER_STATUS.ACTIVATED];
@@ -104,6 +95,7 @@ export const LINE_ITEM_COLUMNS = [
   { label: 'Cantidad', fieldName: 'quantity', type: 'number', sortable: true },
   { label: 'Costo unit.', fieldName: 'unitCost', type: 'currency', sortable: true },
   { label: 'Descuento', fieldName: 'discountAmount', type: 'currency', sortable: true },
+  { label: 'Impuesto', fieldName: 'taxAmount', type: 'currency', sortable: true },
   { label: 'Total', fieldName: 'totalPrice', type: 'currency', sortable: true },
   { label: 'Acción', type: 'action', typeAttributes: LINE_ITEM_ACTION_BUTTONS }
 ];

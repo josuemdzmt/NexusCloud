@@ -20,9 +20,6 @@
           <button v-if="bCanEdit" type="button" class="btn-sm bg-dark text-white border border-dark hover:bg-primary-hover cursor-pointer inline-flex items-center gap-1" @click="handleEdit">
             <i class="ph ph-pencil"></i> Editar
           </button>
-          <button v-if="bCanRegisterPayment" type="button" class="btn-sm bg-white border border-border-color text-gray-900 hover:bg-light cursor-pointer inline-flex items-center gap-1" @click="handleOpenPaymentModal">
-            <i class="ph ph-currency-dollar"></i> Abono
-          </button>
         </div>
       </div>
 
@@ -35,10 +32,6 @@
           <div>
             <div class="invoice-logo block">
               <img src="@/assets/img/logo.svg" class="h-30 w-35 mb-3" alt="logo">
-            </div>
-            <div class="text-sm text-default mb-0">
-              {{ strCurrencyLabel }}
-              <span v-if="objOrder.pricebook?.name" class="block pt-1">{{ objOrder.pricebook.name }}</span>
             </div>
           </div>
           <div class="text-start sm:text-right">
@@ -84,12 +77,13 @@
                 <th class="text-right py-3 px-3 font-semibold text-gray-900">Cant.</th>
                 <th class="text-right py-3 px-3 font-semibold text-gray-900">Precio</th>
                 <th class="text-right py-3 px-3 font-semibold text-gray-900">Descuento</th>
+                <th class="text-right py-3 px-3 font-semibold text-gray-900">Impuesto</th>
                 <th class="text-right py-3 px-3 font-semibold text-gray-900">Importe</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="!lstLineItems.length">
-                <td colspan="5" class="py-6 px-3 text-sm text-center text-default">Sin líneas de producto</td>
+                <td colspan="6" class="py-6 px-3 text-sm text-center text-default">Sin líneas de producto</td>
               </tr>
               <tr v-for="objLine in lstLineItems" :key="objLine.id" class="border-b border-border-color">
                 <td class="py-3 px-3 text-sm font-semibold text-title">
@@ -101,6 +95,7 @@
                 <td class="py-3 px-3 text-sm text-right">{{ handleFormatQty(objLine.quantity) }}</td>
                 <td class="py-3 px-3 text-sm text-right">${{ handleFormatAmount(objLine.unitPrice) }}</td>
                 <td class="py-3 px-3 text-sm text-right">${{ handleFormatAmount(objLine.discountAmount) }}</td>
+                <td class="py-3 px-3 text-sm text-right">${{ handleFormatAmount(objLine.taxAmount) }}</td>
                 <td class="py-3 px-3 text-sm text-right font-semibold">${{ handleFormatAmount(objLine.totalPrice) }}</td>
               </tr>
             </tbody>
@@ -116,6 +111,10 @@
             <div v-if="objOrder.discountAmount > 0" class="flex justify-between">
               <span class="text-default">Descuento</span>
               <span class="text-danger font-semibold">-${{ handleFormatAmount(objOrder.discountAmount) }}</span>
+            </div>
+            <div v-if="objOrder.totalTaxAmount > 0" class="flex justify-between">
+              <span class="text-default">Impuesto</span>
+              <span class="text-gray-900 font-semibold">${{ handleFormatAmount(objOrder.totalTaxAmount) }}</span>
             </div>
             <div class="flex justify-between border-t border-border-color pt-2 text-base">
               <span class="font-bold text-title">Total</span>
@@ -136,7 +135,6 @@
         </div>
       </div>
 
-      <SalesOrderPaymentForm ref="paymentFormRef" @refresh="handleGetData" />
       <SalesOrderForm ref="salesOrderFormRef" @success="handleGetData" />
     </div>
   </main>
@@ -146,14 +144,12 @@
 import { all_routes } from '@/router/all_routes';
 import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderLineItemService from '@/services/sales/SalesOrderLineItemService';
-import SalesOrderPaymentForm from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentForm.vue';
 import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
 import { handleError } from '@/utils/toastUtils';
 import {
   handleGetStatusLabel,
   handleGetStatusClass,
-  handleCanEditOrder,
-  handleCanRegisterPayment
+  handleCanEditOrder
 } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import {
   handleNormalizeSalesOrder,
@@ -163,7 +159,6 @@ import {
 export default {
   name: 'SalesOrderPreview',
   components: {
-    SalesOrderPaymentForm,
     SalesOrderForm
   },
   setup() {
@@ -202,9 +197,6 @@ export default {
     },
     bCanEdit() {
       return this.objOrder && handleCanEditOrder(this.objOrder.status);
-    },
-    bCanRegisterPayment() {
-      return this.objOrder && handleCanRegisterPayment(this.objOrder.status);
     }
   },
   mounted() {
@@ -240,15 +232,6 @@ export default {
     handleEdit() {
       if (!this.objOrder) return;
       this.$refs.salesOrderFormRef?.handleOpen(this.objOrder.id);
-    },
-    handleOpenPaymentModal() {
-      if (!this.bCanRegisterPayment) {
-        handleError('No permitido', 'No se pueden registrar abonos en el estado actual de la orden.');
-        return;
-      }
-      if (this.$refs.paymentFormRef && this.objOrder) {
-        this.$refs.paymentFormRef.handleOpen(this.objOrder);
-      }
     },
     handleFormatAmount(fltValue) {
       const fltAmount = parseFloat(fltValue) || 0;
