@@ -56,8 +56,8 @@
                                 <img src="@/assets/img/avatar/avatar-01.jpg" class="rounded-full border border-border-color" alt="user-image">
                             </div>
                             <div>
-                                <p class="font-semibold text-title mb-1">Jamie Anderson</p>
-                                <p class="text-[13px] mb-0">Administrator</p>
+                                <p class="font-semibold text-title mb-1">{{ strUserName }}</p>
+                                <p class="text-[13px] mb-0">{{ strUserEmail }}</p>
                             </div>
                         </div>
                         <div class="py-3 space-y-1">
@@ -75,12 +75,12 @@
                             </router-link>
                         </div>
                         <div class="pt-3">
-                            <router-link :to="all_routes.lockScreen" class="flex items-center px-2 py-[6px] rounded-md text-gray-900 hover:bg-light focus:outline-hidden focus:bg-white">
+                            <router-link :to="all_routes.lockScreen" class="flex items-center px-2 py-[6px] rounded-md text-gray-900 hover:bg-light focus:outline-hidden focus:bg-white" @click.prevent="handleLockScreen">
                                 <i class="icon icon-user-cog text-base me-2"></i>Lock Screen
                             </router-link>
-                            <router-link :to="all_routes.login" class="flex items-center px-2 py-[6px] rounded-md text-danger hover:bg-light focus:outline-hidden focus:bg-white">
-                                <i class="icon icon-log-out text-base me-2"></i>Log Out
-                            </router-link>
+                            <a href="#" class="flex items-center px-2 py-[6px] rounded-md text-danger hover:bg-light focus:outline-hidden focus:bg-white" @click.prevent="handleLogout">
+                                <i class="icon icon-log-out text-base me-2"></i>Cerrar sesión
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -140,8 +140,11 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import { all_routes } from '@/router/all_routes';
+import AuthService from '@/services/auth/AuthService';
+import { clearSession, getUser } from '@/services/auth/authSession';
 
 export default {
     data(){
@@ -150,11 +153,9 @@ export default {
         }
     },
     mounted() {
-        // Attach scroll event listener
         window.addEventListener('scroll', this.onWindowScroll);
     },
     beforeUnmount() {
-        // Clean up the scroll event listener
         window.removeEventListener('scroll', this.onWindowScroll);
     },
     methods: {
@@ -173,12 +174,16 @@ export default {
             }
         },
         onWindowScroll() {
-            // Update isFixed based on the scroll position
             this.isFixed = window.pageYOffset > 50;
         },
     },
     setup() {
+        const router = useRouter();
         const isDarkMode = ref(false);
+        const objUser = ref(getUser());
+
+        const strUserName = computed(() => objUser.value?.name || 'Usuario');
+        const strUserEmail = computed(() => objUser.value?.email || '');
 
         const setThemeAttribute = (enabled) => {
             document.documentElement.setAttribute("data-theme", enabled ? "dark" : "light");
@@ -196,14 +201,29 @@ export default {
             setThemeAttribute(isDarkMode.value);
         };
 
+        const handleLogout = async () => {
+            await AuthService.logout();
+            await router.push(all_routes.login);
+        };
+
+        const handleLockScreen = () => {
+            clearSession({ keepExpired: true });
+            router.push(all_routes.lockScreen);
+        };
+
         onMounted(() => {
             initializeDarkMode();
+            objUser.value = getUser();
         });
 
         return {
             isDarkMode,
             toggleDarkMode,
-            all_routes
+            all_routes,
+            strUserName,
+            strUserEmail,
+            handleLogout,
+            handleLockScreen
         };
     },
 }

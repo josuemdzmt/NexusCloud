@@ -1,119 +1,120 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { isAuthenticated } from '@/services/auth/authSession'
 
 const routes = [
   {
     path: '/',
     name: 'login',
     component: () => import('@/views/pages/pages-module/authentication/login.vue'),
-    meta: { title: 'Login | NexusCloud', hideLayout: true }
+    meta: { title: 'Login | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/login-cover',
     name: 'login-cover',
     component: () => import('@/views/pages/pages-module/authentication/login-cover.vue'),
-    meta: { title: 'Login | NexusCloud', hideLayout: true }
+    meta: { title: 'Login | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/login-illustration',
     name: 'login-illustration',
     component: () => import('@/views/pages/pages-module/authentication/login-illustration.vue'),
-    meta: { title: 'Login | NexusCloud', hideLayout: true }
+    meta: { title: 'Login | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/coming-soon',
     name: 'coming-soon',
     component: () => import('@/views/pages/pages-module/utilities/coming-soon.vue'),
-    meta: { title: 'Coming Soon | NexusCloud', hideLayout: true }
+    meta: { title: 'Coming Soon | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/register',
     name: 'register',
     component: () => import('@/views/pages/pages-module/authentication/register.vue'),
-    meta: { title: 'Register | NexusCloud', hideLayout: true }
+    meta: { title: 'Register | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/register-cover',
     name: 'register-cover',
     component: () => import('@/views/pages/pages-module/authentication/register-cover.vue'),
-    meta: { title: 'Register | NexusCloud', hideLayout: true }
+    meta: { title: 'Register | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/register-illustration',
     name: 'register-illustration',
     component: () => import('@/views/pages/pages-module/authentication/register-illustration.vue'),
-    meta: { title: 'Register | NexusCloud', hideLayout: true }
+    meta: { title: 'Register | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/forgot-password',
     name: 'forgot-password',
     component: () => import('@/views/pages/pages-module/authentication/forgot-password.vue'),
-    meta: { title: 'Forgot Password | NexusCloud', hideLayout: true }
+    meta: { title: 'Forgot Password | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/forgot-password-cover',
     name: 'forgot-password-cover',
     component: () => import('@/views/pages/pages-module/authentication/forgot-password-cover.vue'),
-    meta: { title: 'Forgot Password | NexusCloud', hideLayout: true }
+    meta: { title: 'Forgot Password | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/forgot-password-illustration',
     name: 'forgot-password-illustration',
     component: () => import('@/views/pages/pages-module/authentication/forgot-password-illustration.vue'),
-    meta: { title: 'Forgot Password | NexusCloud', hideLayout: true }
+    meta: { title: 'Forgot Password | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/reset-password',
     name: 'reset-password',
     component: () => import('@/views/pages/pages-module/authentication/reset-password.vue'),
-    meta: { title: 'Reset Password | NexusCloud', hideLayout: true }
+    meta: { title: 'Reset Password | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/reset-password-cover',
     name: 'reset-password-cover',
     component: () => import('@/views/pages/pages-module/authentication/reset-password-cover.vue'),
-    meta: { title: 'Reset Password | NexusCloud', hideLayout: true }
+    meta: { title: 'Reset Password | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/reset-password-illustration',
     name: 'reset-password-illustration',
     component: () => import('@/views/pages/pages-module/authentication/reset-password-illustration.vue'),
-    meta: { title: 'Reset Password | NexusCloud', hideLayout: true }
+    meta: { title: 'Reset Password | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/email-verification',
     name: 'email-verification',
     component: () => import('@/views/pages/pages-module/authentication/email-verification.vue'),
-    meta: { title: 'Email Verification | NexusCloud', hideLayout: true }
+    meta: { title: 'Email Verification | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/email-verification-cover',
     name: 'email-verification-cover',
     component: () => import('@/views/pages/pages-module/authentication/email-verification-cover.vue'),
-    meta: { title: 'Email Verification | NexusCloud', hideLayout: true }
+    meta: { title: 'Email Verification | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/email-verification-illustration',
     name: 'email-verification-illustration',
     component: () => import('@/views/pages/pages-module/authentication/email-verification-illustration.vue'),
-    meta: { title: 'Email Verification | NexusCloud', hideLayout: true }
+    meta: { title: 'Email Verification | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/error-404',
     name: 'error-404',
     component: () => import('@/views/pages/pages-module/error-pages/error-404.vue'),
-    meta: { title: 'Error 404 | NexusCloud', hideLayout: true }
+    meta: { title: 'Error 404 | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/error-500',
     name: 'error-500',
     component: () => import('@/views/pages/pages-module/error-pages/error-500.vue'),
-    meta: { title: 'Error 500 | NexusCloud', hideLayout: true }
+    meta: { title: 'Error 500 | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: '/lock-screen',
     name: 'lock-screen',
     component: () => import('@/views/pages/pages-module/authentication/lock-screen.vue'),
-    meta: { title: 'Lock Screen | NexusCloud', hideLayout: true }
+    meta: { title: 'Lock Screen | NexusCloud', hideLayout: true, guest: true }
   },
   {
     path: "/dashboard",
@@ -574,7 +575,7 @@ const routes = [
     component: () => import("@/views/pages/pos-module/pos-index.vue"),
     children: [
       { path: "", redirect: "/pos/pos" },
-      { path: "pos", component: () => import("@/views/pages/pos-module/pos.vue"), meta: { title: "POS | NexusCloud", hideLayout: true }, },
+      { path: "pos", component: () => import("@/views/pages/pos-module/pos.vue"), meta: { title: "POS | NexusCloud", hideLayout: true, guest: true }, },
       { path: "pos-orders", component: () => import("@/views/pages/pos-module/pos-orders.vue"), meta: { title: "POS Orders | NexusCloud" } },
       { path: "barcode-print", component: () => import("@/views/pages/pos-module/barcode-print.vue"), meta: { title: "Barcode Print | NexusCloud" } },
       { path: "qr-code-print", component: () => import("@/views/pages/pos-module/qr-code-print.vue"), meta: { title: "QR Code Print | NexusCloud" } },
@@ -753,10 +754,20 @@ export const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   document.title = to.meta.title || "NexusCloud";
-  // Scroll to the top of the page
   window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const bolGuest = to.meta.guest === true;
+  const bolAuthed = isAuthenticated();
+
+  if (!bolGuest && !bolAuthed) {
+    return { name: 'login', query: { redirect: to.fullPath } };
+  }
+
+  if (bolGuest && bolAuthed && to.name !== 'lock-screen' && to.name !== 'lock-screen-cover' && to.name !== 'lock-screen-illustration') {
+    return { path: '/dashboard/hrm-dashboard' };
+  }
 });
 
 export default router;
