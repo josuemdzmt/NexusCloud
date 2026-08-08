@@ -53,14 +53,6 @@
         "route": "/sales/product-price/list",
         "hasSubRoute": false,
         "showSubRoute": false
-      },
-      {
-        "menuValue": "Análisis de Ventas",
-        "Icon": "ph-duotone ph-tray",
-        "active_link": "/sales/sales-analytics",
-        "route": "/sales/sales-analytics",
-        "hasSubRoute": false,
-        "showSubRoute": false
       }
     ]
   },
@@ -82,14 +74,6 @@
         "Icon": "ph-duotone ph-note",
         "active_link": "/purchase/purchase-orders/list",
         "route": "/purchase/purchase-orders/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Análisis de Compras",
-        "Icon": "ph-duotone ph-package",
-        "active_link": "/purchase/procurement-analytics/list",
-        "route": "/purchase/procurement-analytics/list",
         "hasSubRoute": false,
         "showSubRoute": false
       }
@@ -131,41 +115,6 @@
         "route": "/inventory/unit-measure/list",
         "hasSubRoute": false,
         "showSubRoute": false
-      },
-      {
-        "menuValue": "Almacenes",
-        "Icon": "ph-duotone ph-house-simple",
-        "active_link": "/inventory/location/list",
-        "route": "/inventory/location/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Inventario",
-        "Icon": "ph-duotone ph-subtract",
-        "active_link": "/inventory/product-item/list",
-        "route": "/inventory/product-item/list",
-        "hasSubRoute": false,
-        "showSubRoute": false
-      },
-      {
-        "menuValue": "Stock",
-        "active_link": "/inventory/product-item-transaction",
-        "hasSubRoute": true,
-        "showSubRoute": false,
-        "Icon": "ph-duotone ph-arrow-square-out",
-        "subMenus": [
-          {
-            "menuValue": "Ajuste de Stock",
-            "route": "/inventory/product-item-transaction/list",
-            "active_link": "/inventory/product-item-transaction/list"
-          },
-          {
-            "menuValue": "Traspaso de Stock",
-            "route": "/inventory/product-transfer/list",
-            "active_link": "/inventory/product-transfer/list"
-          }
-        ]
       }
     ]
   },

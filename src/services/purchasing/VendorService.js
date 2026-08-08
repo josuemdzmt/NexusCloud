@@ -4,25 +4,6 @@ const ENDPOINT = '/api/v1/core/accounts';
 const ACCOUNT_TYPE = 'Vendor';
 const ACCOUNT_TYPES = ['Vendor', 'Both'];
 
-/**
- * Merge account pages from Vendor + Both and de-dupe by id.
- * @param {Array} lstResponses
- * @returns {Array}
- */
-function handleMergeAccounts(lstResponses) {
-  const objById = {};
-  lstResponses.forEach((objResponse) => {
-    const lstData = objResponse?.data || objResponse;
-    const lstAccounts = Array.isArray(lstData) ? lstData : [];
-    lstAccounts.forEach((objAccount) => {
-      if (objAccount?.id != null) {
-        objById[objAccount.id] = objAccount;
-      }
-    });
-  });
-  return Object.values(objById);
-}
-
 export default {
   ACCOUNT_TYPE,
   ACCOUNT_TYPES,
@@ -36,18 +17,12 @@ export default {
     delete objBaseParams.account_type;
     delete objBaseParams['filter[account_type]'];
 
-    return Promise.all(
-      ACCOUNT_TYPES.map((strType) =>
-        api.get(ENDPOINT, {
-          params: {
-            ...objBaseParams,
-            'filter[account_type]': strType
-          }
-        })
-      )
-    ).then((lstResponses) => ({
-      data: handleMergeAccounts(lstResponses)
-    }));
+    return api.get(ENDPOINT, {
+      params: {
+        ...objBaseParams,
+        'filter[account_type]': ACCOUNT_TYPES
+      }
+    });
   },
 
   /**

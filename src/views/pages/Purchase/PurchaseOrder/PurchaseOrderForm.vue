@@ -159,7 +159,6 @@ export default {
       lstVendorOptions: [],
       lstCurrencyOptions: [],
       lstDocumentTypeOptions: [
-        { label: '— Ninguno —', value: null },
         ...SUPPLIER_DOCUMENT_TYPE_OPTIONS
       ]
     };

@@ -19,23 +19,39 @@
               </button>
             </div>
             <div class="text-sm text-default text-left space-y-3 pt-3 border-t border-border-color">
-              <div class="flex justify-between">
+              <div class="flex justify-between gap-2">
                 <span>Tipo de cuenta</span>
                 <span class="text-gray-900 font-semibold text-right">{{ strAccountTypeLabel }}</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between gap-2">
                 <span>Tipo de persona</span>
                 <span class="text-gray-900 font-semibold text-right">{{ strPersonLabel }}</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between gap-2">
                 <span>Estado</span>
                 <span class="text-gray-900 font-semibold text-right">{{ strStatusLabel }}</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between gap-2">
+                <span>Teléfono</span>
+                <span class="text-gray-900 font-semibold text-right">{{ objVendor?.phone || '—' }}</span>
+              </div>
+              <div class="flex justify-between gap-2">
+                <span>Móvil</span>
+                <span class="text-gray-900 font-semibold text-right">{{ objVendor?.mobile || '—' }}</span>
+              </div>
+              <div class="flex justify-between gap-2">
+                <span>Correo</span>
+                <span class="text-gray-900 font-semibold text-right break-all">{{ objVendor?.email || '—' }}</span>
+              </div>
+              <div class="flex justify-between gap-2">
+                <span>Sitio web</span>
+                <span class="text-gray-900 font-semibold text-right break-all">{{ objVendor?.website || '—' }}</span>
+              </div>
+              <div class="flex justify-between gap-2">
                 <span>Límite de crédito</span>
                 <span class="text-gray-900 font-semibold text-right">${{ handleFormatAmount(fltCreditLimit) }}</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between gap-2">
                 <span>Días de crédito</span>
                 <span class="text-gray-900 font-semibold text-right">{{ numCreditDays }}</span>
               </div>

@@ -9,19 +9,21 @@
         <option :value="100">100 / Página</option>
       </select>
     </div>
-    <div class="flex items-center gap-1">
-      <button type="button" @click="handlePageChange(numCurrentPage - 1)" :disabled="numCurrentPage === 1"
-        class="size-7 rounded-md text-sm border border-border-color flex items-center justify-center text-default hover:bg-light disabled:opacity-50 cursor-pointer">
-        <i class="ph ph-caret-left text-sm"></i>
+    <div class="inline-flex gap-1">
+      <button type="button" @click="handlePageChange(numCurrentPage - 1)" :disabled="numCurrentPage <= 1" class="px-2 py-1.5 inline-flex text-xs font-medium rounded-full border border-border-color bg-light 
+        text-dark hover:bg-primary hover:text-white disabled:opacity-50 disabled:hover:bg-light disabled:hover:text-dark cursor-pointer disabled:cursor-not-allowed">
+        <i class="ph ph-caret-left me-1"></i> Pre
       </button>
-      <button type="button" v-for="numPage in numTotalPages" :key="numPage" @click="handlePageChange(numPage)"
-        class="size-7 rounded-md text-sm flex items-center justify-center cursor-pointer"
-        :class="numPage === numCurrentPage ? 'bg-dark text-white' : 'text-gray-900 hover:bg-light'">
-        {{ numPage }}
-      </button>
-      <button type="button" @click="handlePageChange(numCurrentPage + 1)" :disabled="numCurrentPage === numTotalPages || numTotalPages === 0"
-        class="size-7 rounded-md text-sm border border-border-color flex items-center justify-center text-default hover:bg-light disabled:opacity-50 cursor-pointer">
-        <i class="ph ph-caret-right text-sm"></i>
+      <template v-for="(objItem, numIndex) in lstPageItems" :key="`${objItem.type}-${objItem.value}-${numIndex}`">
+        <span v-if="objItem.type === 'ellipsis'" class="w-7.5 h-7.5 items-center justify-center inline-flex text-xs font-medium rounded-full border border-border-color bg-light text-dark">...</span>
+        <button v-else type="button" @click="handlePageChange(objItem.value)" class="w-7.5 h-7.5 items-center justify-center inline-flex text-xs font-medium rounded-full border border-border-color cursor-pointer" 
+          :class="objItem.value === numCurrentPage ? 'bg-primary text-white hover:bg-primary hover:text-white' : 'bg-light text-dark hover:bg-primary hover:text-white'">
+          {{ String(objItem.value).padStart(2, '0') }}
+        </button>
+      </template>
+      <button type="button" @click="handlePageChange(numCurrentPage + 1)" :disabled="numCurrentPage >= numTotalPages" class="px-2 py-1.5 inline-flex text-xs font-medium rounded-full border border-border-color 
+          bg-light text-dark hover:bg-primary hover:text-white disabled:opacity-50 disabled:hover:bg-light disabled:hover:text-dark cursor-pointer disabled:cursor-not-allowed">
+        Next <i class="ph ph-caret-right ms-1"></i>
       </button>
     </div>
   </div>
@@ -53,6 +55,41 @@ export default {
   computed: {
     numTotalPages() {
       return Math.max(1, Number(this.totalPages) || 1);
+    },
+    lstPageItems() {
+      const numTotal = this.numTotalPages;
+      const numCurrent = this.numCurrentPage;
+      if (numTotal <= 7) {
+        return Array.from({ length: numTotal }, (_, numIndex) => ({ type: 'page', value: numIndex + 1 }));
+      }
+
+      const lstPages = new Set([1, numTotal, numCurrent]);
+      for (let numOffset = 1; numOffset <= 1; numOffset++) {
+        if (numCurrent - numOffset > 1) lstPages.add(numCurrent - numOffset);
+        if (numCurrent + numOffset < numTotal) lstPages.add(numCurrent + numOffset);
+      }
+      if (numCurrent <= 3) {
+        lstPages.add(2);
+        lstPages.add(3);
+        lstPages.add(4);
+      }
+      if (numCurrent >= numTotal - 2) {
+        lstPages.add(numTotal - 1);
+        lstPages.add(numTotal - 2);
+        lstPages.add(numTotal - 3);
+      }
+
+      const lstSorted = Array.from(lstPages).filter((numPage) => numPage >= 1 && numPage <= numTotal).sort((a, b) => a - b);
+      const lstItems = [];
+      let numPrev = 0;
+      lstSorted.forEach((numPage) => {
+        if (numPrev && numPage - numPrev > 1) {
+          lstItems.push({ type: 'ellipsis', value: `e-${numPrev}` });
+        }
+        lstItems.push({ type: 'page', value: numPage });
+        numPrev = numPage;
+      });
+      return lstItems;
     }
   },
   methods: {
@@ -60,7 +97,7 @@ export default {
       this.$emit('change', { detail: { currentPage: this.numCurrentPage, pageSize: this.numPageSize } });
     },
     handlePageChange(numPage) {
-      if (numPage < 1 || numPage > this.numTotalPages) return;
+      if (numPage < 1 || numPage > this.numTotalPages || numPage === this.numCurrentPage) return;
       this.numCurrentPage = numPage;
       this.handleEmitChange();
     },

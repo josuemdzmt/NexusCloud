@@ -52,8 +52,32 @@
           <Field name="tax_id" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.tax_id }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0 uppercase" maxlength="50" />
           <ErrorMessage name="tax_id" class="text-danger text-[11px] mt-1 block" />
         </div>
+        <div class="col-span-1"></div>
 
-        
+        <div class="col-span-2 mt-2">
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Contacto</h4>
+        </div>
+        <div class="col-span-1">
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Teléfono</label>
+          <Field name="phone" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.phone }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" maxlength="50" />
+          <ErrorMessage name="phone" class="text-danger text-[11px] mt-1 block" />
+        </div>
+        <div class="col-span-1">
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Móvil</label>
+          <Field name="mobile" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.mobile }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" maxlength="50" />
+          <ErrorMessage name="mobile" class="text-danger text-[11px] mt-1 block" />
+        </div>
+        <div class="col-span-1">
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Correo Electrónico</label>
+          <Field name="email" as="input" type="email" :class="{ 'border-danger focus:border-danger': errors.email }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" maxlength="150" />
+          <ErrorMessage name="email" class="text-danger text-[11px] mt-1 block" />
+        </div>
+        <div class="col-span-1">
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Sitio Web</label>
+          <Field name="website" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.website }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="https://" maxlength="255" />
+          <ErrorMessage name="website" class="text-danger text-[11px] mt-1 block" />
+        </div>
+
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Finanzas</h4>
         </div>
@@ -111,6 +135,10 @@ const validationSchema = yup.object({
   }),
   second_last_name: yup.string().nullable().default(''),
   tax_id: yup.string().nullable().default(''),
+  phone: yup.string().nullable().default(''),
+  mobile: yup.string().nullable().default(''),
+  email: yup.string().nullable().default('').transform((strValue) => (strValue === '' ? null : strValue)).email('Correo inválido'),
+  website: yup.string().nullable().default(''),
   credit_limit: yup.number().nullable().default(0),
   credit_days: yup.number().nullable().default(0),
   status: yup.string().nullable().default('Active')

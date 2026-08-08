@@ -1,7 +1,7 @@
 <template>
   <main>
     <div class="p-3 lg:py-6 lg:px-0">
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-3 lg:mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3 lg:mb-6 print:hidden">
         <div>
           <div class="flex items-center gap-2 text-sm text-default mb-1">
             <router-link :to="`${all_routes.salesOrders}/list`" class="hover:text-primary">Órdenes de Venta</router-link>
@@ -30,8 +30,11 @@
       <div v-else-if="objOrder" class="bg-white border border-border-color rounded-md p-5 sm:p-8 w-full">
         <div class="flex justify-between items-start mb-8 flex-wrap gap-5 lg:flex-nowrap">
           <div>
-            <div class="invoice-logo block">
-              <img src="@/assets/img/logo.svg" class="h-30 w-35 mb-3" alt="logo">
+            <div class="invoice-logo block dark:hidden">
+              <img src="@/assets/img/logo.svg" class="h-16 mb-3" alt="logo">
+            </div>
+            <div class="invoice-logo-white hidden dark:block">
+              <img src="@/assets/img/logo-white.svg" class="h-16 mb-3" alt="logo">
             </div>
           </div>
           <div class="text-start sm:text-right">
@@ -43,28 +46,38 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 pb-6 border-b border-border-color">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6 pb-6 border-b border-border-color">
+          <div>
+            <p class="text-sm text-default mb-2">Compañía</p>
+            <p class="text-sm font-semibold text-title mb-2">{{ objCompany.name }}</p>
+            <p class="text-sm text-default mb-0">
+              {{ objCompany.street }}
+              <span class="block pt-1">{{ objCompany.cityLine }}</span>
+              <span class="block pt-1">RFC: {{ objCompany.taxId }}</span>
+              <span class="block pt-1">{{ objCompany.phone }} · {{ objCompany.email }}</span>
+            </p>
+          </div>
           <div>
             <p class="text-sm text-default mb-2">Facturar a</p>
             <p class="text-sm font-semibold text-title mb-2">{{ strCustomerName }}</p>
-            <p v-if="strCustomerExtra" class="text-sm text-default mb-0">{{ strCustomerExtra }}</p>
+            <p class="text-sm text-default mb-0">
+              {{ objCustomer.street }}
+              <span class="block pt-1">{{ objCustomer.cityLine }}</span>
+              <span class="block pt-1">RFC: {{ strCustomerTaxId }}</span>
+              <span class="block pt-1">{{ strCustomerPhone }} · {{ strCustomerEmail }}</span>
+            </p>
           </div>
-          <div class="text-start sm:text-right text-sm space-y-2">
-            <div>
-              <span class="text-default">Fecha:</span>
-              <span class="text-gray-900 font-semibold"> {{ objOrder.effectiveDate || '—' }}</span>
-            </div>
-            <div>
-              <span class="text-default">Moneda:</span>
-              <span class="text-gray-900 font-semibold"> {{ strCurrencyLabel }}</span>
-            </div>
-            <div>
-              <span class="text-default">Pagado:</span>
-              <span class="text-gray-900 font-semibold"> ${{ handleFormatAmount(objOrder.paidAmount) }}</span>
-            </div>
-            <div>
-              <span class="text-default">Saldo:</span>
-              <span class="text-gray-900 font-semibold"> ${{ handleFormatAmount(objOrder.balanceAmount) }}</span>
+          <div>
+            <p class="text-sm text-default mb-2">Datos de la orden</p>
+            <div class="text-sm space-y-2">
+              <div>
+                <span class="text-default">Fecha de venta:</span>
+                <span class="text-gray-900 font-semibold"> {{ objOrder.effectiveDate || '—' }}</span>
+              </div>
+              <div>
+                <span class="text-default">Moneda:</span>
+                <span class="text-gray-900 font-semibold"> {{ strCurrencyCode }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -74,8 +87,8 @@
             <thead>
               <tr class="text-sm text-default border-b border-border-color bg-light">
                 <th class="text-left py-3 px-3 font-semibold text-gray-900">Descripción</th>
-                <th class="text-right py-3 px-3 font-semibold text-gray-900">Cant.</th>
                 <th class="text-right py-3 px-3 font-semibold text-gray-900">Precio</th>
+                <th class="text-right py-3 px-3 font-semibold text-gray-900">Cant.</th>
                 <th class="text-right py-3 px-3 font-semibold text-gray-900">Descuento</th>
                 <th class="text-right py-3 px-3 font-semibold text-gray-900">Impuesto</th>
                 <th class="text-right py-3 px-3 font-semibold text-gray-900">Importe</th>
@@ -92,8 +105,8 @@
                     {{ objLine.description }}
                   </span>
                 </td>
-                <td class="py-3 px-3 text-sm text-right">{{ handleFormatQty(objLine.quantity) }}</td>
                 <td class="py-3 px-3 text-sm text-right">${{ handleFormatAmount(objLine.unitPrice) }}</td>
+                <td class="py-3 px-3 text-sm text-right">{{ handleFormatQty(objLine.quantity) }}</td>
                 <td class="py-3 px-3 text-sm text-right">${{ handleFormatAmount(objLine.discountAmount) }}</td>
                 <td class="py-3 px-3 text-sm text-right">${{ handleFormatAmount(objLine.taxAmount) }}</td>
                 <td class="py-3 px-3 text-sm text-right font-semibold">${{ handleFormatAmount(objLine.totalPrice) }}</td>
@@ -119,6 +132,14 @@
             <div class="flex justify-between border-t border-border-color pt-2 text-base">
               <span class="font-bold text-title">Total</span>
               <span class="text-primary font-bold">${{ handleFormatAmount(objOrder.grandTotalAmount) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-default">Total de abonos</span>
+              <span class="text-success font-semibold">${{ handleFormatAmount(objOrder.paidAmount) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-default">Saldo pendiente</span>
+              <span class="text-danger font-semibold">${{ handleFormatAmount(objOrder.balanceAmount) }}</span>
             </div>
           </div>
         </div>
@@ -156,6 +177,24 @@ import {
   handleNormalizeSalesOrderLineItem
 } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
+const OBJ_COMPANY_DUMMY = {
+  name: 'NexusCloud S.A. de C.V.',
+  street: 'Av. Reforma 123, Col. Centro',
+  cityLine: 'Ciudad de México, CDMX 06000',
+  taxId: 'NCL010101ABC',
+  phone: '+52 55 1234 5678',
+  email: 'contacto@nexuscloud.mx'
+};
+
+const OBJ_CUSTOMER_DUMMY = {
+  name: 'Comercial del Norte S.A. de C.V.',
+  street: 'Calle Industria 456, Col. Industrial',
+  cityLine: 'Monterrey, N.L. 64000',
+  taxId: 'CNO850215XYZ',
+  phone: '+52 81 9876 5432',
+  email: 'compras@comercialnorte.mx'
+};
+
 export default {
   name: 'SalesOrderPreview',
   components: {
@@ -172,6 +211,8 @@ export default {
     return {
       bSpinner: false,
       objOrder: null,
+      objCompany: OBJ_COMPANY_DUMMY,
+      objCustomer: OBJ_CUSTOMER_DUMMY,
       lstLineItems: []
     };
   },
@@ -181,19 +222,23 @@ export default {
       return this.objOrder.orderNumber || `SO-${this.objOrder.id}`;
     },
     strCustomerName() {
-      if (!this.objOrder?.account) return '—';
-      const objAccount = this.objOrder.account;
-      return objAccount.legal_name || `${objAccount.first_name || ''} ${objAccount.last_name || ''}`.trim() || '—';
-    },
-    strCustomerExtra() {
       const objAccount = this.objOrder?.account;
-      if (!objAccount) return '';
-      return [objAccount.email, objAccount.phone].filter(Boolean).join(' · ');
+      if (!objAccount) return this.objCustomer.name;
+      return objAccount.legal_name || `${objAccount.first_name || ''} ${objAccount.last_name || ''} ${objAccount.second_last_name || ''}`.trim()
     },
-    strCurrencyLabel() {
+    strCustomerPhone() {
+      return this.objOrder?.account?.phone || this.objCustomer.phone;
+    },
+    strCustomerEmail() {
+      return this.objOrder?.account?.email || this.objCustomer.email;
+    },
+    strCurrencyCode() {
       if (!this.objOrder?.currency) return '—';
       const objCurrency = this.objOrder.currency;
-      return `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`;
+      return objCurrency.code || objCurrency.iso_code || objCurrency.isoCode || '—';
+    },
+    strCustomerTaxId() {
+      return this.objOrder?.account?.tax_id || '—';
     },
     bCanEdit() {
       return this.objOrder && handleCanEditOrder(this.objOrder.status);
@@ -208,7 +253,7 @@ export default {
       this.bSpinner = true;
 
       Promise.all([
-        SalesOrderService.getById(recordId, { include: 'account,currency,pricebook' }),
+        SalesOrderService.getById(recordId, { include: 'account,currency' }),
         SalesOrderLineItemService.getAll({
           'filter[sales_order_id]': recordId,
           include: 'product',
