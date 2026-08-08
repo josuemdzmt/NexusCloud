@@ -42,6 +42,7 @@ import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AuthService from '@/services/auth/AuthService';
 import { formatError } from '@/utils/errorUtils';
+import { handleResetIdleTimer } from '@/services/auth/idleSession';
 
 export default {
 	setup() {
@@ -60,6 +61,7 @@ export default {
 					email: objForm.email.trim(),
 					password: objForm.password
 				});
+				handleResetIdleTimer();
 				const strRedirect = typeof route.query.redirect === 'string' ? route.query.redirect : all_routes.hrmDashboard;
 				await router.replace(strRedirect || all_routes.hrmDashboard);
 			} catch (objErr) {

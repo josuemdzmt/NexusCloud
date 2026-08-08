@@ -41,6 +41,7 @@ import { useRouter } from 'vue-router';
 import AuthService from '@/services/auth/AuthService';
 import { clearExpiredUser, getExpiredUser } from '@/services/auth/authSession';
 import { formatError } from '@/utils/errorUtils';
+import { handleResetIdleTimer } from '@/services/auth/idleSession';
 
 export default {
 	setup() {
@@ -71,6 +72,7 @@ export default {
 					password: strPassword.value
 				});
 				clearExpiredUser();
+				handleResetIdleTimer();
 				await router.replace(all_routes.hrmDashboard);
 			} catch (objErr) {
 				strError.value = formatError(objErr) || 'No se pudo desbloquear la sesión.';

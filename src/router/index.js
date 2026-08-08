@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { isAuthenticated } from '@/services/auth/authSession'
+import { handleStartIdleWatch, handleStopIdleWatch } from '@/services/auth/idleSession'
 
 const routes = [
   {
@@ -762,11 +763,18 @@ router.beforeEach((to) => {
   const bolAuthed = isAuthenticated();
 
   if (!bolGuest && !bolAuthed) {
+    handleStopIdleWatch();
     return { name: 'login', query: { redirect: to.fullPath } };
   }
 
   if (bolGuest && bolAuthed && to.name !== 'lock-screen' && to.name !== 'lock-screen-cover' && to.name !== 'lock-screen-illustration') {
     return { path: '/dashboard/hrm-dashboard' };
+  }
+
+  if (bolGuest || !bolAuthed) {
+    handleStopIdleWatch();
+  } else {
+    handleStartIdleWatch();
   }
 });
 

@@ -144,7 +144,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { all_routes } from '@/router/all_routes';
 import AuthService from '@/services/auth/AuthService';
-import { clearSession, getUser } from '@/services/auth/authSession';
+import { getUser } from '@/services/auth/authSession';
 
 export default {
     data(){
@@ -207,8 +207,7 @@ export default {
         };
 
         const handleLockScreen = () => {
-            clearSession({ keepExpired: true });
-            router.push(all_routes.lockScreen);
+            AuthService.handleLockSession();
         };
 
         onMounted(() => {

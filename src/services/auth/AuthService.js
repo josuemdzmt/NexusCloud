@@ -1,4 +1,5 @@
 import authApi from '@/services/auth/authApi';
+import { all_routes } from '@/router/all_routes';
 import {
   setSession,
   clearSession,
@@ -71,6 +72,32 @@ export default {
       // Ignorar errores de red al cerrar sesión local
     } finally {
       clearSession();
+    }
+  },
+
+  /**
+   * Bloquea la sesión (idle o Lock Screen manual):
+   * revoca refresh en servidor si hay access, conserva expired_user y va a lock-screen.
+   */
+  async handleLockSession() {
+    try {
+      const strAccess = getAccessToken();
+      if (strAccess) {
+        await authApi.post(
+          `${ENDPOINT}/logout`,
+          {},
+          { headers: { Authorization: `Bearer ${strAccess}` } }
+        );
+      }
+    } catch {
+      // Best-effort: aunque falle la API, se limpia local
+    }
+
+    clearSession({ keepExpired: true });
+
+    const strPath = window.location.pathname || '';
+    if (!strPath.includes('lock-screen')) {
+      window.location.href = all_routes.lockScreen;
     }
   },
 
