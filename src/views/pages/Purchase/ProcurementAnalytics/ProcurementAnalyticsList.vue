@@ -77,6 +77,7 @@
         :show-filters="true"
         :hide-checkbox-column="true"
         @rowaction="handleRowAction"
+        @search="handleSearch"
         @refresh="handleGetData">
         <template #footer>
           <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
@@ -90,7 +91,7 @@
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
 import { handleError } from '@/utils/toastUtils';
 import { ORDER_STATUS } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 /** Salud de pago por proveedor (equivalente visual Excellent/Good/Average/Poor) */
 export const VENDOR_HEALTH_BADGE = {
@@ -158,6 +159,11 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handlePrint() {
       window.print();
@@ -220,9 +226,9 @@ export default {
     },
     handleGetData() {
       this.bSpinner = true;
-      PurchaseOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, {'filter[status]': ORDER_STATUS.ACTIVATED,
+      PurchaseOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {'filter[status]': ORDER_STATUS.ACTIVATED,
         include: 'account,currency',
-        sort: '-balance_amount'}))
+        sort: '-balance_amount'})))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

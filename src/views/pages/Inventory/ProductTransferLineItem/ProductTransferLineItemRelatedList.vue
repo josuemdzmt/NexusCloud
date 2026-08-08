@@ -7,7 +7,8 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData">
+      @search="handleSearch"
+        @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
@@ -19,7 +20,7 @@
 import ProductTransferLineItemService from '@/services/inventory/ProductTransferLineItemService';
 import { TRANSFER_STATUS_BADGE } from '@/views/pages/Inventory/ProductTransfer/ProductTransferConstants';
 import { handleError } from '@/utils/toastUtils';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const ACTION_BUTTONS = {
   rowActions: [{ label: 'Detalles', name: 'details', icon: 'icon-eye' }]
@@ -64,12 +65,17 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleGetData() {
       if (!this.productId) return;
       this.bSpinner = true;
-      ProductTransferLineItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, {'filter[product_id]': this.productId,
-        include: 'product,productTransfer,productTransfer.sourceLocation,productTransfer.destinationLocation'}))
+      ProductTransferLineItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {'filter[product_id]': this.productId,
+        include: 'product,productTransfer,productTransfer.sourceLocation,productTransfer.destinationLocation'})))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

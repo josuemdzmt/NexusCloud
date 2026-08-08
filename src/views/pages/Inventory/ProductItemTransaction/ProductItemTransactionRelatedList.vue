@@ -12,7 +12,8 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData">
+      @search="handleSearch"
+        @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
@@ -27,7 +28,7 @@ import ProductItemTransactionService from '@/services/inventory/ProductItemTrans
 import ProductItemTransactionForm from '@/views/pages/Inventory/ProductItemTransaction/ProductItemTransactionForm.vue';
 import { handleError } from '@/utils/toastUtils';
 import { MOTIVO_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/ProductItemTransaction/ProductItemTransactionConstants';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductItemTransactionRelatedList',
@@ -107,6 +108,11 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleWatchFilters() {
       if (this.bFilteredByProductItem && !this.productItemId) return;
@@ -115,11 +121,11 @@ export default {
       this.handleGetData();
     },
     handleLedgerParams(numProductItemId) {
-      return handlePagerParams(this.currentPage, this.pageSize, {
+      return handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {
         'filter[product_item_id]': numProductItemId,
         include: 'productItem.product,productItem.location',
         sort: '-created_at'
-      });
+      }));
     },
     handleGetData() {
       this.bSpinner = true;
@@ -152,8 +158,8 @@ export default {
       }
 
       // Listado global de movimientos (sin filtros de bin)
-      ProductItemTransactionService.getAll(handlePagerParams(this.currentPage, this.pageSize, {include: 'productItem.product,productItem.location',
-        sort: '-created_at'}))
+      ProductItemTransactionService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {include: 'productItem.product,productItem.location',
+        sort: '-created_at'})))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

@@ -142,7 +142,8 @@ export default {
       strCurrentSortBy: this.sortedBy,
       strCurrentSortDirection: this.sortedDirection,
       objRangeDate: null,
-      lstSelectedRowKeys: [...this.selectedRows]
+      lstSelectedRowKeys: [...this.selectedRows],
+      numSearchTimer: null
     };
   },
   watch: {
@@ -163,13 +164,6 @@ export default {
     filteredData() {
       let lstResult = [...this.data];
 
-      if (this.strSearch && this.strSearch.trim() !== '') {
-        const query = this.strSearch.toLowerCase().trim();
-        lstResult = lstResult.filter((objRow) => {
-          return Object.values(objRow).some((val) => val !== null && val !== undefined && String(val).toLowerCase().includes(query));
-        });
-      }
-
       if (this.strCurrentSortBy) {
         const key = this.strCurrentSortBy;
         const dir = this.strCurrentSortDirection === 'desc' ? -1 : 1;
@@ -189,6 +183,12 @@ export default {
   },
   mounted() {
     this.reinitPreline();
+  },
+  beforeUnmount() {
+    if (this.numSearchTimer) {
+      clearTimeout(this.numSearchTimer);
+      this.numSearchTimer = null;
+    }
   },
   methods: {
     reinitPreline() {
@@ -222,9 +222,12 @@ export default {
       return this.strCurrentSortDirection === 'asc' ? 'ph-caret-up text-primary' : 'ph-caret-down text-primary';
     },
     handleSearch() {
-      const eventPayload = { detail: { value: this.strSearch } };
-      this.$emit('search', eventPayload);
-      this.$emit('onsearch', eventPayload);
+      if (this.numSearchTimer) clearTimeout(this.numSearchTimer);
+      this.numSearchTimer = setTimeout(() => {
+        const eventPayload = { detail: { value: (this.strSearch || '').trim() } };
+        this.$emit('search', eventPayload);
+        this.$emit('onsearch', eventPayload);
+      }, 300);
     },
     handleDateRangeChange(dates) {
       const eventPayload = { detail: { range: dates } };

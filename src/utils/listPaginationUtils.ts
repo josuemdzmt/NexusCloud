@@ -1,11 +1,18 @@
 export const NUM_DEFAULT_LIST_PAGE_SIZE = 10;
 
 export function handleInitPager() {
-  return { currentPage: 1, pageSize: NUM_DEFAULT_LIST_PAGE_SIZE, totalPages: 1 };
+  return { currentPage: 1, pageSize: NUM_DEFAULT_LIST_PAGE_SIZE, totalPages: 1, strSearch: '' };
 }
 
 export function handlePagerParams(currentPage: number, pageSize: number, objExtra: Record<string, unknown> = {}) {
   return { ...objExtra, page: currentPage, per_page: pageSize };
+}
+
+/** Mergea filter[search] solo si hay término. */
+export function handleSearchParams(strSearch: string, objExtra: Record<string, unknown> = {}) {
+  const strTerm = (strSearch || '').trim();
+  if (!strTerm) return objExtra;
+  return { ...objExtra, 'filter[search]': strTerm };
 }
 
 /** Parsea envelope Vertex { data, meta } y clampa current_page vs last_page. */

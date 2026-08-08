@@ -16,6 +16,7 @@
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
+        @search="handleSearch"
         @refresh="handleGetData">
         <template #footer>
           <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
@@ -33,7 +34,7 @@ import UnitMeasureService from '@/services/inventory/UnitMeasureService';
 import UnitMeasureForm from '@/views/pages/Inventory/UnitMeasure/UnitMeasureForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/UnitMeasure/UnitMeasureConstants';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'UnitMeasureList',
@@ -63,10 +64,15 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleGetData() {
       this.bSpinner = true;
-      UnitMeasureService.getAll(handlePagerParams(this.currentPage, this.pageSize))
+      UnitMeasureService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch)))
       .then((response) => {
         const { data, current_page, last_page } = handleParseList(response, this.currentPage);
         this.totalPages = last_page;

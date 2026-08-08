@@ -18,6 +18,7 @@
         :show-date-range="false"
         :show-filters="false"
         @rowaction="handleRowAction"
+        @search="handleSearch"
         @refresh="handleGetData">
         <template #cell-purchaseNumber="{ row }">
           <router-link :to="`/purchase/purchase-orders/${row.id}/detail`" class="text-sm text-default hover:text-primary">
@@ -43,7 +44,7 @@ import {
   handleCanEditOrder,
   handleCanDeleteOrder
 } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const PAYMENT_STATUS_BADGE = {
   classMap: {
@@ -91,6 +92,11 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleFormatDate(strDate) {
       if (!strDate || strDate === '—') return '—';
@@ -110,10 +116,10 @@ export default {
     },
     handleGetData() {
       this.bSpinner = true;
-      PurchaseOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
+      PurchaseOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {
         include: 'account,currency',
         sort: '-effective_date'
-      }))
+      })))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

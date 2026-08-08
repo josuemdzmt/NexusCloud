@@ -16,6 +16,7 @@
         :is-loading="bSpinner"
         :show-date-range="false"
         @rowaction="handleRowAction"
+        @search="handleSearch"
         @refresh="handleGetData">
         <template #footer>
           <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
@@ -32,7 +33,7 @@ import BankService from '@/services/sales/BankService';
 import BankForm from '@/views/pages/Sales/Bank/BankForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, ACTION_BUTTONS } from './BankConstants';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'BankList',
@@ -62,10 +63,15 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleGetData() {
       this.bSpinner = true;
-      BankService.getAll(handlePagerParams(this.currentPage, this.pageSize))
+      BankService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch)))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

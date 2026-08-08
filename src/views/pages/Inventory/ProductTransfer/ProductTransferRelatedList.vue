@@ -12,7 +12,8 @@
       :is-loading="bSpinner"
       :show-date-range="!bFilteredByLocation"
       @rowaction="handleRowAction"
-      @refresh="handleGetData">
+      @search="handleSearch"
+        @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
@@ -26,7 +27,7 @@ import ProductTransferService from '@/services/inventory/ProductTransferService'
 import ProductTransferForm from '@/views/pages/Inventory/ProductTransfer/ProductTransferForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { TRANSFER_STATUS, TRANSFER_STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Inventory/ProductTransfer/ProductTransferConstants';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductTransferRelatedList',
@@ -82,6 +83,11 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleMapTransfers(lstRaw) {
       return lstRaw.map((objTransfer) => {
@@ -113,14 +119,14 @@ export default {
 
       const promiseFetch = this.bFilteredByLocation
         ? Promise.all([
-            ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
+            ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {
               ...objInclude,
               'filter[source_location_id]': this.locationId
-            })),
-            ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
+            }))),
+            ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {
               ...objInclude,
               'filter[destination_location_id]': this.locationId
-            }))
+            })))
           ]).then(([objSource, objDest]) => {
             const objNormSource = handleParseList(objSource, this.currentPage);
             const objNormDest = handleParseList(objDest, this.currentPage);
@@ -128,7 +134,7 @@ export default {
             this.currentPage = Math.min(objNormSource.current_page, objNormDest.current_page);
             return this.handleMergeById(objNormSource.data, objNormDest.data);
           })
-        : ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, objInclude))
+        : ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, objInclude)))
           .then((objResponse) => {
             const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
             this.totalPages = last_page;

@@ -51,7 +51,8 @@
                   :is-loading="bSpinnerEntries" 
                   :show-date-range="false"
                   @rowaction="handleRowAction" 
-                  @refresh="handleGetEntries">
+                  @search="handleSearch"
+        @refresh="handleGetEntries">
                   <template #footer>
                     <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
                   </template>
@@ -74,7 +75,7 @@ import PricebookService from '@/services/sales/PricebookService';
 import PricebookEntryService from '@/services/sales/PricebookEntryService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { STATUS_BADGE, ENTRY_ACTION_BUTTONS } from '@/views/pages/Sales/Pricebook/PricebookConstants';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'PricebookDetails',
@@ -107,6 +108,11 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetEntries();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetEntries();
+    },
 
     handleGetData() {
       this.bSpinnerInfo = true;
@@ -123,10 +129,10 @@ export default {
     },
     handleGetEntries() {
       this.bSpinnerEntries = true;
-      PricebookEntryService.getAll(handlePagerParams(this.currentPage, this.pageSize, {
+      PricebookEntryService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {
         'filter[pricebook_id]': this.$route.params.recordId,
         include: 'product'
-      }))
+      })))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

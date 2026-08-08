@@ -12,7 +12,8 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData">
+      @search="handleSearch"
+        @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
@@ -27,7 +28,7 @@ import PurchaseOrderLineItemForm from '@/views/pages/Purchase/PurchaseOrder/Purc
 import { ORDER_STATUS, LINE_ITEM_COLUMNS, handleCanEditOrder } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleNormalizePurchaseOrderLineItem } from '@/views/pages/Purchase/PurchaseOrder/purchaseOrderUtils';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'PurchaseOrderLineItemList',
@@ -73,12 +74,17 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleGetData() {
       if (!this.purchaseOrderId) return;
       this.bSpinner = true;
-      PurchaseOrderLineItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, {'filter[purchase_order_id]': this.purchaseOrderId,
-        include: 'product'}))
+      PurchaseOrderLineItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {'filter[purchase_order_id]': this.purchaseOrderId,
+        include: 'product'})))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

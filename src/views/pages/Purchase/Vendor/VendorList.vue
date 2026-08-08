@@ -16,6 +16,7 @@
         :is-loading="bSpinner" 
         :show-date-range="false" 
         @rowaction="handleRowAction" 
+        @search="handleSearch"
         @refresh="handleGetData">
         <template #footer>
           <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
@@ -33,7 +34,7 @@ import VendorService from '@/services/purchasing/VendorService';
 import VendorForm from '@/views/pages/Purchase/Vendor/VendorForm.vue';
 import { handleError } from '@/utils/toastUtils';
 import { ACCOUNT_TYPE_BADGE, IS_PERSON_BADGE, STATUS_BADGE, ACTION_BUTTONS } from './VendorConstants';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'VendorList',
@@ -66,10 +67,15 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleGetData() {
       this.bSpinner = true;
-      VendorService.getAll(handlePagerParams(this.currentPage, this.pageSize))
+      VendorService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch)))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

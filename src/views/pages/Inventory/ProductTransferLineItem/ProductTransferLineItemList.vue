@@ -12,7 +12,8 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData">
+      @search="handleSearch"
+        @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
@@ -27,7 +28,7 @@ import ProductTransferLineItemForm from '@/views/pages/Inventory/ProductTransfer
 import { LINE_ITEM_COLUMNS } from '@/views/pages/Inventory/ProductTransferLineItem/ProductTransferLineItemConstants';
 import { TRANSFER_STATUS } from '@/views/pages/Inventory/ProductTransfer/ProductTransferConstants';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductTransferLineItemList',
@@ -76,12 +77,17 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleGetData() {
       if (!this.productTransferId) return;
       this.bSpinner = true;
-      ProductTransferLineItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, {'filter[product_transfer_id]': this.productTransferId,
-        include: 'product'}))
+      ProductTransferLineItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {'filter[product_transfer_id]': this.productTransferId,
+        include: 'product'})))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

@@ -12,7 +12,8 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData">
+      @search="handleSearch"
+        @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
@@ -26,7 +27,7 @@ import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
 import { ORDER_STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import { handleError } from '@/utils/toastUtils';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const RELATED_ACTION_BUTTONS = {
   rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => objAction.name === 'detail')
@@ -75,13 +76,18 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleGetData() {
       if (!this.accountId) return;
 
       this.bSpinner = true;
-      SalesOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, {include: 'account,currency',
-        'filter[account_id]': this.accountId}))
+      SalesOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {include: 'account,currency',
+        'filter[account_id]': this.accountId})))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

@@ -11,7 +11,8 @@
       :columns="lstVisibleColumns"
       :is-loading="bSpinner"
       :show-date-range="false"
-      @refresh="handleGetData">
+      @search="handleSearch"
+        @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
@@ -26,7 +27,7 @@ import PaymentMethodService from '@/services/sales/PaymentMethodService';
 import BankService from '@/services/sales/BankService';
 import { PAYMENT_COLUMNS, ACCOUNT_PAYMENT_COLUMNS } from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentConstants';
 import { handleError } from '@/utils/toastUtils';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'PurchaseOrderPaymentRelatedList',
@@ -72,6 +73,11 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleGetPaymentMethods() {
       return PaymentMethodService.getAll({ per_page: 100 })
@@ -96,7 +102,7 @@ export default {
       }
       if (!this.purchaseOrderId) return;
       this.bSpinner = true;
-      PurchaseOrderPaymentService.getAll(handlePagerParams(this.currentPage, this.pageSize, {'filter[purchase_order_id]': this.purchaseOrderId}))
+      PurchaseOrderPaymentService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {'filter[purchase_order_id]': this.purchaseOrderId})))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;

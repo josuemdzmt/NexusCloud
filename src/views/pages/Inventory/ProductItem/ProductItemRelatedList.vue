@@ -12,7 +12,8 @@
       :is-loading="bSpinner"
       :show-date-range="false"
       @rowaction="handleRowAction"
-      @refresh="handleGetData">
+      @search="handleSearch"
+        @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
@@ -28,7 +29,7 @@ import ProductItemForm from '@/views/pages/Inventory/ProductItem/ProductItemForm
 import ProductItemHistory from '@/views/pages/Inventory/ProductItem/ProductItemHistory.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { ACTION_BUTTONS, STOCK_STATUS_BADGE, handleResolveStockStatus } from '@/views/pages/Inventory/ProductItem/ProductItemConstants';
-import { handleInitPager, handlePagerParams, handleParseList } from '@/utils/listPaginationUtils';
+import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
   name: 'ProductItemRelatedList',
@@ -100,6 +101,11 @@ export default {
       this.pageSize = objEvent.detail.pageSize;
       this.handleGetData();
     },
+    handleSearch(objEvent) {
+      this.strSearch = objEvent.detail.value || '';
+      this.currentPage = 1;
+      this.handleGetData();
+    },
 
     handleWatchFilters() {
       if (this.bFilteredByLocation && !this.locationId) return;
@@ -115,7 +121,7 @@ export default {
       if (this.bFilteredByProduct) {
         objExtra['filter[product_id]'] = this.productId;
       }
-      ProductItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, objExtra))
+      ProductItemService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, objExtra)))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;
