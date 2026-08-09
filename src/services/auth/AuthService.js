@@ -2,9 +2,11 @@ import authApi from '@/services/auth/authApi';
 import { all_routes } from '@/router/all_routes';
 import {
   setSession,
+  setUser,
   clearSession,
   getAccessToken,
-  getRefreshToken
+  getRefreshToken,
+  toSessionUser
 } from '@/services/auth/authSession';
 
 const ENDPOINT = '/api/v1/auth';
@@ -58,6 +60,47 @@ export default {
     return objResponse?.data || objResponse;
   },
 
+  /**
+   * Actualiza perfil Staff (Vertex: PUT /profile).
+   * Persiste solo el subset de sesión en el blob.
+   * @param {{ first_name: string, last_name: string, second_last_name?: string|null, phone?: string|null, job_title?: string|null }} objPayload
+   */
+  async updateProfile(objPayload) {
+    const objResponse = await authApi.put(
+      `${ENDPOINT}/profile`,
+      {
+        first_name: objPayload.first_name,
+        last_name: objPayload.last_name,
+        second_last_name: objPayload.second_last_name ?? null,
+        phone: objPayload.phone ?? null,
+        job_title: objPayload.job_title ?? null
+      },
+      { headers: { Authorization: `Bearer ${getAccessToken()}` } }
+    );
+    const objUser = objResponse?.data || objResponse;
+    if (objUser && typeof objUser === 'object') {
+      setUser(toSessionUser(objUser));
+    }
+    return objUser;
+  },
+
+  /**
+   * Actualiza contraseña. Tras éxito el cliente debe cerrar sesión local.
+   * @param {{ current_password: string, password: string, password_confirmation: string }} objPayload
+   */
+  async updatePassword(objPayload) {
+    const objResponse = await authApi.put(
+      `${ENDPOINT}/password`,
+      {
+        current_password: objPayload.current_password,
+        password: objPayload.password,
+        password_confirmation: objPayload.password_confirmation
+      },
+      { headers: { Authorization: `Bearer ${getAccessToken()}` } }
+    );
+    return objResponse?.data || objResponse;
+  },
+
   async logout() {
     try {
       const strAccess = getAccessToken();
@@ -77,7 +120,7 @@ export default {
 
   /**
    * Bloquea la sesión (idle o Lock Screen manual):
-   * revoca refresh en servidor si hay access, conserva expired_user y va a lock-screen.
+   * revoca refresh en servidor si hay access, conserva lockUser y va a lock-screen.
    */
   async handleLockSession() {
     try {
@@ -105,7 +148,7 @@ export default {
    * @param {object} objData  Payload AuthTokenPair del API
    */
   _persistPair(objData) {
-    const objUser = objData.user || {};
+    const objUser = toSessionUser(objData.user || {});
     const strAccess = objData.accessToken || objData.access_token;
     const strRefresh = objData.refreshToken || objData.refresh_token;
     const intExpiresAt = objData.expiresAt || objData.expires_at;

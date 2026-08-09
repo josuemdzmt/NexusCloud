@@ -62,7 +62,7 @@
                         </div>
                         <div class="py-3 space-y-1">
                             <router-link :to="all_routes.profile" class="flex items-center px-2 py-[6px] rounded-md text-gray-900 hover:bg-light focus:outline-hidden focus:bg-white">
-                                <i class="icon icon-user-round text-base me-2"></i>Perfil
+                                <i class="icon icon-cog text-base me-2"></i>Configuración
                             </router-link>
                         </div>
                         <div class="pt-3 space-y-1">
@@ -135,7 +135,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { all_routes } from '@/router/all_routes';
 import AuthService from '@/services/auth/AuthService';
-import { getUser } from '@/services/auth/authSession';
+import { getUser, objSessionUser } from '@/services/auth/authSession';
 
 export default {
     data(){
@@ -171,10 +171,15 @@ export default {
     setup() {
         const router = useRouter();
         const isDarkMode = ref(false);
-        const objUser = ref(getUser());
 
-        const strUserName = computed(() => objUser.value?.name || 'Usuario');
-        const strUserEmail = computed(() => objUser.value?.email || '');
+        const strUserName = computed(() => {
+            const objUser = objSessionUser.value || getUser();
+            return objUser?.name || 'Usuario';
+        });
+        const strUserEmail = computed(() => {
+            const objUser = objSessionUser.value || getUser();
+            return objUser?.email || '';
+        });
 
         const setThemeAttribute = (enabled) => {
             document.documentElement.setAttribute("data-theme", enabled ? "dark" : "light");
@@ -203,7 +208,9 @@ export default {
 
         onMounted(() => {
             initializeDarkMode();
-            objUser.value = getUser();
+            if (!objSessionUser.value) {
+                getUser();
+            }
         });
 
         return {

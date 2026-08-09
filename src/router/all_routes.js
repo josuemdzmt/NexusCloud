@@ -271,6 +271,7 @@ export const all_routes = {
   // Account
 
   profile: '/account/profile',
+  accountSecurity: '/account/security',
   editProfile: '/account/edit-profile',
 
   // Base UI

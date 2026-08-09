@@ -665,7 +665,9 @@ const routes = [
     component: () => import("@/views/pages/Auth/AccountIndex.vue"),
     children: [
       { path: "", redirect: "/account/profile" },
-      { path: "profile", component: () => import("@/views/pages/Auth/Profile.vue"), meta: { title: "Profile | NexusCloud" } },
+      { path: "profile", component: () => import("@/views/pages/Auth/Profile.vue"), meta: { title: "Configuración | NexusCloud" } },
+      { path: "security", component: () => import("@/views/pages/Auth/Security.vue"), meta: { title: "Seguridad | NexusCloud" } },
+      { path: "password", redirect: "/account/security" },
       { path: "edit-profile", component: () => import("@/views/pages/pages-module/account/edit-profile.vue"), meta: { title: "Edit Profile | NexusCloud" } },
     ],
   },
