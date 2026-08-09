@@ -10,7 +10,7 @@ export const YES_NO_BADGE = {
 
 export const ACTION_BUTTONS = {
   rowActions: [
-    { label: 'Detalles', name: 'details', icon: 'icon-eye' },
+    { label: 'Detalles', name: 'detail', icon: 'icon-eye' },
     { label: 'Editar', name: 'edit', icon: 'icon-pencil-line' },
     { label: 'Eliminar', name: 'delete', icon: 'icon-trash-2', class: 'text-danger' }
   ]

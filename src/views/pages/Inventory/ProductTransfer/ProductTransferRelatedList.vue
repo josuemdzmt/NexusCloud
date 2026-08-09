@@ -149,13 +149,13 @@ export default {
     },
     handleFormSuccess(objPayload) {
       if (objPayload?.created && objPayload?.id) {
-        this.$router.push(`/inventory/product-transfer/${objPayload.id}/details`);
+        this.$router.push(`/inventory/product-transfer/${objPayload.id}/detail`);
         return;
       }
       this.handleGetData();
     },
     handleView(objRow) {
-      this.$router.push(`/inventory/product-transfer/${objRow.id}/details`);
+      this.$router.push(`/inventory/product-transfer/${objRow.id}/detail`);
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;

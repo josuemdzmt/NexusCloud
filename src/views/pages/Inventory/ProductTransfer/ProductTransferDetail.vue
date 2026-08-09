@@ -78,7 +78,7 @@ import { TRANSFER_STATUS, TRANSFER_STATUS_BADGE } from '@/views/pages/Inventory/
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 export default {
-  name: 'ProductTransferDetails',
+  name: 'ProductTransferDetail',
   components: {
     ProductTransferForm,
     ProductTransferLineItemList

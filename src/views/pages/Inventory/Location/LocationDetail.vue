@@ -83,7 +83,7 @@ import {
 import { handleError } from '@/utils/toastUtils';
 
 export default {
-  name: 'LocationDetails',
+  name: 'LocationDetail',
   components: {
     LocationForm,
     ProductItemRelatedList,

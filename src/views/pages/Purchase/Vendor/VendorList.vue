@@ -107,8 +107,8 @@ export default {
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'details') {
-        this.$router.push(`/purchase/vendor/${row.id}/details`);
+      if (action.name === 'detail') {
+        this.$router.push(`/purchase/vendor/${row.id}/detail`);
       } else if (action.name === 'edit') {
         if (this.$refs.vendorFormRef) {
           this.$refs.vendorFormRef.handleOpen(row.id);

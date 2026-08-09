@@ -78,7 +78,7 @@ import { STATUS_BADGE, ENTRY_ACTION_BUTTONS } from '@/views/pages/Sales/Priceboo
 import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 export default {
-  name: 'PricebookDetails',
+  name: 'PricebookDetail',
   components: {
     PricebookForm,
     PricebookEntryForm

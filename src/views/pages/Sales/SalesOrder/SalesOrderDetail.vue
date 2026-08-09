@@ -2,7 +2,7 @@
   <main>
     <div class="p-3 lg:py-6 lg:px-0">
       <div class="flex flex-wrap items-center gap-2 text-sm text-default mb-3">
-        <router-link :to="`${all_routes.purchaseOrders}/list`" class="hover:text-primary">Órdenes de Compra</router-link>
+        <router-link :to="`${all_routes.salesOrders}/list`" class="hover:text-primary">Órdenes de Venta</router-link>
         <i class="ph ph-caret-right text-[10px]"></i>
         <span>Detalle</span>
       </div>
@@ -13,7 +13,7 @@
             <div v-if="objOrder" class="text-start">
               <div class="flex items-start justify-between mb-3 gap-2">
                 <div>
-                  <h2 class="text-base font-semibold text-title mb-1">{{ strPoLabel }}</h2>
+                  <h2 class="text-base font-semibold text-title mb-1">{{ strOrderLabel }}</h2>
                   <span :class="handleGetStatusClass(objOrder.status)" class="text-[11px] px-2 py-0.5 rounded inline-block">
                     {{ handleGetStatusLabel(objOrder.status) }}
                   </span>
@@ -23,7 +23,7 @@
                     class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light cursor-pointer">
                     <i class="ph ph-pencil-simple"></i>
                   </button>
-                  <router-link :to="`${all_routes.purchaseOrders}/${objOrder.id}/preview`" title="Vista previa"
+                  <router-link :to="`${all_routes.salesOrders}/${objOrder.id}/preview`" title="Vista previa"
                     class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light">
                     <i class="ph ph-eye"></i>
                   </router-link>
@@ -39,16 +39,16 @@
               </div>
               <div class="text-sm text-default space-y-3 pt-3 border-t border-border-color">
                 <div class="flex justify-between gap-2">
-                  <span>Proveedor</span>
-                  <span class="text-gray-900 font-semibold text-right">{{ strVendorName }}</span>
+                  <span>Cliente</span>
+                  <span class="text-gray-900 font-semibold text-right">{{ strCustomerName }}</span>
                 </div>
                 <div class="flex justify-between gap-2">
                   <span>Fecha</span>
                   <span class="text-gray-900 font-semibold">{{ objOrder.effectiveDate }}</span>
                 </div>
-                <div v-if="strSupplierDoc" class="flex justify-between gap-2">
-                  <span>Doc. proveedor</span>
-                  <span class="text-gray-900 font-semibold text-right">{{ strSupplierDoc }}</span>
+                <div class="flex justify-between gap-2">
+                  <span>Lista de precios</span>
+                  <span class="text-gray-900 font-semibold text-right">{{ objOrder.pricebook?.name || '—' }}</span>
                 </div>
                 <div class="flex justify-between gap-2">
                   <span>Moneda</span>
@@ -97,50 +97,49 @@
           <div class="bg-white border border-border-color rounded-md">
             <nx-tabset v-model="strActiveTab">
               <nx-tab label="Líneas" value="lines">
-                <PurchaseOrderLineItemList v-if="objOrder" :purchase-order-id="objOrder.id" :status="objOrder.status"
+                <SalesOrderLineItemList v-if="objOrder" :sales-order-id="objOrder.id" :status="objOrder.status" :pricebook-id="objOrder.pricebookId"
                   :currency-id="objOrder.currencyId" @refresh="handleLinesRefresh" />
               </nx-tab>
-              <nx-tab label="Abonos" value="payments">
-                <PurchaseOrderPaymentRelatedList v-if="objOrder" ref="paymentRelatedListRef" :purchase-order-id="objOrder.id"
-                  :b-can-register="bCanRegisterPayment" @register="handleOpenPaymentModal" />
+              <nx-tab label="Pagos" value="payments">
+                <SalesOrderPaymentRelatedList v-if="objOrder" ref="paymentRelatedListRef" :sales-order-id="objOrder.id" :b-can-register="bCanRegisterPayment"
+                  @register="handleOpenPaymentModal" />
               </nx-tab>
             </nx-tabset>
           </div>
         </div>
       </div>
 
-      <PurchaseOrderPaymentForm ref="paymentFormRef" @refresh="handlePaymentRefresh" />
-      <PurchaseOrderForm ref="purchaseOrderFormRef" @success="handleFormSuccess" />
+      <SalesOrderPaymentForm ref="paymentFormRef" @refresh="handlePaymentRefresh" />
+      <SalesOrderForm ref="salesOrderFormRef" @success="handleFormSuccess" />
     </div>
   </main>
 </template>
 
 <script>
 import { all_routes } from '@/router/all_routes';
-import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
-import PurchaseOrderPaymentForm from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentForm.vue';
-import PurchaseOrderPaymentRelatedList from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentRelatedList.vue';
-import PurchaseOrderLineItemList from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderLineItemList.vue';
-import PurchaseOrderForm from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue';
+import SalesOrderService from '@/services/sales/SalesOrderService';
+import SalesOrderPaymentForm from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentForm.vue';
+import SalesOrderPaymentRelatedList from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentRelatedList.vue';
+import SalesOrderLineItemList from '@/views/pages/Sales/SalesOrderLineItem/SalesOrderLineItemList.vue';
+import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import {
   ORDER_STATUS,
-  SUPPLIER_DOCUMENT_TYPE_LABEL,
   handleGetStatusLabel,
   handleGetStatusClass,
   handleCanEditOrder,
   handleCanRegisterPayment,
   handleCanCancelOrder
-} from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
-import { handleNormalizePurchaseOrder } from '@/views/pages/Purchase/PurchaseOrder/purchaseOrderUtils';
+} from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
+import { handleNormalizeSalesOrder } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
 export default {
-  name: 'PurchaseOrderDetails',
+  name: 'SalesOrderDetail',
   components: {
-    PurchaseOrderPaymentForm,
-    PurchaseOrderPaymentRelatedList,
-    PurchaseOrderLineItemList,
-    PurchaseOrderForm
+    SalesOrderPaymentForm,
+    SalesOrderPaymentRelatedList,
+    SalesOrderLineItemList,
+    SalesOrderForm
   },
   setup() {
     return {
@@ -157,11 +156,11 @@ export default {
     };
   },
   computed: {
-    strPoLabel() {
+    strOrderLabel() {
       if (!this.objOrder) return '...';
-      return this.objOrder.purchaseNumber || `PO-${this.objOrder.id}`;
+      return this.objOrder.orderNumber || `SO-${this.objOrder.id}`;
     },
-    strVendorName() {
+    strCustomerName() {
       if (!this.objOrder?.account) return 'Desconocido';
       const objAccount = this.objOrder.account;
       return objAccount.legal_name || `${objAccount.first_name || ''} ${objAccount.last_name || ''}`.trim() || 'Desconocido';
@@ -170,13 +169,6 @@ export default {
       if (!this.objOrder?.currency) return 'Desconocido';
       const objCurrency = this.objOrder.currency;
       return `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`;
-    },
-    strSupplierDoc() {
-      const strType = this.objOrder?.supplierDocumentType;
-      const strNumber = this.objOrder?.supplierDocumentNumber;
-      if (!strType && !strNumber) return '';
-      const strTypeLabel = SUPPLIER_DOCUMENT_TYPE_LABEL[strType] || strType || '';
-      return [strTypeLabel, strNumber].filter(Boolean).join(' · ');
     },
     bCanEdit() {
       return this.objOrder && handleCanEditOrder(this.objOrder.status);
@@ -196,11 +188,11 @@ export default {
       const recordId = this.$route.params.recordId;
       this.bSpinner = true;
 
-      PurchaseOrderService.getById(recordId, { include: 'account,currency' })
+      SalesOrderService.getById(recordId, { include: 'account,currency,pricebook' })
         .then((objResponse) => {
-          this.objOrder = handleNormalizePurchaseOrder(objResponse.data || objResponse);
+          this.objOrder = handleNormalizeSalesOrder(objResponse.data || objResponse);
         })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los detalles de la orden de compra', objError))
+        .catch((objError) => handleError('Error', 'No se pudieron cargar los detalles de la orden de venta', objError))
         .finally(() => {
           this.bSpinner = false;
         });
@@ -225,7 +217,7 @@ export default {
     },
     handleEdit() {
       if (!this.objOrder) return;
-      this.$refs.purchaseOrderFormRef?.handleOpen(this.objOrder.id);
+      this.$refs.salesOrderFormRef?.handleOpen(this.objOrder.id);
     },
     handleFormSuccess() {
       this.handleGetData();
@@ -233,9 +225,9 @@ export default {
     handleCancelOrder() {
       if (!this.bCanCancel || !this.objOrder) return;
       this.bSpinner = true;
-      PurchaseOrderService.update(this.objOrder.id, { status: ORDER_STATUS.CANCELLED })
+      SalesOrderService.update(this.objOrder.id, { status: ORDER_STATUS.CANCELLED })
         .then(() => {
-          handleSuccess('Orden de compra cancelada');
+          handleSuccess('Orden de venta cancelada');
           this.handleGetData();
         })
         .catch((objError) => handleError('No se pudo cancelar la orden', objError))

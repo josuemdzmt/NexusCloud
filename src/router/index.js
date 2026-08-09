@@ -184,7 +184,7 @@ const routes = [
       { path: "", redirect: "/inventory/product/list" },
       { path: "list", component: () => import("@/views/pages/Inventory/Product/ProductList.vue"), meta: { title: "Productos | NexusCloud" } },
       { path: "new", component: () => import("@/views/pages/Inventory/Product/ProductForm.vue"), meta: { title: "Nuevo Producto | NexusCloud" } },
-      { path: ":recordId/details", component: () => import("@/views/pages/Inventory/Product/ProductDetails.vue"), meta: { title: "Detalles Producto | NexusCloud" } },
+      { path: ":recordId/detail", component: () => import("@/views/pages/Inventory/Product/ProductDetail.vue"), meta: { title: "Detalles Producto | NexusCloud" } },
       { path: ":recordId/edit", component: () => import("@/views/pages/Inventory/Product/ProductForm.vue"), meta: { title: "Editar Producto | NexusCloud" } },
     ],
   },
@@ -226,7 +226,7 @@ const routes = [
     children: [
       { path: "", redirect: "/inventory/location/list" },
       { path: "list", component: () => import("@/views/pages/Inventory/Location/LocationList.vue"), meta: { title: "Ubicaciones | NexusCloud" } },
-      { path: ":recordId/details", component: () => import("@/views/pages/Inventory/Location/LocationDetails.vue"), meta: { title: "Detalle Almacén | NexusCloud" } },
+      { path: ":recordId/detail", component: () => import("@/views/pages/Inventory/Location/LocationDetail.vue"), meta: { title: "Detalle Almacén | NexusCloud" } },
     ],
   },
 
@@ -257,7 +257,7 @@ const routes = [
     children: [
       { path: "", redirect: "/inventory/product-transfer/list" },
       { path: "list", component: () => import("@/views/pages/Inventory/ProductTransfer/ProductTransferList.vue"), meta: { title: "Traspasos | NexusCloud" } },
-      { path: ":recordId/details", component: () => import("@/views/pages/Inventory/ProductTransfer/ProductTransferDetails.vue"), meta: { title: "Detalle Traspaso | NexusCloud" } },
+      { path: ":recordId/detail", component: () => import("@/views/pages/Inventory/ProductTransfer/ProductTransferDetail.vue"), meta: { title: "Detalle Traspaso | NexusCloud" } },
     ],
   },
 
@@ -321,7 +321,7 @@ const routes = [
     children: [
       { path: "", redirect: "/system/pricebook/list" },
       { path: "list", component: () => import("@/views/pages/Sales/Pricebook/PricebookList.vue"), meta: { title: "Listas de Precios | NexusCloud" } },
-      { path: ":recordId/details", component: () => import("@/views/pages/Sales/Pricebook/PricebookDetails.vue"), meta: { title: "Detalles Lista de Precio | NexusCloud" } }
+      { path: ":recordId/detail", component: () => import("@/views/pages/Sales/Pricebook/PricebookDetail.vue"), meta: { title: "Detalles Lista de Precio | NexusCloud" } }
     ]
   },
   //Customer
@@ -331,7 +331,7 @@ const routes = [
     children: [
       { path: "", redirect: "/sales/customer/list" },
       { path: "list", component: () => import("@/views/pages/Sales/Customer/CustomerList.vue"), meta: { title: "Clientes | NexusCloud" } },
-      { path: ":recordId/details", component: () => import("@/views/pages/Sales/Customer/CustomerDetails.vue"), meta: { title: "Detalles Cliente | NexusCloud" } }
+      { path: ":recordId/detail", component: () => import("@/views/pages/Sales/Customer/CustomerDetail.vue"), meta: { title: "Detalles Cliente | NexusCloud" } }
     ]
   },
   
@@ -361,7 +361,7 @@ const routes = [
       { path: "", redirect: "/sales/sales-orders/list" },
       { path: "list", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderList.vue"), meta: { title: "Pedidos | NexusCloud" } },
       { path: "new", redirect: "/sales/sales-orders/list" },
-      { path: ":recordId/detail", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderDetails.vue"), meta: { title: "Detalle Pedido | NexusCloud" } },
+      { path: ":recordId/detail", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderDetail.vue"), meta: { title: "Detalle Pedido | NexusCloud" } },
       { path: ":recordId/preview", component: () => import("@/views/pages/Sales/SalesOrder/SalesOrderPreview.vue"), meta: { title: "Vista previa Pedido | NexusCloud" } }
     ]
   },
@@ -418,7 +418,7 @@ const routes = [
     children: [
       { path: "", redirect: "/purchase/vendor/list" },
       { path: "list", component: () => import("@/views/pages/Purchase/Vendor/VendorList.vue"), meta: { title: "Proveedores | NexusCloud" } },
-      { path: ":recordId/details", component: () => import("@/views/pages/Purchase/Vendor/VendorDetails.vue"), meta: { title: "Detalles Proveedor | NexusCloud" } }
+      { path: ":recordId/detail", component: () => import("@/views/pages/Purchase/Vendor/VendorDetail.vue"), meta: { title: "Detalles Proveedor | NexusCloud" } }
     ]
   },
   // Purchase Orders
@@ -428,7 +428,7 @@ const routes = [
     children: [
       { path: "", redirect: "/purchase/purchase-orders/list" },
       { path: "list", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderList.vue"), meta: { title: "Órdenes de Compra | NexusCloud" } },
-      { path: ":recordId/detail", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderDetails.vue"), meta: { title: "Detalle OC | NexusCloud" } },
+      { path: ":recordId/detail", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderDetail.vue"), meta: { title: "Detalle OC | NexusCloud" } },
       { path: ":recordId/preview", component: () => import("@/views/pages/Purchase/PurchaseOrder/PurchaseOrderPreview.vue"), meta: { title: "Vista previa OC | NexusCloud" } }
     ]
   },

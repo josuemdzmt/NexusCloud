@@ -111,7 +111,7 @@ export const VENDOR_HEALTH_BADGE = {
 
 const ANALYTICS_ACTIONS = {
   rowActions: [
-    { label: 'Detalles', name: 'details', icon: 'ph ph-eye' }
+    { label: 'Detalles', name: 'detail', icon: 'ph ph-eye' }
   ]
 };
 
@@ -257,8 +257,8 @@ export default {
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'details' && row.accountId) {
-        this.$router.push(`/purchase/vendor/${row.accountId}/details`);
+      if (action.name === 'detail' && row.accountId) {
+        this.$router.push(`/purchase/vendor/${row.accountId}/detail`);
       }
     },
     handleFormatCompact(fltValue) {

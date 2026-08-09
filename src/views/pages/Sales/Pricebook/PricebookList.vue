@@ -92,8 +92,8 @@ export default {
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'details') {
-        this.$router.push(`/system/pricebook/${row.id}/details`);
+      if (action.name === 'detail') {
+        this.$router.push(`/system/pricebook/${row.id}/detail`);
       } else if (action.name === 'edit') {
         if (this.$refs.pricebookFormRef) {
           this.$refs.pricebookFormRef.handleOpen(row.id);

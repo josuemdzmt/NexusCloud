@@ -90,8 +90,8 @@ export default {
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'details') {
-        this.$router.push(`/inventory/product/${row.id}/details`);
+      if (action.name === 'detail') {
+        this.$router.push(`/inventory/product/${row.id}/detail`);
       } else if (action.name === 'edit') {
         this.$router.push(`/inventory/product/${row.id}/edit`);
       } else if (action.name === 'delete') {

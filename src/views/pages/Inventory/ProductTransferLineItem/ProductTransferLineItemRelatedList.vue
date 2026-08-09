@@ -23,7 +23,7 @@ import { handleError } from '@/utils/toastUtils';
 import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const ACTION_BUTTONS = {
-  rowActions: [{ label: 'Detalles', name: 'details', icon: 'icon-eye' }]
+  rowActions: [{ label: 'Detalles', name: 'detail', icon: 'icon-eye' }]
 };
 
 export default {
@@ -118,8 +118,8 @@ export default {
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'details' && row.productTransferId) {
-        this.$router.push(`/inventory/product-transfer/${row.productTransferId}/details`);
+      if (action.name === 'detail' && row.productTransferId) {
+        this.$router.push(`/inventory/product-transfer/${row.productTransferId}/detail`);
       }
     }
   }

@@ -15,7 +15,7 @@ export const STATUS_BADGE = {
 
 export const ACTION_BUTTONS = {
   rowActions: [
-    { label: 'Detalles', name: 'details', icon: 'ph ph-eye' },
+    { label: 'Detalles', name: 'detail', icon: 'ph ph-eye' },
     { label: 'Editar', name: 'edit', icon: 'ph ph-pencil' }
   ]
 };

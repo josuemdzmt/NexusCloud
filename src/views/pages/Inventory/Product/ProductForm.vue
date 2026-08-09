@@ -219,7 +219,7 @@ export default {
           const objProduct = data.data || data;
           handleSuccess('Producto creado exitosamente');
           if (objProduct?.id) {
-            this.$router.push(`/inventory/product/${objProduct.id}/details`);
+            this.$router.push(`/inventory/product/${objProduct.id}/detail`);
             return;
           }
           this.$router.push('/inventory/product/list');
@@ -235,7 +235,7 @@ export default {
       ProductService.update(id, objForm)
         .then((data) => {
           handleSuccess('Producto actualizado exitosamente');
-          this.$router.push(`/inventory/product/${id}/details`);
+          this.$router.push(`/inventory/product/${id}/detail`);
         })
         .catch((error) => {
           handleError('Ocurrió un problema al actualizar el producto', error);
@@ -245,7 +245,7 @@ export default {
     handleCancel() {
       const id = this.$route.params.recordId;
       if (id) {
-        this.$router.push(`/inventory/product/${id}/details`);
+        this.$router.push(`/inventory/product/${id}/detail`);
         return;
       }
       this.$router.push('/inventory/product/list');
