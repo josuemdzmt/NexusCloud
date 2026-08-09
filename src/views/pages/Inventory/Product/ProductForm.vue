@@ -98,6 +98,7 @@ import ProductService from '@/services/inventory/ProductService';
 import ProductCategoryService from '@/services/inventory/ProductCategoryService';
 import BrandService from '@/services/inventory/BrandService';
 import UnitMeasureService from '@/services/inventory/UnitMeasureService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleBuildCatalogOptions } from '@/utils/catalogUtils';
 import { handleError, handleSuccess } from '@/utils/toastUtils';
 
@@ -154,31 +155,40 @@ export default {
   },
   methods: {
     handleGetBrands() {
-      BrandService.getAll({ per_page: 100 })
-        .then((response) => {
-          this.lstRawBrands = response.data || response;
+      return handleGetOrLoad('brands', () =>
+        BrandService.getAll({ per_page: 100 }).then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          return Array.isArray(lstData) ? lstData : [];
         })
-        .catch((error) => {
-          handleError('Ocurrió un problema al obtener las marcas', error);
-        });
+      )
+        .then((lstBrands) => {
+          this.lstRawBrands = lstBrands;
+        })
+        .catch((objError) => handleError('Ocurrió un problema al obtener las marcas', objError));
     },
     handleGetUnits() {
-      UnitMeasureService.getAll({ per_page: 100 })
-        .then((response) => {
-          this.lstRawUnits = response.data || response;
+      return handleGetOrLoad('unitMeasures', () =>
+        UnitMeasureService.getAll({ per_page: 100 }).then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          return Array.isArray(lstData) ? lstData : [];
         })
-        .catch((error) => {
-          handleError('Ocurrió un problema al obtener las unidades de medida', error);
-        });
+      )
+        .then((lstUnits) => {
+          this.lstRawUnits = lstUnits;
+        })
+        .catch((objError) => handleError('Ocurrió un problema al obtener las unidades de medida', objError));
     },
     handleGetCategories() {
-      ProductCategoryService.getAll({ per_page: 100 })
-        .then((response) => {
-          this.lstRawCategories = response.data || response;
+      return handleGetOrLoad('productCategories', () =>
+        ProductCategoryService.getAll({ per_page: 100 }).then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          return Array.isArray(lstData) ? lstData : [];
         })
-        .catch((error) => {
-          handleError('Ocurrió un problema al obtener las categorías', error);
-        });
+      )
+        .then((lstCategories) => {
+          this.lstRawCategories = lstCategories;
+        })
+        .catch((objError) => handleError('Ocurrió un problema al obtener las categorías', objError));
     },
     handleInitForm(id) {
       this.bSpinner = true;

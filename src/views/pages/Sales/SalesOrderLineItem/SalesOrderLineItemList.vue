@@ -92,7 +92,6 @@ export default {
 
           const lstRaw = Array.isArray(data) ? data : [];
           this.lstLineItems = lstRaw.map(handleNormalizeSalesOrderLineItem);
-          this.$emit('refresh', this.lstLineItems);
         })
         .catch((objError) => handleError('Ocurrió un problema al obtener las líneas', objError))
         .finally(() => {
@@ -101,6 +100,7 @@ export default {
     },
     handleLineSuccess() {
       this.handleGetData();
+      this.$emit('refresh');
     },
     handleCreate() {
       if (!this.bCanEdit) {
@@ -136,6 +136,7 @@ export default {
         .then(() => {
           handleSuccess('Eliminado', 'Línea eliminada exitosamente');
           this.handleGetData();
+          this.$emit('refresh');
         })
         .catch((objError) => handleError('Ocurrió un problema al eliminar la línea', objError));
     }

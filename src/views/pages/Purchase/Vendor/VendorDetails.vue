@@ -60,39 +60,15 @@
         </div>
         <div class="col-span-12 lg:col-span-8">
           <div class="bg-white border border-border-color rounded-md">
-            <nav class="flex items-center gap-1 border-b border-border-color flex-wrap" aria-label="Tabs" role="tablist" aria-orientation="horizontal">
-              <button
-                v-for="(objTab, numIndex) in lstTabs"
-                :key="objTab.id"
-                type="button"
-                :id="`${objTab.id}-tab`"
-                role="tab"
-                :aria-selected="numIndex === 0"
-                :aria-controls="`${objTab.id}-pane`"
-                :data-hs-tab="`#${objTab.id}-pane`"
-                class="px-4 py-3 text-sm text-default whitespace-nowrap border-b-2 border-transparent -mb-px hover:text-gray-900 hs-tab-active:font-semibold hs-tab-active:text-gray-900 hs-tab-active:border-primary focus:outline-hidden"
-                :class="{ active: numIndex === 0 }"
-              >
-                {{ objTab.label }}
-              </button>
-            </nav>
-            <div class="p-4">
-              <div id="orders-pane" role="tabpanel" aria-labelledby="orders-tab">
-                <PurchaseOrderRelatedList
-                  v-if="recordId"
-                  :account-id="recordId"
-                />
-              </div>
-              <div id="payments-pane" class="hidden" role="tabpanel" aria-labelledby="payments-tab">
-                <PurchaseOrderPaymentRelatedList
-                  v-if="recordId"
-                  ref="paymentRelatedListRef"
-                  :account-id="recordId"
-                  :b-can-register="true"
-                  @register="handleOpenPaymentModal"
-                />
-              </div>
-            </div>
+            <nx-tabset v-model="strActiveTab">
+              <nx-tab label="Órdenes" value="orders">
+                <PurchaseOrderRelatedList v-if="recordId" :account-id="recordId" />
+              </nx-tab>
+              <nx-tab label="Abonos" value="payments">
+                <PurchaseOrderPaymentRelatedList v-if="recordId" ref="paymentRelatedListRef" :account-id="recordId"
+                  :b-can-register="true" @register="handleOpenPaymentModal" />
+              </nx-tab>
+            </nx-tabset>
           </div>
         </div>
       </div>
@@ -123,11 +99,8 @@ export default {
     return {
       bSpinner: false,
       recordId: null,
-      objVendor: null,
-      lstTabs: [
-        { id: 'orders', label: 'Órdenes' },
-        { id: 'payments', label: 'Abonos' }
-      ]
+      strActiveTab: 'orders',
+      objVendor: null
     };
   },
   computed: {
@@ -171,11 +144,6 @@ export default {
   mounted() {
     this.recordId = this.$route.params.recordId;
     this.handleGetData();
-    this.$nextTick(() => {
-      if (window.HSStaticMethods) {
-        window.HSStaticMethods.autoInit();
-      }
-    });
   },
   methods: {
     handleGetData() {

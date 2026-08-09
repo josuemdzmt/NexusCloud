@@ -62,22 +62,13 @@
                         </div>
                         <div class="py-3 space-y-1">
                             <router-link :to="all_routes.profile" class="flex items-center px-2 py-[6px] rounded-md text-gray-900 hover:bg-light focus:outline-hidden focus:bg-white">
-                                <i class="icon icon-user-round text-base me-2"></i>View Profile
-                            </router-link>
-                            <router-link :to="all_routes.editProfile" class="flex items-center px-2 py-[6px] rounded-md text-gray-900 hover:bg-light focus:outline-hidden focus:bg-white">
-                                <i class="icon icon-user-pen text-base me-2"></i>Edit Profile
-                            </router-link>
-                            <router-link :to="all_routes.generalSettings" class="flex items-center px-2 py-[6px] rounded-md text-gray-900 hover:bg-light focus:outline-hidden focus:bg-white">
-                                <i class="icon icon-cog text-base me-2"></i>Settings
-                            </router-link>
-                            <router-link :to="all_routes.tickets" class="flex items-center px-2 py-[6px] rounded-md text-gray-900 hover:bg-light focus:outline-hidden focus:bg-white">
-                                <i class="icon icon-align-start-horizontal text-base me-2"></i>Support Tickets
+                                <i class="icon icon-user-round text-base me-2"></i>Perfil
                             </router-link>
                         </div>
-                        <div class="pt-3">
-                            <router-link :to="all_routes.lockScreen" class="flex items-center px-2 py-[6px] rounded-md text-gray-900 hover:bg-light focus:outline-hidden focus:bg-white" @click.prevent="handleLockScreen">
-                                <i class="icon icon-user-cog text-base me-2"></i>Lock Screen
-                            </router-link>
+                        <div class="pt-3 space-y-1">
+                            <a href="#" class="flex items-center px-2 py-[6px] rounded-md text-gray-900 hover:bg-light focus:outline-hidden focus:bg-white" @click.prevent="handleLockScreen">
+                                <i class="icon icon-user-cog text-base me-2"></i>Bloquear
+                            </a>
                             <a href="#" class="flex items-center px-2 py-[6px] rounded-md text-danger hover:bg-light focus:outline-hidden focus:bg-white" @click.prevent="handleLogout">
                                 <i class="icon icon-log-out text-base me-2"></i>Cerrar sesión
                             </a>

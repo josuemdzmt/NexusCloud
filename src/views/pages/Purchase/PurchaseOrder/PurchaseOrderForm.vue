@@ -99,9 +99,10 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import VendorService from '@/services/purchasing/VendorService';
-import CurrencyService from '@/services/sales/CurrencyService';
+import CurrencyService, { handleFindDefaultCurrency } from '@/services/sales/CurrencyService';
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
 import PurchaseOrderLineItemService from '@/services/purchasing/PurchaseOrderLineItemService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import {
   ORDER_STATUS,
@@ -158,6 +159,7 @@ export default {
       objInitialData: validationSchema.getDefault(),
       lstVendorOptions: [],
       lstCurrencyOptions: [],
+      lstCurrencies: [],
       lstDocumentTypeOptions: [
         ...SUPPLIER_DOCUMENT_TYPE_OPTIONS
       ]
@@ -179,10 +181,6 @@ export default {
         fltBalanceAmount: this.fltBalanceAmount
       });
     }
-  },
-  mounted() {
-    this.handleGetVendors();
-    this.handleGetCurrencies();
   },
   methods: {
     handleRecalcTotal(objPartial = {}) {
@@ -207,23 +205,32 @@ export default {
       return new Date().toISOString().substr(0, 10);
     },
     handleGetVendors() {
-      VendorService.getAll({ per_page: 500 })
-        .then((objResponse) => {
+      return handleGetOrLoad('vendors', () =>
+        VendorService.getAll({ per_page: 500 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstVendorOptions = (Array.isArray(lstData) ? lstData : [])
+          return (Array.isArray(lstData) ? lstData : [])
             .filter((objItem) => VendorService.handleIsVendorAccount(objItem))
             .map((objVendor) => ({
               label: objVendor.legal_name || `${objVendor.first_name || ''} ${objVendor.last_name || ''}`.trim() || 'Sin Nombre',
               value: objVendor.id
             }));
         })
+      )
+        .then((lstOptions) => {
+          this.lstVendorOptions = lstOptions;
+        })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los proveedores', objError));
     },
     handleGetCurrencies() {
-      CurrencyService.getAll({ per_page: 500 })
-        .then((objResponse) => {
+      return handleGetOrLoad('currencies', () =>
+        CurrencyService.getAll({ per_page: 500 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstCurrencyOptions = (Array.isArray(lstData) ? lstData : []).map((objCurrency) => ({
+          return Array.isArray(lstData) ? lstData : [];
+        })
+      )
+        .then((lstCurrencies) => {
+          this.lstCurrencies = lstCurrencies;
+          this.lstCurrencyOptions = lstCurrencies.map((objCurrency) => ({
             label: `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`,
             value: objCurrency.id
           }));
@@ -247,16 +254,16 @@ export default {
       this.strStatus = ORDER_STATUS.DRAFT;
       this.strTitle = 'Orden de Compra';
 
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleOpen();
-      }
-
-      if (numId) {
-        this.handleInitForm(numId);
-        return;
-      }
-
-      this.handleInitCreate();
+      Promise.all([this.handleGetVendors(), this.handleGetCurrencies()]).then(() => {
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleOpen();
+        }
+        if (numId) {
+          this.handleInitForm(numId);
+          return;
+        }
+        this.handleInitCreate();
+      });
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
@@ -272,24 +279,19 @@ export default {
         discountAmount: 0,
         totalTaxAmount: 0
       };
-      CurrencyService.getDefault()
-        .then((objCurrency) => {
-          if (objCurrency?.id) {
-            objDefaults.currencyId = Number(objCurrency.id);
-          }
-        })
-        .catch(() => {})
-        .finally(() => {
-          this.objInitialData = objDefaults;
-          this.handleRecalcTotal({
-            subtotal: objDefaults.subtotal,
-            discountAmount: objDefaults.discountAmount,
-            totalTaxAmount: objDefaults.totalTaxAmount
-          });
-          if (this.$refs.modalFormRef) {
-            this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-          }
-        });
+      const objCurrency = handleFindDefaultCurrency(this.lstCurrencies);
+      if (objCurrency?.id) {
+        objDefaults.currencyId = Number(objCurrency.id);
+      }
+      this.objInitialData = objDefaults;
+      this.handleRecalcTotal({
+        subtotal: objDefaults.subtotal,
+        discountAmount: objDefaults.discountAmount,
+        totalTaxAmount: objDefaults.totalTaxAmount
+      });
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+      }
     },
     handleLoadLineCount(recordId) {
       return PurchaseOrderLineItemService.getAll({

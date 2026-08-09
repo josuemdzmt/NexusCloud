@@ -3,11 +3,11 @@ import api from '@/services/api';
 const ENDPOINT = '/api/v1/core/currencies';
 
 /**
- * Resolve the system default currency from a list (client-side fallback).
+ * Resolve the system default currency from a list (client-side).
  * @param {Array} lstCurrencies
  * @returns {Object|null}
  */
-function handleFindDefaultCurrency(lstCurrencies) {
+export function handleFindDefaultCurrency(lstCurrencies) {
   const lstData = Array.isArray(lstCurrencies) ? lstCurrencies : [];
   return (
     lstData.find((objCurrency) => {
@@ -29,10 +29,16 @@ export default {
 
   /**
    * Get the corporate/default currency (active + is_default).
-   * Tries API filter first; falls back to client-side scan of the list.
+   * If lstPreloaded is provided, resolves from that list (no network).
+   * Otherwise tries API filter, then full list scan.
+   * @param {Array|null} [lstPreloaded]
    * @returns {Promise<Object|null>}
    */
-  getDefault() {
+  getDefault(lstPreloaded = null) {
+    if (lstPreloaded != null) {
+      return Promise.resolve(handleFindDefaultCurrency(lstPreloaded));
+    }
+
     return api
       .get(ENDPOINT, { params: { 'filter[is_default]': 1, per_page: 10 } })
       .then((objResponse) => {

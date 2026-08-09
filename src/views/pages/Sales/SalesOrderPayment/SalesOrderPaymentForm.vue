@@ -72,6 +72,7 @@ import PaymentMethodService from '@/services/sales/PaymentMethodService';
 import BankService from '@/services/sales/BankService';
 import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderPaymentService from '@/services/sales/SalesOrderPaymentService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { ORDER_STATUS } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
@@ -135,10 +136,6 @@ export default {
       return parseFloat(this.objOrder?.balanceAmount) || 0;
     }
   },
-  mounted() {
-    this.handleGetPaymentMethods();
-    this.handleGetBanks();
-  },
   methods: {
     handleGetToday() {
       const objDate = new Date();
@@ -174,26 +171,34 @@ export default {
       this.strCurrencyLabel = this.handleGetCurrencyLabel(objOrder);
     },
     handleGetPaymentMethods() {
-      PaymentMethodService.getAll({ per_page: 100 })
-        .then((objResponse) => {
+      return handleGetOrLoad('paymentMethods', () =>
+        PaymentMethodService.getAll({ per_page: 100 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstPaymentMethodOptions = (Array.isArray(lstData) ? lstData : []).map((objMethod) => ({
+          return (Array.isArray(lstData) ? lstData : []).map((objMethod) => ({
             label: objMethod.name,
             value: objMethod.id
           }));
         })
+      )
+        .then((lstOptions) => {
+          this.lstPaymentMethodOptions = lstOptions;
+        })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los métodos de pago', objError));
     },
     handleGetBanks() {
-      BankService.getAll({ per_page: 100 })
-        .then((objResponse) => {
+      return handleGetOrLoad('banks', () =>
+        BankService.getAll({ per_page: 100 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstBankOptions = (Array.isArray(lstData) ? lstData : [])
+          return (Array.isArray(lstData) ? lstData : [])
             .filter((objBank) => (objBank.status || 'Active') !== 'Inactive')
             .map((objBank) => ({
               label: objBank.name,
               value: objBank.id
             }));
+        })
+      )
+        .then((lstOptions) => {
+          this.lstBankOptions = lstOptions;
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los bancos', objError));
     },
@@ -249,18 +254,19 @@ export default {
       this.lstOrderOptions = [];
       this.objValidationSchema = this.bSelectOrder ? validationSchemaWithOrder : validationSchema;
 
-      if (this.bSelectOrder) {
-        this.handleLoadAccountOrders(this.numAccountId).then(() => {
-          this.handleOpenModal(this.handleDefaultFormValues());
-        });
-        return;
-      }
+      Promise.all([this.handleGetPaymentMethods(), this.handleGetBanks()]).then(() => {
+        if (this.bSelectOrder) {
+          return this.handleLoadAccountOrders(this.numAccountId).then(() => {
+            this.handleOpenModal(this.handleDefaultFormValues());
+          });
+        }
 
-      this.objOrder = this.handleNormalizeOrder(objOrder);
-      this.handleApplyOrderCurrency(this.objOrder);
-      this.handleOpenModal(this.handleDefaultFormValues({
-        amount: this.fltBalanceAmount || null
-      }));
+        this.objOrder = this.handleNormalizeOrder(objOrder);
+        this.handleApplyOrderCurrency(this.objOrder);
+        this.handleOpenModal(this.handleDefaultFormValues({
+          amount: this.fltBalanceAmount || null
+        }));
+      });
     },
     handleOpenModal(objValues) {
       this.objInitialData = objValues;

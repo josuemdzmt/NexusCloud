@@ -5,7 +5,8 @@ const ENDPOINT = '/api/v1/sales/sales-order-payments';
 export default {
   /**
    * Get payments
-   * Filter with Spatie: filter[sales_order_id]
+   * Filter with Spatie: filter[sales_order_id], filter[account_id]
+   * Includes: paymentMethod, bank, salesOrder
    * @param {Object} objParams
    */
   getAll(objParams = {}) {

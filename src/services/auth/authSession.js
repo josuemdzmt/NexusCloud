@@ -4,6 +4,8 @@
  * Preparado para VITE_AUTH_API_BASE_URL distinto al API de negocio.
  */
 
+import { handleClearCatalogCache } from '@/services/catalog/catalogCache';
+
 const KEY_ACCESS = 'nexus_access_token';
 const KEY_REFRESH = 'nexus_refresh_token';
 const KEY_USER = 'nexus_auth_user';
@@ -90,6 +92,7 @@ export function clearSession(objOptions = {}) {
   localStorage.removeItem(KEY_REFRESH);
   localStorage.removeItem(KEY_USER);
   localStorage.removeItem('user'); // legacy
+  handleClearCatalogCache();
 }
 
 export function getAccessToken() {

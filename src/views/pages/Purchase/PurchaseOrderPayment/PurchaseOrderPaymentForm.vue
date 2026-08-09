@@ -77,6 +77,7 @@ import PaymentMethodService from '@/services/sales/PaymentMethodService';
 import BankService from '@/services/sales/BankService';
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
 import PurchaseOrderPaymentService from '@/services/purchasing/PurchaseOrderPaymentService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { ORDER_STATUS, handleCanRegisterPayment } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
@@ -132,10 +133,6 @@ export default {
       return parseFloat(this.objOrder?.balanceAmount) || 0;
     }
   },
-  mounted() {
-    this.handleGetPaymentMethods();
-    this.handleGetBanks();
-  },
   methods: {
     handleGetToday() {
       const objDate = new Date();
@@ -177,28 +174,46 @@ export default {
       this.strCurrencyLabel = this.handleGetCurrencyLabel(objOrder);
     },
     handleGetPaymentMethods() {
-      PaymentMethodService.getAll({ per_page: 100 })
-        .then((objResponse) => {
+      return handleGetOrLoad('paymentMethods', () =>
+        PaymentMethodService.getAll({ per_page: 100 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstPaymentMethodOptions = (Array.isArray(lstData) ? lstData : []).map((objMethod) => ({
+          return (Array.isArray(lstData) ? lstData : []).map((objMethod) => ({
             label: objMethod.name,
             value: objMethod.id
           }));
         })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los métodos de pago', objError));
+      )
+      .then((lstOptions) => {
+        this.lstPaymentMethodOptions = lstOptions;
+      })
+      .catch((objError) => {
+        handleError('Error', 'No se pudieron cargar los métodos de pago', objError);
+      })
+      .finally(() => {
+        this.bSpinner = false;
+      });
     },
     handleGetBanks() {
-      BankService.getAll({ per_page: 100 })
-        .then((objResponse) => {
+      return handleGetOrLoad('banks', () =>
+        BankService.getAll({ per_page: 100 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstBankOptions = (Array.isArray(lstData) ? lstData : [])
+          return (Array.isArray(lstData) ? lstData : [])
             .filter((objBank) => (objBank.status || 'Active') !== 'Inactive')
             .map((objBank) => ({
               label: objBank.name,
               value: objBank.id
             }));
         })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los bancos', objError));
+      )
+      .then((lstOptions) => {
+        this.lstBankOptions = lstOptions;
+      })
+      .catch((objError) => {
+        handleError('Error', 'No se pudieron cargar los bancos', objError);
+      })
+      .finally(() => {
+        this.bSpinner = false;
+      });
     },
     handleLoadAccountOrders(numAccountId) {
       return PurchaseOrderService.getAll({
@@ -258,19 +273,20 @@ export default {
       this.objValidationSchema = this.bSelectOrder ? validationSchemaWithOrder : validationSchema;
       this.strTitle = 'Registrar Abono';
 
-      if (this.bSelectOrder) {
-        this.handleLoadAccountOrders(this.numAccountId).then(() => {
-          this.handleOpenModal(this.handleDefaultFormValues());
-        });
-        return;
-      }
+      Promise.all([this.handleGetPaymentMethods(), this.handleGetBanks()]).then(() => {
+        if (this.bSelectOrder) {
+          return this.handleLoadAccountOrders(this.numAccountId).then(() => {
+            this.handleOpenModal(this.handleDefaultFormValues());
+          });
+        }
 
-      this.objOrder = this.handleNormalizeOrder(objOrder);
-      this.strVendorName = this.handleGetVendorName(objOrder);
-      this.handleApplyOrderCurrency(this.objOrder);
-      this.handleOpenModal(this.handleDefaultFormValues({
-        amount: this.fltBalanceAmount || null
-      }));
+        this.objOrder = this.handleNormalizeOrder(objOrder);
+        this.strVendorName = this.handleGetVendorName(objOrder);
+        this.handleApplyOrderCurrency(this.objOrder);
+        this.handleOpenModal(this.handleDefaultFormValues({
+          amount: this.fltBalanceAmount || null
+        }));
+      });
     },
     handleOpenModal(objValues) {
       this.objInitialData = objValues;
@@ -327,7 +343,9 @@ export default {
           this.$emit('refresh');
           this.handleClose();
         })
-        .catch((objError) => handleError('Ocurrió un problema al registrar el abono', objError))
+        .catch((objError) => {
+          handleError('Ocurrió un problema al registrar el abono', objError);
+        })
         .finally(() => {
           this.bSpinner = false;
         });

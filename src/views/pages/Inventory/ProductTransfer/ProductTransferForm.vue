@@ -36,6 +36,7 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import ProductTransferService from '@/services/inventory/ProductTransferService';
 import LocationService from '@/services/inventory/LocationService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { TRANSFER_STATUS, TRANSFER_STATUS_BADGE } from '@/views/pages/Inventory/ProductTransfer/ProductTransferConstants';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
@@ -86,9 +87,6 @@ export default {
       return TRANSFER_STATUS_BADGE.labelMap[this.strStatus] || this.strStatus || '—';
     }
   },
-  mounted() {
-    this.handleGetLocations();
-  },
   methods: {
     handleGetToday() {
       const objDate = new Date();
@@ -97,14 +95,24 @@ export default {
       return `${objDate.getFullYear()}-${strMonth}-${strDay}`;
     },
     handleGetLocations() {
-      LocationService.getAll({ per_page: 500, 'filter[is_inventory_location]': 1 })
-        .then((objResponse) => {
+      return handleGetOrLoad('inventoryLocations', () =>
+        LocationService.getAll({ per_page: 500, 'filter[is_inventory_location]': 1 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
           const lstRaw = Array.isArray(lstData) ? lstData : [];
-          this.lstLocationOptions = lstRaw.map((objLocation) => ({
+          const lstInventoriable = lstRaw.filter((objLocation) => {
+            if (objLocation.is_inventory_location === undefined && objLocation.isInventoryLocation === undefined) {
+              return true;
+            }
+            return Boolean(objLocation.is_inventory_location ?? objLocation.isInventoryLocation);
+          });
+          return lstInventoriable.map((objLocation) => ({
             label: objLocation.name,
             value: objLocation.id
           }));
+        })
+      )
+        .then((lstOptions) => {
+          this.lstLocationOptions = lstOptions;
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los almacenes', objError));
     },
@@ -115,24 +123,24 @@ export default {
       this.strStatus = TRANSFER_STATUS.DRAFT;
       this.strTitle = numId ? 'Editar Traspaso' : 'Nuevo Traspaso';
 
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleOpen();
-      }
-
-      if (numId) {
-        this.handleInitForm(numId);
-        return;
-      }
-
-      this.objInitialData = {
-        ...validationSchema.getDefault(),
-        transferDate: this.handleGetToday(),
-        status: TRANSFER_STATUS.DRAFT,
-        sourceLocationId: objContext?.sourceLocationId ? Number(objContext.sourceLocationId) : null
-      };
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-      }
+      this.handleGetLocations().then(() => {
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleOpen();
+        }
+        if (numId) {
+          this.handleInitForm(numId);
+          return;
+        }
+        this.objInitialData = {
+          ...validationSchema.getDefault(),
+          transferDate: this.handleGetToday(),
+          status: TRANSFER_STATUS.DRAFT,
+          sourceLocationId: objContext?.sourceLocationId ? Number(objContext.sourceLocationId) : null
+        };
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+        }
+      });
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
@@ -160,7 +168,9 @@ export default {
             this.$refs.modalFormRef.handleSetValues(this.objInitialData);
           }
         })
-        .catch((objError) => handleError('Ocurrió un problema al cargar el traspaso', objError))
+        .catch((objError) => {
+          handleError('Ocurrió un problema al cargar el traspaso', objError);
+        })
         .finally(() => {
           this.bSpinner = false;
         });
@@ -208,7 +218,9 @@ export default {
           this.$emit('success', { id: this.recordId, created: false });
           this.handleClose();
         })
-        .catch((objError) => handleError('Error de Validación', objError))
+        .catch((objError) => {
+          handleError('Error de Validación', objError);
+        })
         .finally(() => {
           this.bSpinner = false;
         });

@@ -44,6 +44,8 @@ import NXModalHeader from './components/nexus/NX-ModalHeader.vue';
 import NXModalBody from './components/nexus/NX-ModalBody.vue';
 import NXModalFooter from './components/nexus/NX-ModalFooter.vue';
 import NXModalForm from './components/nexus/NX-ModalForm.vue';
+import NXTabset from './components/nexus/NX-Tabset.vue';
+import NXTab from './components/nexus/NX-Tab.vue';
 
 // ---------- Modal Components ---------- //
 
@@ -194,6 +196,8 @@ app.component('nx-modal-header', NXModalHeader);
 app.component('nx-modal-body', NXModalBody);
 app.component('nx-modal-footer', NXModalFooter);
 app.component('nx-modal-form', NXModalForm);
+app.component('nx-tabset', NXTabset);
+app.component('nx-tab', NXTab);
 app.component("v-chart", VueECharts);
 
 use([

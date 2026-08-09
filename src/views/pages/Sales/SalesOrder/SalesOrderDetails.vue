@@ -95,43 +95,16 @@
         </div>
         <div class="col-span-12 lg:col-span-8">
           <div class="bg-white border border-border-color rounded-md">
-            <nav class="flex items-center gap-1 border-b border-border-color flex-wrap" aria-label="Tabs" role="tablist">
-              <button
-                v-for="(objTab, numIndex) in lstTabs"
-                :key="objTab.id"
-                type="button"
-                :id="`${objTab.id}-tab`"
-                role="tab"
-                :aria-selected="numIndex === 0"
-                :aria-controls="`${objTab.id}-pane`"
-                :data-hs-tab="`#${objTab.id}-pane`"
-                class="px-4 py-3 text-sm text-default whitespace-nowrap border-b-2 border-transparent -mb-px hover:text-gray-900 hs-tab-active:font-semibold hs-tab-active:text-gray-900 hs-tab-active:border-primary focus:outline-hidden"
-                :class="{ active: numIndex === 0 }"
-              >
-                {{ objTab.label }}
-              </button>
-            </nav>
-            <div class="p-4">
-              <div id="lines-pane" role="tabpanel" aria-labelledby="lines-tab">
-                <SalesOrderLineItemList
-                  v-if="objOrder"
-                  :sales-order-id="objOrder.id"
-                  :status="objOrder.status"
-                  :pricebook-id="objOrder.pricebookId"
-                  :currency-id="objOrder.currencyId"
-                  @refresh="handleLinesRefresh"
-                />
-              </div>
-              <div id="payments-pane" class="hidden" role="tabpanel" aria-labelledby="payments-tab">
-                <SalesOrderPaymentRelatedList
-                  v-if="objOrder"
-                  ref="paymentRelatedListRef"
-                  :sales-order-id="objOrder.id"
-                  :b-can-register="bCanRegisterPayment"
-                  @register="handleOpenPaymentModal"
-                />
-              </div>
-            </div>
+            <nx-tabset v-model="strActiveTab">
+              <nx-tab label="Líneas" value="lines">
+                <SalesOrderLineItemList v-if="objOrder" :sales-order-id="objOrder.id" :status="objOrder.status" :pricebook-id="objOrder.pricebookId"
+                  :currency-id="objOrder.currencyId" @refresh="handleLinesRefresh" />
+              </nx-tab>
+              <nx-tab label="Pagos" value="payments">
+                <SalesOrderPaymentRelatedList v-if="objOrder" ref="paymentRelatedListRef" :sales-order-id="objOrder.id" :b-can-register="bCanRegisterPayment"
+                  @register="handleOpenPaymentModal" />
+              </nx-tab>
+            </nx-tabset>
           </div>
         </div>
       </div>
@@ -178,11 +151,8 @@ export default {
   data() {
     return {
       bSpinner: false,
-      objOrder: null,
-      lstTabs: [
-        { id: 'lines', label: 'Líneas' },
-        { id: 'payments', label: 'Pagos' }
-      ]
+      strActiveTab: 'lines',
+      objOrder: null
     };
   },
   computed: {
@@ -212,11 +182,6 @@ export default {
   },
   mounted() {
     this.handleGetData();
-    this.$nextTick(() => {
-      if (window.HSStaticMethods) {
-        window.HSStaticMethods.autoInit();
-      }
-    });
   },
   methods: {
     handleGetData() {
@@ -226,11 +191,6 @@ export default {
       SalesOrderService.getById(recordId, { include: 'account,currency,pricebook' })
         .then((objResponse) => {
           this.objOrder = handleNormalizeSalesOrder(objResponse.data || objResponse);
-          this.$nextTick(() => {
-            if (window.HSStaticMethods) {
-              window.HSStaticMethods.autoInit();
-            }
-          });
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los detalles de la orden de venta', objError))
         .finally(() => {

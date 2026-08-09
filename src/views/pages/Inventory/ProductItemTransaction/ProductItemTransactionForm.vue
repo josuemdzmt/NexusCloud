@@ -42,6 +42,7 @@ import ProductItemService from '@/services/inventory/ProductItemService';
 import ProductItemTransactionService from '@/services/inventory/ProductItemTransactionService';
 import ProductService from '@/services/inventory/ProductService';
 import LocationService from '@/services/inventory/LocationService';
+import { handleGetOrLoad, handleInvalidateCatalog } from '@/services/catalog/catalogCache';
 import { TRANSACTION_TYPE, ADJUSTMENT_REASON_OPTIONS, handleResolveTransactionType } from '@/views/pages/Inventory/ProductItemTransaction/ProductItemTransactionConstants';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
@@ -92,11 +93,6 @@ export default {
       lstReasonOptions: ADJUSTMENT_REASON_OPTIONS
     };
   },
-  mounted() {
-    this.handleGetProducts();
-    this.handleGetLocations();
-    this.handleGetProductItems();
-  },
   methods: {
     handleGetToday() {
       const objDate = new Date();
@@ -105,33 +101,61 @@ export default {
       return `${objDate.getFullYear()}-${strMonth}-${strDay}`;
     },
     handleGetProducts() {
-      ProductService.getAll({ per_page: 500 })
-        .then((objResponse) => {
+      return handleGetOrLoad('products', () =>
+        ProductService.getAll({ per_page: 500 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstProductOptions = (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
+          return (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
             label: objProduct.name,
             value: objProduct.id
           }));
         })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los productos', objError));
+      )
+      .then((lstOptions) => {
+        this.lstProductOptions = lstOptions;
+      })
+      .catch((objError) => {
+        handleError('Error', 'No se pudieron cargar los productos', objError);
+      })
+      .finally(() => {
+        this.bSpinner = false;
+      });
     },
     handleGetLocations() {
-      LocationService.getAll({ per_page: 500, 'filter[is_inventory_location]': 1 })
-        .then((objResponse) => {
+      return handleGetOrLoad('inventoryLocations', () =>
+        LocationService.getAll({ per_page: 500, 'filter[is_inventory_location]': 1 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
           const lstRaw = Array.isArray(lstData) ? lstData : [];
-          this.lstLocationOptions = lstRaw.map((objLocation) => ({
+          const lstInventoriable = lstRaw.filter((objLocation) => {
+            if (objLocation.is_inventory_location === undefined && objLocation.isInventoryLocation === undefined) {
+              return true;
+            }
+            return Boolean(objLocation.is_inventory_location ?? objLocation.isInventoryLocation);
+          });
+          return lstInventoriable.map((objLocation) => ({
             label: objLocation.name,
             value: objLocation.id
           }));
         })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los almacenes', objError));
+      )
+      .then((lstOptions) => {
+        this.lstLocationOptions = lstOptions;
+      })
+      .catch((objError) => {
+        handleError('Error', 'No se pudieron cargar los almacenes', objError);
+      })
+      .finally(() => {
+        this.bSpinner = false;
+      });
     },
     handleGetProductItems() {
-      ProductItemService.getAll({ include: 'product,location', per_page: 500 })
-        .then((objResponse) => {
+      return handleGetOrLoad('productItems', () =>
+        ProductItemService.getAll({ include: 'product,location', per_page: 500 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstProductItems = Array.isArray(lstData) ? lstData : [];
+          return Array.isArray(lstData) ? lstData : [];
+        })
+      )
+        .then((lstItems) => {
+          this.lstProductItems = lstItems;
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar las existencias', objError));
     },
@@ -176,10 +200,12 @@ export default {
         }
       }
 
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-        this.$refs.modalFormRef.handleOpen();
-      }
+      Promise.all([this.handleGetProducts(), this.handleGetLocations(), this.handleGetProductItems()]).then(() => {
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+          this.$refs.modalFormRef.handleOpen();
+        }
+      });
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
@@ -218,10 +244,13 @@ export default {
         .then(() => {
           handleSuccess('Éxito', 'Ajuste de stock registrado correctamente');
           this.$emit('success');
+          handleInvalidateCatalog('productItems');
           this.handleGetProductItems();
           this.handleClose();
         })
-        .catch((objError) => handleError('Error de Validación', objError))
+        .catch((objError) => {
+          handleError('Error de Validación', objError);
+        })
         .finally(() => {
           this.bSpinner = false;
         });

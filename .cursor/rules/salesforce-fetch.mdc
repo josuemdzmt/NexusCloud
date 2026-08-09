@@ -1,0 +1,47 @@
+---
+description: Fetch de record pages y catálogos alineado a Salesforce (getRecord + related lists lazy)
+alwaysApply: true
+---
+
+# Salesforce — carga de datos (record pages y catálogos)
+
+NexusCloud consume Vertex REST, pero la **orquestación de UI** debe seguir Lightning Data Service / related lists, no un “mega DTO” de página.
+
+## Record page (Details)
+
+Equivalente SF: `getRecord` + `getRelatedListRecords` on demand.
+
+- Header: un `Service.getById(id, { include: 'lookups…' })`.
+- Related lists: un `Service.getAll` con `filter[parent_id]` + `include` **por lista**, no N+1.
+- Usar `nx-tabset` / `nx-tab`: montar y consultar la related list solo al activar el tab (primera visita).
+- No hidratar todas las related lists al `mounted` del detail.
+- No pedir un endpoint Vertex que devuelva header + todas las listas juntas (rompe lazy y no es LDS).
+
+```text
+✅ getById (header) + getAll del tab activo
+❌ Promise.all de todas las related lists al entrar
+❌ N+1 (órdenes → pagos por orden; productItems → transacciones por bin)
+```
+
+Filtros server-side preferidos (Vertex Fase A):
+
+| Contexto | Filtro |
+|----------|--------|
+| Pagos PO por proveedor | `filter[account_id]` (via purchaseOrder) + `include=paymentMethod,bank,purchaseOrder` |
+| Movimientos por producto/almacén | `filter[product_id]` / `filter[location_id]` en product-item-transactions |
+| Traspasos por almacén | `filter[location_id]` (source OR destination) |
+
+Composite / batch Vertex (opcional, solo primer paint header + tab default) es aceptable si hay latencia RTT; tabs secundarios siguen en GET suelto.
+
+## Catálogos (modales)
+
+Equivalente SF: cache LDS de picklists / lookups compartidos.
+
+- Modales: cargar en `handleOpen` vía `catalogCache.handleGetOrLoad`, nunca en `mounted`.
+- Página form connected (ej. ProductForm): puede cargar en `mounted`, preferible con la misma cache.
+- Lookups contextuales (entradas de pricebook por pricebook+currency): key compuesta o sin cache global.
+- Invalidar keys tras CRUD de catálogo; `handleClearCatalogCache` en logout.
+
+## Labels de lookups
+
+Preferir `include` en el list/getById (hydration) frente a `getAll(per_page:100)` de métodos/bancos solo para pintar labels.

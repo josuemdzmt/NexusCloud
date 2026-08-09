@@ -50,43 +50,17 @@
         </div>
         <div class="col-span-12 lg:col-span-8">
           <div class="bg-white border border-border-color rounded-md">
-            <nav class="flex items-center gap-1 border-b border-border-color flex-wrap" aria-label="Tabs" role="tablist" aria-orientation="horizontal">
-              <button
-                v-for="(objTab, numIndex) in lstTabs"
-                :key="objTab.id"
-                type="button"
-                :id="`${objTab.id}-tab`"
-                role="tab"
-                :aria-selected="numIndex === 0"
-                :aria-controls="`${objTab.id}-pane`"
-                :data-hs-tab="`#${objTab.id}-pane`"
-                class="px-4 py-3 text-sm text-default whitespace-nowrap border-b-2 border-transparent -mb-px hover:text-gray-900 hs-tab-active:font-semibold hs-tab-active:text-gray-900 hs-tab-active:border-primary focus:outline-hidden"
-                :class="{ active: numIndex === 0 }"
-              >
-                {{ objTab.label }}
-              </button>
-            </nav>
-            <div class="p-4">
-              <div id="stock-pane" role="tabpanel" aria-labelledby="stock-tab">
-                <ProductItemRelatedList
-                  v-if="recordId"
-                  :location-id="recordId"
-                  @refresh="handleProductItemsRefresh"
-                />
-              </div>
-              <div id="transactions-pane" class="hidden" role="tabpanel" aria-labelledby="transactions-tab">
-                <ProductItemTransactionRelatedList
-                  v-if="recordId"
-                  :location-id="recordId"
-                />
-              </div>
-              <div id="transfers-pane" class="hidden" role="tabpanel" aria-labelledby="transfers-tab">
-                <ProductTransferRelatedList
-                  v-if="recordId"
-                  :location-id="recordId"
-                />
-              </div>
-            </div>
+            <nx-tabset v-model="strActiveTab">
+              <nx-tab label="Existencias" value="stock">
+                <ProductItemRelatedList v-if="recordId" :location-id="recordId" @refresh="handleProductItemsRefresh" />
+              </nx-tab>
+              <nx-tab label="Movimientos" value="transactions">
+                <ProductItemTransactionRelatedList v-if="recordId" :location-id="recordId" />
+              </nx-tab>
+              <nx-tab label="Traspasos" value="transfers">
+                <ProductTransferRelatedList v-if="recordId" :location-id="recordId" />
+              </nx-tab>
+            </nx-tabset>
           </div>
         </div>
       </div>
@@ -125,15 +99,11 @@ export default {
       recordId: null,
       numProductItemCount: 0,
 
-      // 4. Objetos
-      objLocation: null,
+      // 3. Strings
+      strActiveTab: 'stock',
 
-      // 5. Listas
-      lstTabs: [
-        { id: 'stock', label: 'Existencias' },
-        { id: 'transactions', label: 'Movimientos' },
-        { id: 'transfers', label: 'Traspasos' }
-      ]
+      // 4. Objetos
+      objLocation: null
     };
   },
   computed: {
@@ -183,11 +153,6 @@ export default {
   mounted() {
     this.recordId = this.$route.params.recordId;
     this.handleGetData();
-    this.$nextTick(() => {
-      if (window.HSStaticMethods) {
-        window.HSStaticMethods.autoInit();
-      }
-    });
   },
   methods: {
     strYesNo(bValue) {

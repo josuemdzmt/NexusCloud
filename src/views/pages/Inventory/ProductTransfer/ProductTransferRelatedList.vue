@@ -104,46 +104,27 @@ export default {
         };
       });
     },
-    handleMergeById(lstA, lstB) {
-      const objById = {};
-      [...lstA, ...lstB].forEach((objItem) => {
-        if (objItem?.id != null) {
-          objById[objItem.id] = objItem;
-        }
-      });
-      return Object.values(objById);
+    handleBuildTransferFilters() {
+      const objFilters = { include: 'lineItems,sourceLocation,destinationLocation' };
+      // Vertex: location_id = source OR destination (related list Location → Transfers)
+      if (this.bFilteredByLocation) {
+        objFilters['filter[location_id]'] = this.locationId;
+      }
+      return objFilters;
     },
     handleGetData() {
       this.bSpinner = true;
-      const objInclude = { include: 'lineItems,sourceLocation,destinationLocation' };
 
-      const promiseFetch = this.bFilteredByLocation
-        ? Promise.all([
-            ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {
-              ...objInclude,
-              'filter[source_location_id]': this.locationId
-            }))),
-            ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {
-              ...objInclude,
-              'filter[destination_location_id]': this.locationId
-            })))
-          ]).then(([objSource, objDest]) => {
-            const objNormSource = handleParseList(objSource, this.currentPage);
-            const objNormDest = handleParseList(objDest, this.currentPage);
-            this.totalPages = Math.max(objNormSource.last_page || 1, objNormDest.last_page || 1);
-            this.currentPage = Math.min(objNormSource.current_page, objNormDest.current_page);
-            return this.handleMergeById(objNormSource.data, objNormDest.data);
-          })
-        : ProductTransferService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, objInclude)))
-          .then((objResponse) => {
-            const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
-            this.totalPages = last_page;
-            this.currentPage = current_page;
-            return data;
-          });
-
-      promiseFetch
-        .then((lstRaw) => {
+      ProductTransferService.getAll(handlePagerParams(
+        this.currentPage,
+        this.pageSize,
+        handleSearchParams(this.strSearch, this.handleBuildTransferFilters())
+      ))
+        .then((objResponse) => {
+          const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
+          this.totalPages = last_page;
+          this.currentPage = current_page;
+          const lstRaw = Array.isArray(data) ? data : [];
           this.lstTransfers = this.handleMapTransfers(lstRaw);
           this.$emit('refresh', this.lstTransfers);
         })

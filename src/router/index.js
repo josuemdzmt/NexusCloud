@@ -6,7 +6,7 @@ const routes = [
   {
     path: '/',
     name: 'login',
-    component: () => import('@/views/pages/pages-module/authentication/login.vue'),
+    component: () => import('@/views/pages/Auth/Login.vue'),
     meta: { title: 'Login | NexusCloud', hideLayout: true, guest: true }
   },
   {
@@ -114,7 +114,7 @@ const routes = [
   {
     path: '/lock-screen',
     name: 'lock-screen',
-    component: () => import('@/views/pages/pages-module/authentication/lock-screen.vue'),
+    component: () => import('@/views/pages/Auth/LockScreen.vue'),
     meta: { title: 'Lock Screen | NexusCloud', hideLayout: true, guest: true }
   },
   {
@@ -662,10 +662,10 @@ const routes = [
   },
   {
     path: "/account",
-    component: () => import("@/views/pages/pages-module/account/account-index.vue"),
+    component: () => import("@/views/pages/Auth/AccountIndex.vue"),
     children: [
       { path: "", redirect: "/account/profile" },
-      { path: "profile", component: () => import("@/views/pages/pages-module/account/profile.vue"), meta: { title: "Profile | NexusCloud" } },
+      { path: "profile", component: () => import("@/views/pages/Auth/Profile.vue"), meta: { title: "Profile | NexusCloud" } },
       { path: "edit-profile", component: () => import("@/views/pages/pages-module/account/edit-profile.vue"), meta: { title: "Edit Profile | NexusCloud" } },
     ],
   },

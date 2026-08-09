@@ -18,7 +18,7 @@
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
     </nx-datatable>
-    <PurchaseOrderLineItemForm ref="lineItemFormRef" @success="handleGetData" />
+    <PurchaseOrderLineItemForm ref="lineItemFormRef" @success="handleLineSuccess" />
   </div>
 </template>
 
@@ -92,12 +92,15 @@ export default {
 
           const lstRaw = Array.isArray(data) ? data : [];
           this.lstLineItems = lstRaw.map(handleNormalizePurchaseOrderLineItem);
-          this.$emit('refresh', this.lstLineItems);
         })
         .catch((objError) => handleError('Ocurrió un problema al obtener las líneas', objError))
         .finally(() => {
           this.bSpinner = false;
         });
+    },
+    handleLineSuccess() {
+      this.handleGetData();
+      this.$emit('refresh');
     },
     handleCreate() {
       if (!this.bCanEdit) {
@@ -131,6 +134,7 @@ export default {
         .then(() => {
           handleSuccess('Eliminado', 'Línea eliminada exitosamente');
           this.handleGetData();
+          this.$emit('refresh');
         })
         .catch((objError) => handleError('Ocurrió un problema al eliminar la línea', objError));
     }

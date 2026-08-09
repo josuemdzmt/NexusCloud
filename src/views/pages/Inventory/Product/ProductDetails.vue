@@ -49,54 +49,30 @@
         </div>
         <div class="col-span-12 lg:col-span-8">
           <div class="bg-white border border-border-color rounded-md">
-            <nav class="flex items-center gap-1 border-b border-border-color flex-wrap" aria-label="Tabs" role="tablist" aria-orientation="horizontal">
-              <button v-for="(objTab, numIndex) in lstTabs" :key="objTab.id" type="button" :id="`${objTab.id}-tab`"
-                role="tab" :aria-selected="numIndex === 0" :aria-controls="`${objTab.id}-pane`" :data-hs-tab="`#${objTab.id}-pane`"
-                class="px-4 py-3 text-sm text-default whitespace-nowrap border-b-2 border-transparent -mb-px hover:text-gray-900 hs-tab-active:font-semibold hs-tab-active:text-gray-900 hs-tab-active:border-primary focus:outline-hidden"
-                :class="{ active: numIndex === 0 }">
-                {{ objTab.label }}
-              </button>
-            </nav>
-            <div class="p-4">
-              <div id="pricebooks-pane" role="tabpanel" aria-labelledby="pricebooks-tab">
+            <nx-tabset v-model="strActiveTab">
+              <nx-tab label="Listas de Precios" value="pricebooks">
                 <div class="flex justify-end mb-3">
                   <button type="button" @click="handleCreateEntry" class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer">
                     <i class="ph ph-plus"></i> Agregar Precio
                   </button>
                 </div>
-                <nx-datatable
-                  key-field="id"
-                  :data="lstEntries"
-                  :columns="lstColumns"
-                  :is-loading="bSpinnerEntries"
-                  :show-date-range="false"
-                  @rowaction="handleRowAction"
-                  @search="handleSearch"
-        @refresh="handleGetEntries">
+                <nx-datatable key-field="id" :data="lstEntries" :columns="lstColumns" :is-loading="bSpinnerEntries" :show-date-range="false"
+                  @rowaction="handleRowAction" @search="handleSearch" @refresh="handleGetEntries">
                   <template #footer>
-                    <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
+                    <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange" />
                   </template>
                 </nx-datatable>
-              </div>
-              <div id="stock-pane" class="hidden" role="tabpanel" aria-labelledby="stock-tab">
-                <ProductItemRelatedList
-                  v-if="recordId"
-                  :product-id="recordId"
-                />
-              </div>
-              <div id="transactions-pane" class="hidden" role="tabpanel" aria-labelledby="transactions-tab">
-                <ProductItemTransactionRelatedList
-                  v-if="recordId"
-                  :product-id="recordId"
-                />
-              </div>
-              <div id="transfers-pane" class="hidden" role="tabpanel" aria-labelledby="transfers-tab">
-                <ProductTransferLineItemRelatedList
-                  v-if="recordId"
-                  :product-id="recordId"
-                />
-              </div>
-            </div>
+              </nx-tab>
+              <nx-tab label="Existencias" value="stock">
+                <ProductItemRelatedList v-if="recordId" :product-id="recordId" />
+              </nx-tab>
+              <nx-tab label="Movimientos" value="transactions">
+                <ProductItemTransactionRelatedList v-if="recordId" :product-id="recordId" />
+              </nx-tab>
+              <nx-tab label="Traspasos" value="transfers">
+                <ProductTransferLineItemRelatedList v-if="recordId" :product-id="recordId" />
+              </nx-tab>
+            </nx-tabset>
           </div>
         </div>
       </div>
@@ -135,16 +111,13 @@ export default {
       // 2. Números / IDs
       recordId: null,
 
+      // 3. Strings
+      strActiveTab: 'pricebooks',
+
       // 4. Objetos
       objProduct: null,
 
       // 5. Listas
-      lstTabs: [
-        { id: 'pricebooks', label: 'Listas de Precios' },
-        { id: 'stock', label: 'Existencias' },
-        { id: 'transactions', label: 'Movimientos' },
-        { id: 'transfers', label: 'Traspasos' }
-      ],
       lstEntries: [],
       lstColumns: [
         { label: 'Lista de Precios', fieldName: 'pricebookName', type: 'text', sortable: true },
@@ -167,11 +140,6 @@ export default {
     this.recordId = this.$route.params.recordId;
     this.handleGetData();
     this.handleGetEntries();
-    this.$nextTick(() => {
-      if (window.HSStaticMethods) {
-        window.HSStaticMethods.autoInit();
-      }
-    });
   },
   methods: {
     handlePageChange(objEvent) {

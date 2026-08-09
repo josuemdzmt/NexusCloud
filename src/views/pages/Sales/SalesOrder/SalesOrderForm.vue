@@ -103,9 +103,10 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import CustomerService from '@/services/sales/CustomerService';
 import PricebookService from '@/services/sales/PricebookService';
-import CurrencyService from '@/services/sales/CurrencyService';
+import CurrencyService, { handleFindDefaultCurrency } from '@/services/sales/CurrencyService';
 import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderLineItemService from '@/services/sales/SalesOrderLineItemService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { ORDER_STATUS, AMOUNT_SOURCE, handleCanEditOrder, handleGetAvailableStatusOptions, 
   handleValidateStatusTransition } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
@@ -154,7 +155,8 @@ export default {
       objInitialData: validationSchema.getDefault(),
       lstCustomerOptions: [],
       lstPricebookOptions: [],
-      lstCurrencyOptions: []
+      lstCurrencyOptions: [],
+      lstCurrencies: []
     };
   },
   computed: {
@@ -173,11 +175,6 @@ export default {
         fltBalanceAmount: this.fltBalanceAmount
       });
     }
-  },
-  mounted() {
-    this.handleGetCustomers();
-    this.handleGetPricebooks();
-    this.handleGetCurrencies();
   },
   methods: {
     handleRecalcTotal(objPartial = {}) {
@@ -202,34 +199,47 @@ export default {
       return new Date().toISOString().substr(0, 10);
     },
     handleGetCustomers() {
-      CustomerService.getAll({ per_page: 500 })
-        .then((objResponse) => {
+      return handleGetOrLoad('customers', () =>
+        CustomerService.getAll({ per_page: 500 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstCustomerOptions = (Array.isArray(lstData) ? lstData : [])
+          return (Array.isArray(lstData) ? lstData : [])
             .filter((objCustomer) => CustomerService.handleIsCustomerAccount(objCustomer))
             .map((objCustomer) => ({
               label: objCustomer.legal_name || `${objCustomer.first_name || ''} ${objCustomer.last_name || ''}`.trim() || 'Sin Nombre',
               value: objCustomer.id
             }));
         })
+      )
+        .then((lstOptions) => {
+          this.lstCustomerOptions = lstOptions;
+        })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los clientes', objError));
     },
     handleGetPricebooks() {
-      PricebookService.getAll({ per_page: 500, 'filter[is_active]': 1 })
-        .then((objResponse) => {
+      return handleGetOrLoad('pricebooks', () =>
+        PricebookService.getAll({ per_page: 500, 'filter[is_active]': 1 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstPricebookOptions = (Array.isArray(lstData) ? lstData : []).map((objPricebook) => ({
+          return (Array.isArray(lstData) ? lstData : []).map((objPricebook) => ({
             label: objPricebook.name,
             value: objPricebook.id
           }));
         })
+      )
+        .then((lstOptions) => {
+          this.lstPricebookOptions = lstOptions;
+        })
         .catch((objError) => handleError('Error', 'No se pudieron cargar las listas de precios', objError));
     },
     handleGetCurrencies() {
-      CurrencyService.getAll({ per_page: 500 })
-        .then((objResponse) => {
+      return handleGetOrLoad('currencies', () =>
+        CurrencyService.getAll({ per_page: 500 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstCurrencyOptions = (Array.isArray(lstData) ? lstData : []).map((objCurrency) => ({
+          return Array.isArray(lstData) ? lstData : [];
+        })
+      )
+        .then((lstCurrencies) => {
+          this.lstCurrencies = lstCurrencies;
+          this.lstCurrencyOptions = lstCurrencies.map((objCurrency) => ({
             label: `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`,
             value: objCurrency.id
           }));
@@ -254,16 +264,16 @@ export default {
       this.strStatus = ORDER_STATUS.DRAFT;
       this.strTitle = 'Orden de Venta';
 
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleOpen();
-      }
-
-      if (numId) {
-        this.handleInitForm(numId);
-        return;
-      }
-
-      this.handleInitCreate();
+      Promise.all([this.handleGetCustomers(), this.handleGetPricebooks(), this.handleGetCurrencies()]).then(() => {
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleOpen();
+        }
+        if (numId) {
+          this.handleInitForm(numId);
+          return;
+        }
+        this.handleInitCreate();
+      });
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
@@ -279,24 +289,19 @@ export default {
         discountAmount: 0,
         totalTaxAmount: 0
       };
-      CurrencyService.getDefault()
-        .then((objCurrency) => {
-          if (objCurrency?.id) {
-            objDefaults.currencyId = Number(objCurrency.id);
-          }
-        })
-        .catch(() => {})
-        .finally(() => {
-          this.objInitialData = objDefaults;
-          this.handleRecalcTotal({
-            subtotal: objDefaults.subtotal,
-            discountAmount: objDefaults.discountAmount,
-            totalTaxAmount: objDefaults.totalTaxAmount
-          });
-          if (this.$refs.modalFormRef) {
-            this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-          }
-        });
+      const objCurrency = handleFindDefaultCurrency(this.lstCurrencies);
+      if (objCurrency?.id) {
+        objDefaults.currencyId = Number(objCurrency.id);
+      }
+      this.objInitialData = objDefaults;
+      this.handleRecalcTotal({
+        subtotal: objDefaults.subtotal,
+        discountAmount: objDefaults.discountAmount,
+        totalTaxAmount: objDefaults.totalTaxAmount
+      });
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+      }
     },
     handleLoadLineCount(recordId) {
       return SalesOrderLineItemService.getAll({

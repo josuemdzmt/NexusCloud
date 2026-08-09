@@ -42,6 +42,7 @@ import * as yup from 'yup';
 import ProductItemService from '@/services/inventory/ProductItemService';
 import ProductService from '@/services/inventory/ProductService';
 import LocationService from '@/services/inventory/LocationService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const createSchema = yup.object({
@@ -89,25 +90,31 @@ export default {
       lstLocationOptions: []
     };
   },
-  mounted() {
-    this.handleGetProducts();
-    this.handleGetLocations();
-  },
   methods: {
     handleGetProducts() {
-      ProductService.getAll({ per_page: 500 })
-        .then((objResponse) => {
+      this.bSpinner = true;
+      return handleGetOrLoad('products', () =>
+        ProductService.getAll({ per_page: 50 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstProductOptions = (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
+          return (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
             label: objProduct.name,
             value: objProduct.id
           }));
         })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los productos', objError));
+      )
+      .then((lstOptions) => {
+        this.lstProductOptions = lstOptions;
+      })
+      .catch((objError) => {
+        handleError('Error', 'No se pudieron cargar los productos', objError);
+      })
+      .finally(() => {
+        this.bSpinner = false;
+      });
     },
     handleGetLocations() {
-      LocationService.getAll({ per_page: 500, 'filter[is_inventory_location]': 1 })
-        .then((objResponse) => {
+      return handleGetOrLoad('inventoryLocations', () =>
+        LocationService.getAll({ per_page: 50, 'filter[is_inventory_location]': 1 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
           const lstRaw = Array.isArray(lstData) ? lstData : [];
           const lstInventoriable = lstRaw.filter((objLocation) => {
@@ -116,12 +123,21 @@ export default {
             }
             return Boolean(objLocation.is_inventory_location ?? objLocation.isInventoryLocation);
           });
-          this.lstLocationOptions = lstInventoriable.map((objLocation) => ({
+          return lstInventoriable.map((objLocation) => ({
             label: objLocation.name,
             value: objLocation.id
           }));
         })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los almacenes', objError));
+      )
+      .then((lstOptions) => {
+        this.lstLocationOptions = lstOptions;
+      })
+      .catch((objError) => {
+        handleError('Error', 'No se pudieron cargar los almacenes', objError);
+      })
+      .finally(() => {
+        this.bSpinner = false;
+      });
     },
     handleOpen(recordId = null, objContext = null) {
       this.numRecordId = recordId;
@@ -130,24 +146,24 @@ export default {
       this.bLocationLocked = !recordId && !!objContext?.locationId;
       this.bProductLocked = !recordId && !!objContext?.productId;
 
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleOpen();
-      }
-
-      if (recordId) {
-        this.handleInitForm(recordId);
-        return;
-      }
-
-      this.numQuantityOnHand = 0;
-      this.objInitialData = {
-        ...createSchema.getDefault(),
-        locationId: objContext?.locationId ? Number(objContext.locationId) : null,
-        productId: objContext?.productId ? Number(objContext.productId) : null
-      };
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-      }
+      Promise.all([this.handleGetProducts(), this.handleGetLocations()]).then(() => {
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleOpen();
+        }
+        if (recordId) {
+          this.handleInitForm(recordId);
+          return;
+        }
+        this.numQuantityOnHand = 0;
+        this.objInitialData = {
+          ...createSchema.getDefault(),
+          locationId: objContext?.locationId ? Number(objContext.locationId) : null,
+          productId: objContext?.productId ? Number(objContext.productId) : null
+        };
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+        }
+      });
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
@@ -192,15 +208,15 @@ export default {
         maximumStockLevel: objForm.maximumStockLevel === null || objForm.maximumStockLevel === '' ? null : Number(objForm.maximumStockLevel)
       };
       ProductItemService.create(objPayload)
-        .then(() => {
-          handleSuccess('Éxito', 'Inventario agregado correctamente');
-          this.$emit('success');
-          this.handleClose();
-        })
-        .catch((objError) => handleError('Error de Validación', objError))
-        .finally(() => {
-          this.bSpinner = false;
-        });
+      .then(() => {
+        handleSuccess('Éxito', 'Inventario agregado correctamente');
+        this.$emit('success');
+        this.handleClose();
+      })
+      .catch((objError) => handleError('Error de Validación', objError))
+      .finally(() => {
+        this.bSpinner = false;
+      });
     },
     handleUpdate(objForm) {
       this.bSpinner = true;
@@ -209,15 +225,15 @@ export default {
         maximumStockLevel: objForm.maximumStockLevel === null || objForm.maximumStockLevel === '' ? null : Number(objForm.maximumStockLevel)
       };
       ProductItemService.update(this.numRecordId, objPayload)
-        .then(() => {
-          handleSuccess('Actualizado', 'Inventario actualizado correctamente');
-          this.$emit('success');
-          this.handleClose();
-        })
-        .catch((objError) => handleError('Error de Validación', objError))
-        .finally(() => {
-          this.bSpinner = false;
-        });
+      .then(() => {
+        handleSuccess('Actualizado', 'Inventario actualizado correctamente');
+        this.$emit('success');
+        this.handleClose();
+      })
+      .catch((objError) => handleError('Error de Validación', objError))
+      .finally(() => {
+        this.bSpinner = false;
+      });
     },
     handleCancel() {
       this.handleClose();

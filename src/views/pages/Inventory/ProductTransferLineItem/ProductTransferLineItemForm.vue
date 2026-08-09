@@ -35,6 +35,7 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import ProductTransferLineItemService from '@/services/inventory/ProductTransferLineItemService';
 import ProductService from '@/services/inventory/ProductService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
@@ -78,18 +79,19 @@ export default {
       lstProductOptions: []
     };
   },
-  mounted() {
-    this.handleGetProducts();
-  },
   methods: {
     handleGetProducts() {
-      ProductService.getAll({ per_page: 500 })
-        .then((objResponse) => {
+      return handleGetOrLoad('products', () =>
+        ProductService.getAll({ per_page: 500 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstProductOptions = (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
+          return (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
             label: objProduct.name,
             value: objProduct.id
           }));
+        })
+      )
+        .then((lstOptions) => {
+          this.lstProductOptions = lstOptions;
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los productos', objError));
     },
@@ -107,19 +109,19 @@ export default {
         return;
       }
 
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleOpen();
-      }
-
-      if (numId) {
-        this.handleInitForm(numId);
-        return;
-      }
-
-      this.objInitialData = validationSchema.getDefault();
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-      }
+      this.handleGetProducts().then(() => {
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleOpen();
+        }
+        if (numId) {
+          this.handleInitForm(numId);
+          return;
+        }
+        this.objInitialData = validationSchema.getDefault();
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+        }
+      });
     },
     handleClose() {
       if (this.$refs.modalFormRef) {

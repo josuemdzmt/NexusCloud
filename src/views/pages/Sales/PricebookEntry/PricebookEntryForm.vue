@@ -82,7 +82,8 @@ import * as yup from 'yup';
 import PricebookEntryService from '@/services/sales/PricebookEntryService';
 import ProductService from '@/services/inventory/ProductService';
 import PricebookService from '@/services/sales/PricebookService';
-import CurrencyService from '@/services/sales/CurrencyService';
+import CurrencyService, { handleFindDefaultCurrency } from '@/services/sales/CurrencyService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
@@ -119,45 +120,54 @@ export default {
       // 5. Listas
       lstProductOptions: [],
       lstPricebookOptions: [],
-      lstCurrencyOptions: []
+      lstCurrencyOptions: [],
+      lstCurrencies: []
     };
-  },
-  mounted() {
-    this.handleGetProducts();
-    this.handleGetPricebooks();
-    this.handleGetCurrencies();
   },
   methods: {
     handleGetCurrencies() {
-      CurrencyService.getAll({ per_page: 500 })
-        .then((objResponse) => {
+      return handleGetOrLoad('currencies', () =>
+        CurrencyService.getAll({ per_page: 500 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstCurrencyOptions = (Array.isArray(lstData) ? lstData : []).map((objCurrency) => ({
-            label: `${objCurrency.iso_code || objCurrency.code} - ${objCurrency.name}`,
+          return Array.isArray(lstData) ? lstData : [];
+        })
+      )
+        .then((lstCurrencies) => {
+          this.lstCurrencies = lstCurrencies;
+          this.lstCurrencyOptions = lstCurrencies.map((objCurrency) => ({
+            label: `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`,
             value: objCurrency.id
           }));
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar las monedas', objError));
     },
     handleGetProducts() {
-      ProductService.getAll({ per_page: 500, 'filter[is_active]': 1 })
-        .then((objResponse) => {
+      return handleGetOrLoad('productsActive', () =>
+        ProductService.getAll({ per_page: 500, 'filter[is_active]': 1 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstProductOptions = (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
+          return (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
             label: objProduct.name,
             value: objProduct.id
           }));
         })
+      )
+        .then((lstOptions) => {
+          this.lstProductOptions = lstOptions;
+        })
         .catch((objError) => handleError('Error', 'No se pudieron cargar los productos', objError));
     },
     handleGetPricebooks() {
-      PricebookService.getAll({ per_page: 500, 'filter[is_active]': 1 })
-        .then((objResponse) => {
+      return handleGetOrLoad('pricebooks', () =>
+        PricebookService.getAll({ per_page: 500, 'filter[is_active]': 1 }).then((objResponse) => {
           const lstData = objResponse.data || objResponse;
-          this.lstPricebookOptions = (Array.isArray(lstData) ? lstData : []).map((objPricebook) => ({
+          return (Array.isArray(lstData) ? lstData : []).map((objPricebook) => ({
             label: objPricebook.name,
             value: objPricebook.id
           }));
+        })
+      )
+        .then((lstOptions) => {
+          this.lstPricebookOptions = lstOptions;
         })
         .catch((objError) => handleError('Error', 'No se pudieron cargar las listas de precios', objError));
     },
@@ -181,28 +191,24 @@ export default {
       this.bLockPricebook = !!defaultPricebookId;
       this.bLockProduct = !!defaultProductId;
 
-      if (id) {
-        this.handleLoadData(id);
-        return;
-      }
+      Promise.all([this.handleGetProducts(), this.handleGetPricebooks(), this.handleGetCurrencies()]).then(() => {
+        if (id) {
+          this.handleLoadData(id);
+          return;
+        }
 
-      this.objInitialData = validationSchema.getDefault();
-      if (defaultPricebookId) this.objInitialData.pricebookId = Number(defaultPricebookId);
-      if (defaultProductId) this.objInitialData.productId = Number(defaultProductId);
-
-      CurrencyService.getDefault()
-        .then((objCurrency) => {
-          if (objCurrency?.id && !this.objInitialData.currencyId) {
-            this.objInitialData.currencyId = Number(objCurrency.id);
-          }
-        })
-        .catch(() => {})
-        .finally(() => {
-          if (this.$refs.modalFormRef) {
-            this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-            this.$refs.modalFormRef.handleOpen();
-          }
-        });
+        this.objInitialData = validationSchema.getDefault();
+        if (defaultPricebookId) this.objInitialData.pricebookId = Number(defaultPricebookId);
+        if (defaultProductId) this.objInitialData.productId = Number(defaultProductId);
+        const objCurrency = handleFindDefaultCurrency(this.lstCurrencies);
+        if (objCurrency?.id && !this.objInitialData.currencyId) {
+          this.objInitialData.currencyId = Number(objCurrency.id);
+        }
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+          this.$refs.modalFormRef.handleOpen();
+        }
+      });
     },
     handleLoadData(id) {
       if (this.$refs.modalFormRef) {

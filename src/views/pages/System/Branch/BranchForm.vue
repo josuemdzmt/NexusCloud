@@ -110,6 +110,7 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import BranchService from '@/services/system/BranchService';
 import OrgService from '@/services/system/OrgService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
@@ -151,29 +152,31 @@ export default {
       return this.recordId ? 'Editar Sucursal' : 'Nueva Sucursal';
     }
   },
-  mounted() {
-    this.handleLoadOrgs();
-  },
   methods: {
-    handleLoadOrgs() {
-      OrgService.getAll()
-      .then((response) => {
-        this.lstOrgs = response.data || response;
-      })
-      .catch((error) => {
-        console.error('Error fetching orgs for branch form:', error);
-      });
+    handleGetOrgs() {
+      return handleGetOrLoad('orgs', () =>
+        OrgService.getAll().then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          return Array.isArray(lstData) ? lstData : [];
+        })
+      )
+        .then((lstOrgs) => {
+          this.lstOrgs = lstOrgs;
+        })
+        .catch((objError) => handleError('Error', 'No se pudieron cargar las organizaciones', objError));
     },
     handleOpen(id = null) {
       this.recordId = id;
-      if (this.recordId) {
-        this.handleLoadData();
-      } else {
+      this.handleGetOrgs().then(() => {
+        if (this.recordId) {
+          this.handleLoadData();
+          return;
+        }
         if (this.$refs.modalFormRef) {
           this.$refs.modalFormRef.handleSetValues(this.objValidationSchema.getDefault());
+          this.$refs.modalFormRef.handleOpen();
         }
-        this.$refs.modalFormRef.handleOpen();
-      }
+      });
     },
     handleClose() {
       this.$refs.modalFormRef.handleClose();
