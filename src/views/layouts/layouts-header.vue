@@ -1,37 +1,38 @@
 <template>
     <!-- Topbar Start -->
     <header class="navbar-header flex items-center max-lg:w-full">
-        <div class="topbar-menu flex items-center justify-between w-full gap-2">
-            <div class="flex items-center gap-3">
+        <div class="topbar-menu relative flex items-center justify-between w-full gap-2">
+            <div class="flex items-center gap-3 shrink-0 z-10">
 
                 <!-- Sidebar Mobile Button -->
-                <a id="mobile_btn" class="mobile-btn lg:hidden" href="#sidebar" aria-label="menu">
+                <a id="mobile_btn" class="mobile-btn lg:hidden" href="#sidebar" aria-label="menu" @click.prevent="toggleMobileBtn">
                     <i class="icon icon-menu"></i>
-                </a>   
-                
-                <!-- Logo -->
-                <router-link :to="all_routes.hrmDashboard" class="logo">
+                </a>
 
-                    <!-- Logo Normal -->
-                    <span class="logo-light">
-                        <span class="logo-lg"><img src="@/assets/img/logo.svg" alt="logo"></span>
-                        <span class="logo-sm"><img src="@/assets/img/logo-small.svg" alt="small logo"></span>
-                    </span>
-
-                    <!-- Logo Dark -->
-                    <span class="logo-dark">
-                        <span class="logo-lg"><img src="@/assets/img/logo-white.svg" alt="dark logo"></span>
-                    </span>
-                </router-link> 
-
-                <button class="sidenav-toggle-btn topbar-link shrink-0 size-9 text-[20px] items-center justify-center rounded-full" id="toggle_btn2"  @click="toggleSidebar"> 
+                <button class="sidenav-toggle-btn topbar-link shrink-0 size-9 text-[20px] items-center justify-center rounded-full" id="toggle_btn2" @click="toggleSidebar">
                     <i class="ph-duotone ph-arrow-left"></i>
                 </button>
-                
+
             </div>
 
-            <div class="flex items-center gap-2 lg:w-full">
-                
+            <!-- Logo centrado en móvil / tablet -->
+            <router-link :to="all_routes.hrmDashboard" class="logo">
+                <span class="logo-light">
+                    <span class="logo-lg">
+                        <img src="@/assets/img/logo-small.svg" alt="Logo">
+                        <span class="logo-text text-base font-semibold text-gray-900 leading-none">NexusCloud</span>
+                    </span>
+                </span>
+                <span class="logo-dark">
+                    <span class="logo-lg">
+                        <img src="@/assets/img/logo-small.svg" alt="Logo">
+                        <span class="logo-text text-base font-semibold text-white leading-none">NexusCloud</span>
+                    </span>
+                </span>
+            </router-link>
+
+            <div class="flex items-center gap-2 lg:w-full shrink-0 z-10">
+
                 <!-- Company Dropdown -->
                 <div class="header-item hs-dropdown [--placement:bottom-left] [--auto-close:inside] hidden lg:flex relative company-dropdown me-auto">
                 </div>

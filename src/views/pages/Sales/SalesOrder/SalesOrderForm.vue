@@ -80,11 +80,6 @@
         </div>
 
         <div class="md:col-span-2">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Descripción</label>
-          <Field name="description" as="textarea" rows="2"
-            class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="md:col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Notas</label>
           <Field name="notes" as="textarea" rows="2"
             class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
@@ -127,7 +122,6 @@ const validationSchema = yup.object({
     .default(0),
   discountAmount: yup.number().default(0).transform((value, originalValue) => Number(originalValue) || 0).min(0),
   totalTaxAmount: yup.number().default(0).transform((value, originalValue) => Number(originalValue) || 0).min(0),
-  description: yup.string().nullable().default(''),
   notes: yup.string().nullable().default(''),
   termsAndConditions: yup.string().nullable().default('')
 });
@@ -349,7 +343,6 @@ export default {
             subtotal: objOrder.subtotal,
             discountAmount: objOrder.discountAmount,
             totalTaxAmount: objOrder.totalTaxAmount,
-            description: objOrder.description || '',
             notes: objOrder.notes || '',
             termsAndConditions: objOrder.termsAndConditions || ''
           };
@@ -393,7 +386,6 @@ export default {
         discountAmount: Number(objValues.discountAmount) || 0,
         totalTaxAmount: Number(objValues.totalTaxAmount) || 0,
         pricebookId: Number(objValues.pricebookId),
-        description: objValues.description || null,
         notes: objValues.notes || null,
         termsAndConditions: objValues.termsAndConditions || null
       };

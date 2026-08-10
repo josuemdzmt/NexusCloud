@@ -13,7 +13,7 @@
       :show-date-range="false"
       @rowaction="handleRowAction"
       @search="handleSearch"
-        @refresh="handleGetData">
+      @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>
@@ -26,17 +26,18 @@
 import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
 import { ORDER_STATUS_BADGE, ACTION_BUTTONS } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
+import { all_routes } from '@/router/all_routes';
 import { handleError } from '@/utils/toastUtils';
 import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const RELATED_ACTION_BUTTONS = {
-  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => objAction.name === 'detail')
+  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => ['detail', 'preview'].includes(objAction.name))
 };
 
 export default {
   name: 'SalesOrderRelatedList',
-  components: { 
-    SalesOrderForm 
+  components: {
+    SalesOrderForm
   },
   props: {
     accountId: { type: [Number, String], default: null }
@@ -45,10 +46,7 @@ export default {
   data() {
     return {
       ...handleInitPager(),
-      // 1. Booleanos
       bSpinner: false,
-
-      // 5. Listas
       lstOrders: [],
       lstColumns: [
         { label: 'Orden', fieldName: 'orderNumber', type: 'text', sortable: true },
@@ -81,21 +79,20 @@ export default {
       this.currentPage = 1;
       this.handleGetData();
     },
-
     handleGetData() {
       if (!this.accountId) return;
 
       this.bSpinner = true;
-      SalesOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {include: 'account,currency',
-        'filter[account_id]': this.accountId})))
+      SalesOrderService.getAll(handlePagerParams(this.currentPage, this.pageSize, handleSearchParams(this.strSearch, {
+        include: 'account,currency',
+        'filter[account_id]': this.accountId
+      })))
         .then((objResponse) => {
           const { data, current_page, last_page } = handleParseList(objResponse, this.currentPage);
           this.totalPages = last_page;
           this.currentPage = current_page;
 
           let lstRaw = Array.isArray(data) ? data : [];
-
-          // Fallback si Vertex ignora el filtro
           lstRaw = lstRaw.filter((objOrder) => {
             const numAccountId = objOrder.accountId ?? objOrder.account_id ?? objOrder.account?.id;
             return !numAccountId || Number(numAccountId) === Number(this.accountId);
@@ -127,9 +124,12 @@ export default {
       this.handleGetData();
     },
     handleRowAction(objEvent) {
-      const { action, row } = objEvent.detail;
+      const { action, row } = objEvent.detail || {};
+      if (!action?.name || row?.id == null) return;
       if (action.name === 'detail') {
-        this.$router.push(`/sales/sales-orders/${row.id}/detail`);
+        this.$router.push(`${all_routes.salesOrders}/${row.id}/detail`);
+      } else if (action.name === 'preview') {
+        this.$router.push(`${all_routes.salesOrders}/${row.id}/preview`);
       }
     }
   }

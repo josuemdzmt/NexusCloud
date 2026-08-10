@@ -641,22 +641,23 @@ Author URL: https://themeforest.net/user/dreamstechnologies
         @apply hidden xl:block;
     }
     .navbar-header .logo {
-        @apply hidden max-lg:block;
+        @apply hidden max-lg:flex max-lg:absolute max-lg:left-1/2 max-lg:top-1/2 max-lg:-translate-x-1/2 max-lg:-translate-y-1/2 max-lg:items-center max-lg:z-[1];
     }
     .navbar-header .logo .logo-dark {
         @apply max-lg:hidden;
     }
-    .navbar-header .logo .logo-light .logo-sm {
-        @apply max-lg:hidden max-sm:flex;
+    .navbar-header .logo .logo-light .logo-lg,
+    .navbar-header .logo .logo-dark .logo-lg {
+        @apply inline-flex! items-center gap-2 max-sm:inline-flex!;
     }
-    .navbar-header .logo .logo-light .logo-lg {
-        @apply max-sm:hidden;
+    .navbar-header .logo .logo-light .logo-sm {
+        @apply hidden!;
     }
     .navbar-header .topbar-menu .header-item {
         @apply flex items-center justify-center h-[32px];
     }
     .navbar-header .topbar-menu > div:first-child {
-        @apply max-sm:flex-row-reverse lg:hidden!;
+        @apply lg:hidden!;
     }
     .navbar-header .topbar-menu .logo {
         @apply lg:hidden;
@@ -986,7 +987,7 @@ Author URL: https://themeforest.net/user/dreamstechnologies
         @apply block !transform-none !relative ![translate:unset] ![inset:unset]
     }
     [data-layout="full-width"] .navbar-header .logo .logo-lg {
-        @apply block max-lg:hidden;
+        @apply inline-flex! items-center gap-2;
     }
     [data-layout="full-width"] .navbar-header .logo .logo-dark {
         @apply hidden;
@@ -995,10 +996,10 @@ Author URL: https://themeforest.net/user/dreamstechnologies
         @apply hidden max-lg:block; 
     }
     [data-layout="full-width"][data-theme="dark"] .navbar-header .logo .logo-light .logo-sm {
-        @apply hidden max-lg:block; 
+        @apply hidden!; 
     }
     [data-layout="full-width"][data-theme="dark"] .navbar-header .logo .logo-dark {
-        @apply block; 
+        @apply flex!; 
     }
     [data-layout="full-width"] .navbar-header .topbar-menu > div:first-child { 
         @apply lg:flex!;
@@ -1035,12 +1036,15 @@ Author URL: https://themeforest.net/user/dreamstechnologies
             @apply flex w-10 h-10;
         }
     }
-    [data-layout="full-width"] .logo-sm {
-        @apply max-lg:block!;
+    [data-layout="full-width"] .navbar-header .logo .logo-sm {
+        @apply hidden!;
+    }
+    [data-layout="full-width"] .navbar-header .logo .logo-lg {
+        @apply inline-flex! items-center gap-2;
     }
     @media (max-width: 767px) {
         [data-layout="full-width"] .navbar-header .logo .logo-lg {
-            @apply hidden;
+            @apply inline-flex!;
         }
     }
 
@@ -1741,10 +1745,13 @@ select::-ms-expand {
     @apply max-lg:hidden;
 }
 [data-theme="dark"] .navbar-header .logo .logo-light .logo-sm {
-    @apply max-sm:block max-lg:hidden;
+    @apply hidden!;
 }
 [data-theme="dark"] .navbar-header .logo .logo-dark {
-    @apply max-lg:block max-sm:hidden;
+    @apply max-lg:flex!;
+}
+[data-theme="dark"] .navbar-header .logo .logo-dark .logo-lg {
+    @apply inline-flex! items-center gap-2;
 }
 [data-theme="dark"] .text-white {
     @apply text-[#FFFFFF]!;

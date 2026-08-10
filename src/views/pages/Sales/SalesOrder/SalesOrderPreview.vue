@@ -31,7 +31,7 @@
         <div class="flex justify-between items-start mb-8 flex-wrap gap-5 lg:flex-nowrap">
           <div>
             <div class="invoice-logo block dark:hidden">
-              <img src="@/assets/img/logo.svg" class="h-16 mb-3" alt="logo">
+              <img src="@/assets/img/logo-invoice.svg" class="h-16 mb-3" alt="logo">
             </div>
             <div class="invoice-logo-white hidden dark:block">
               <img src="@/assets/img/logo-white.svg" class="h-16 mb-3" alt="logo">
