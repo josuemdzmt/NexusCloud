@@ -23,6 +23,7 @@
     "chart.js": "^4.5.1",
     "echarts": "^6.1.0",
     "echarts-countries-js": "^1.0.5",
+    "html2pdf.js": "^0.14.0",
     "preline": "^4.2.0",
     "quill": "^2.0.3",
     "simplebar-vue": "^2.4.2",

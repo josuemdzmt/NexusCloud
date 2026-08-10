@@ -46,6 +46,7 @@ import NXModalFooter from './components/nexus/NX-ModalFooter.vue';
 import NXModalForm from './components/nexus/NX-ModalForm.vue';
 import NXTabset from './components/nexus/NX-Tabset.vue';
 import NXTab from './components/nexus/NX-Tab.vue';
+import NXPrintable from './components/nexus/NX-Printable.vue';
 
 // ---------- Modal Components ---------- //
 
@@ -198,6 +199,7 @@ app.component('nx-modal-footer', NXModalFooter);
 app.component('nx-modal-form', NXModalForm);
 app.component('nx-tabset', NXTabset);
 app.component('nx-tab', NXTab);
+app.component('nx-printable', NXPrintable);
 app.component("v-chart", VueECharts);
 
 use([

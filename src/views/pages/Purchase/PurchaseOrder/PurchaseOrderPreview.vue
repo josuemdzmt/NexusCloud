@@ -32,7 +32,7 @@
           <div>
             <div class="invoice-logo block dark:hidden">
               <router-link :to="all_routes.hrmDashboard">
-                <img src="@/assets/img/logo.svg" class="h-10 mb-3" alt="logo">
+                <img src="@/assets/img/logo-invoice.svg" class="h-10 mb-3" alt="logo">
               </router-link>
             </div>
             <div class="invoice-logo-white hidden dark:block">
