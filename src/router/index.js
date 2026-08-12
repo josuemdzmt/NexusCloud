@@ -770,7 +770,7 @@ router.beforeEach((to) => {
   }
 
   if (bolGuest && bolAuthed && to.name !== 'lock-screen' && to.name !== 'lock-screen-cover' && to.name !== 'lock-screen-illustration') {
-    return { path: '/dashboard/hrm-dashboard' };
+    return { path: '/sales/customer/list' };
   }
 
   if (bolGuest || !bolAuthed) {

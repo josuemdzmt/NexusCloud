@@ -16,10 +16,7 @@
 					<input v-model="objForm.email" type="email" required autocomplete="username" class="w-full px-3 py-2.5 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="tu@empresa.com">
 				</div>
 				<div>
-					<div class="flex justify-between items-center mb-1">
-						<label class="text-sm text-gray-900">Contraseña</label>
-						<router-link :to="all_routes.forgotPassword" class="text-sm text-primary hover:underline">¿Olvidaste tu contraseña?</router-link>
-					</div>
+					<label class="text-sm font-semibold text-gray-900 mb-1 block">Contraseña</label>
 					<div class="relative">
 						<input id="hs-toggle-password3" v-model="objForm.password" :type="showPassword ? 'text' : 'password'" required autocomplete="current-password" class="form-input form-input-icon w-full px-3 py-2.5 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:border-border-color focus:ring-0 h-10" placeholder="************">
 						<span class="absolute start-0 top-2 ms-3"><i class="icon icon-lock"></i></span>
@@ -62,8 +59,8 @@ export default {
 					password: objForm.password
 				});
 				handleResetIdleTimer();
-				const strRedirect = typeof route.query.redirect === 'string' ? route.query.redirect : all_routes.hrmDashboard;
-				await router.replace(strRedirect || all_routes.hrmDashboard);
+				const strRedirect = typeof route.query.redirect === 'string' ? route.query.redirect : all_routes.customers;
+				await router.replace(strRedirect || all_routes.customers);
 			} catch (objErr) {
 				strError.value = formatError(objErr) || 'No se pudo iniciar sesión.';
 			} finally {

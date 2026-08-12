@@ -13,10 +13,7 @@
 			<form class="space-y-4" @submit.prevent="submitForm">
 				<div v-if="strError" class="text-sm text-danger bg-danger/10 border border-danger/20 rounded-md px-3 py-2">{{ strError }}</div>
 				<div>
-					<div class="flex justify-between items-center mb-1">
-						<label class="text-sm text-gray-900">Contraseña</label>
-						<router-link :to="all_routes.forgotPassword" class="text-sm text-primary hover:underline">¿Olvidaste tu contraseña?</router-link>
-					</div>
+					<label class="text-sm font-semibold text-gray-900 mb-1 block">Contraseña</label>
 					<div class="relative">
 						<input id="hs-toggle-password4" v-model="strPassword" :type="showPassword ? 'text' : 'password'" required autocomplete="current-password" class="form-input form-input-icon w-full px-3 py-2.5 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:border-border-color focus:ring-0 h-10" placeholder="************">
 						<span class="absolute start-0 top-2 ms-3"><i class="icon icon-lock"></i></span>
@@ -73,7 +70,7 @@ export default {
 				});
 				clearExpiredUser();
 				handleResetIdleTimer();
-				await router.replace(all_routes.hrmDashboard);
+				await router.replace(all_routes.customers);
 			} catch (objErr) {
 				strError.value = formatError(objErr) || 'No se pudo desbloquear la sesión.';
 			} finally {
