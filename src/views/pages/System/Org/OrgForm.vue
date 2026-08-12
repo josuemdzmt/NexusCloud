@@ -56,46 +56,7 @@
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección</h4>
         </div>
-
-        <!-- Calle -->
-        <div class="col-span-2">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Calle</label>
-          <Field name="address.street" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-
-        <!-- Números -->
-        <div class="col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Núm. Exterior</label>
-          <Field name="address.ext_num" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Núm. Interior</label>
-          <Field name="address.int_num" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-
-        <!-- Colonia y Código Postal -->
-        <div class="col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Colonia</label>
-          <Field name="address.neighborhood" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Código Postal</label>
-          <Field name="address.zip_code" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" maxlength="20" />
-        </div>
-
-        <!-- Ciudad, Estado, País -->
-        <div class="col-span-2 sm:col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Ciudad / Municipio</label>
-          <Field name="address.city" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-1 sm:col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Estado</label>
-          <Field name="address.state" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-2">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">País</label>
-          <Field name="address.country" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Ej. México" />
-        </div>
+        <nx-address-fields name-prefix="address" />
 
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Configuración</h4>

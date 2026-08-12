@@ -48,20 +48,28 @@
               <p class="text-sm text-default mb-2">Compañía</p>
               <p class="text-sm font-semibold text-title mb-2">{{ objCompany.name }}</p>
               <p class="text-sm text-default mb-0">
-                {{ objCompany.street }}
-                <span class="block pt-1">{{ objCompany.cityLine }}</span>
+                <span v-if="objCompany.street" class="block">{{ objCompany.street }}</span>
+                <span v-if="objCompany.cityLine" class="block pt-1">{{ objCompany.cityLine }}</span>
                 <span class="block pt-1">RFC: {{ objCompany.taxId }}</span>
-                <span class="block pt-1">{{ objCompany.phone }} · {{ objCompany.email }}</span>
+                <span v-if="objCompany.phone || objCompany.email" class="block pt-1">
+                  <template v-if="objCompany.phone">{{ objCompany.phone }}</template>
+                  <template v-if="objCompany.phone && objCompany.email"> · </template>
+                  <template v-if="objCompany.email">{{ objCompany.email }}</template>
+                </span>
               </p>
             </div>
             <div>
               <p class="text-sm text-default mb-2">Facturar a</p>
-              <p class="text-sm font-semibold text-title mb-2">{{ strCustomerName }}</p>
+              <p class="text-sm font-semibold text-title mb-2">{{ objBillTo.name }}</p>
               <p class="text-sm text-default mb-0">
-                {{ objCustomer.street }}
-                <span class="block pt-1">{{ objCustomer.cityLine }}</span>
-                <span class="block pt-1">RFC: {{ strCustomerTaxId }}</span>
-                <span class="block pt-1">{{ strCustomerPhone }} · {{ strCustomerEmail }}</span>
+                <span v-if="objBillTo.street" class="block">{{ objBillTo.street }}</span>
+                <span v-if="objBillTo.cityLine" class="block pt-1">{{ objBillTo.cityLine }}</span>
+                <span class="block pt-1">RFC: {{ objBillTo.taxId }}</span>
+                <span v-if="objBillTo.phone || objBillTo.email" class="block pt-1">
+                  <template v-if="objBillTo.phone">{{ objBillTo.phone }}</template>
+                  <template v-if="objBillTo.phone && objBillTo.email"> · </template>
+                  <template v-if="objBillTo.email">{{ objBillTo.email }}</template>
+                </span>
               </p>
             </div>
             <div>
@@ -163,6 +171,8 @@
 import { all_routes } from '@/router/all_routes';
 import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderLineItemService from '@/services/sales/SalesOrderLineItemService';
+import OrgService from '@/services/system/OrgService';
+import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
 import { handleError } from '@/utils/toastUtils';
 import {
@@ -172,26 +182,12 @@ import {
 } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import {
   handleNormalizeSalesOrder,
-  handleNormalizeSalesOrderLineItem
+  handleNormalizeSalesOrderLineItem,
+  handleMapOrgToCompanyBlock,
+  handleMapAccountToPartyBlock
 } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
-const OBJ_COMPANY_DUMMY = {
-  name: 'NexusCloud S.A. de C.V.',
-  street: 'Av. Reforma 123, Col. Centro',
-  cityLine: 'Ciudad de México, CDMX 06000',
-  taxId: 'NCL010101ABC',
-  phone: '+52 55 1234 5678',
-  email: 'contacto@nexuscloud.mx'
-};
-
-const OBJ_CUSTOMER_DUMMY = {
-  name: 'Comercial del Norte S.A. de C.V.',
-  street: 'Calle Industria 456, Col. Industrial',
-  cityLine: 'Monterrey, N.L. 64000',
-  taxId: 'CNO850215XYZ',
-  phone: '+52 81 9876 5432',
-  email: 'compras@comercialnorte.mx'
-};
+const OBJ_PARTY_EMPTY = { name: '—', street: '', cityLine: '', taxId: '—', phone: '', email: '' };
 
 export default {
   name: 'SalesOrderPreview',
@@ -209,8 +205,8 @@ export default {
     return {
       bSpinner: false,
       objOrder: null,
-      objCompany: OBJ_COMPANY_DUMMY,
-      objCustomer: OBJ_CUSTOMER_DUMMY,
+      objCompany: { ...OBJ_PARTY_EMPTY },
+      objBillTo: { ...OBJ_PARTY_EMPTY },
       lstLineItems: []
     };
   },
@@ -219,24 +215,10 @@ export default {
       if (!this.objOrder) return '...';
       return this.objOrder.orderNumber || `SO-${this.objOrder.id}`;
     },
-    strCustomerName() {
-      const objAccount = this.objOrder?.account;
-      if (!objAccount) return this.objCustomer.name;
-      return objAccount.legal_name || `${objAccount.first_name || ''} ${objAccount.last_name || ''} ${objAccount.second_last_name || ''}`.trim();
-    },
-    strCustomerPhone() {
-      return this.objOrder?.account?.phone || this.objCustomer.phone;
-    },
-    strCustomerEmail() {
-      return this.objOrder?.account?.email || this.objCustomer.email;
-    },
     strCurrencyCode() {
       if (!this.objOrder?.currency) return '—';
       const objCurrency = this.objOrder.currency;
       return objCurrency.code || objCurrency.iso_code || objCurrency.isoCode || '—';
-    },
-    strCustomerTaxId() {
-      return this.objOrder?.account?.tax_id || '—';
     },
     bCanEdit() {
       return this.objOrder && handleCanEditOrder(this.objOrder.status);
@@ -246,6 +228,21 @@ export default {
     this.handleGetData();
   },
   methods: {
+    handleGetOrg() {
+      return handleGetOrLoad('orgs', () =>
+        OrgService.getAll({ per_page: 50 }).then((objResponse) => {
+          const lstData = objResponse.data || objResponse;
+          return Array.isArray(lstData) ? lstData : [];
+        })
+      ).then((lstOrgs) => {
+        const lstSafe = Array.isArray(lstOrgs) ? lstOrgs : [];
+        const objActive = lstSafe.find((objOrg) => {
+          const strStatus = objOrg.status || (objOrg.is_active === false || objOrg.isActive === false ? 'Inactive' : 'Active');
+          return strStatus === 'Active';
+        });
+        return objActive || lstSafe[0] || null;
+      });
+    },
     handleGetData() {
       const recordId = this.$route.params.recordId;
       this.bSpinner = true;
@@ -256,13 +253,21 @@ export default {
           'filter[sales_order_id]': recordId,
           include: 'product',
           per_page: 200
-        })
+        }),
+        this.handleGetOrg().catch(() => null)
       ])
-        .then(([objOrderResponse, objLinesResponse]) => {
+        .then(([objOrderResponse, objLinesResponse, objOrg]) => {
           this.objOrder = handleNormalizeSalesOrder(objOrderResponse.data || objOrderResponse);
           const lstData = objLinesResponse.data || objLinesResponse;
           const lstRaw = Array.isArray(lstData) ? lstData : [];
           this.lstLineItems = lstRaw.map(handleNormalizeSalesOrderLineItem);
+
+          this.objCompany = handleMapOrgToCompanyBlock(objOrg);
+          this.objBillTo = handleMapAccountToPartyBlock(
+            this.objOrder?.account || null,
+            'billing',
+            this.objOrder?.billToAddress || null
+          );
         })
         .catch((objError) => handleError('Error', 'No se pudo cargar la vista previa', objError))
         .finally(() => {

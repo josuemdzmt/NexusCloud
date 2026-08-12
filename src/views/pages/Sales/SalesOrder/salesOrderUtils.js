@@ -53,7 +53,9 @@ export function handleNormalizeSalesOrder(objRaw) {
     description: objRaw.description ?? null,
     account: objRaw.account || null,
     currency: objRaw.currency || null,
-    pricebook: objRaw.pricebook || null
+    pricebook: objRaw.pricebook || null,
+    billToAddress: objRaw.billToAddress ?? objRaw.bill_to_address ?? null,
+    shipToAddress: objRaw.shipToAddress ?? objRaw.ship_to_address ?? null
   };
 }
 
@@ -73,5 +75,98 @@ export function handleNormalizeSalesOrderLineItem(objRaw) {
     taxAmount: Number(objRaw.taxAmount ?? objRaw.tax_amount ?? 0),
     totalPrice: Number(objRaw.totalPrice ?? objRaw.total_price ?? 0),
     description: objRaw.description ?? null
+  };
+}
+
+/**
+ * Formatea address JSON (org/account) a líneas de preview.
+ * @param {Object|null} objAddress
+ * @returns {{ street: String, cityLine: String }}
+ */
+export function handleFormatAddressLines(objAddress) {
+  if (!objAddress || typeof objAddress !== 'object') {
+    return { street: '', cityLine: '' };
+  }
+
+  const strStreetCore = [
+    objAddress.street,
+    objAddress.ext_num || objAddress.extNum ? `Ext. ${objAddress.ext_num || objAddress.extNum}` : '',
+    objAddress.int_num || objAddress.intNum ? `Int. ${objAddress.int_num || objAddress.intNum}` : ''
+  ].filter(Boolean).join(' ');
+
+  const strNeighborhood = objAddress.neighborhood
+    ? (String(objAddress.neighborhood).startsWith('Col.') ? objAddress.neighborhood : `Col. ${objAddress.neighborhood}`)
+    : '';
+
+  const street = [strStreetCore, strNeighborhood].filter(Boolean).join(', ');
+  const cityLine = [
+    objAddress.city,
+    objAddress.state,
+    objAddress.zip_code || objAddress.zipCode || objAddress.zip || ''
+  ].filter(Boolean).join(', ');
+  const strCountry = objAddress.country || '';
+  const strCityWithCountry = [cityLine, strCountry].filter(Boolean).join(' · ');
+
+  return { street, cityLine: strCityWithCountry };
+}
+
+/**
+ * Org API → bloque Compañía del preview.
+ * @param {Object|null} objOrg
+ * @returns {{ name: String, street: String, cityLine: String, taxId: String, phone: String, email: String }}
+ */
+export function handleMapOrgToCompanyBlock(objOrg) {
+  if (!objOrg) {
+    return { name: '—', street: '', cityLine: '', taxId: '—', phone: '', email: '' };
+  }
+  const objAddr = handleFormatAddressLines(objOrg.address || {});
+  return {
+    name: objOrg.legal_name || objOrg.legalName || objOrg.name || '—',
+    street: objAddr.street,
+    cityLine: objAddr.cityLine,
+    taxId: objOrg.tax_id || objOrg.taxId || '—',
+    phone: objOrg.phone || '',
+    email: objOrg.email || ''
+  };
+}
+
+/**
+ * Account API → bloque de dirección (billing fiscal o shipping envío).
+ * @param {Object|null} objAccount
+ * @param {'billing'|'shipping'} strAddressType
+ * @param {Object|null} objOrderAddress - billToAddress / shipToAddress de la SO si existe
+ * @returns {{ name: String, street: String, cityLine: String, taxId: String, phone: String, email: String }}
+ */
+export function handleMapAccountToPartyBlock(objAccount, strAddressType = 'billing', objOrderAddress = null) {
+  if (!objAccount && !objOrderAddress) {
+    return { name: '—', street: '', cityLine: '', taxId: '—', phone: '', email: '' };
+  }
+
+  const strPerson = objAccount
+    ? `${objAccount.first_name || objAccount.firstName || ''} ${objAccount.last_name || objAccount.lastName || ''} ${objAccount.second_last_name || objAccount.secondLastName || ''}`.trim()
+    : '';
+  const strName = objAccount?.name
+    || objAccount?.legal_name
+    || objAccount?.legalName
+    || strPerson
+    || '—';
+
+  let objAddrSource = objOrderAddress || null;
+  if (!objAddrSource && objAccount) {
+    if (strAddressType === 'shipping') {
+      objAddrSource = objAccount.shipping_address || objAccount.shippingAddress || null;
+    } else {
+      objAddrSource = objAccount.billing_address || objAccount.billingAddress || null;
+    }
+  }
+  const objAddr = handleFormatAddressLines(objAddrSource);
+
+  return {
+    name: strName,
+    street: objAddr.street,
+    cityLine: objAddr.cityLine,
+    taxId: objAccount?.tax_id || objAccount?.taxId || objAccount?.code || '—',
+    phone: objAccount?.phone || objAccount?.mobile || '',
+    email: objAccount?.email || ''
   };
 }

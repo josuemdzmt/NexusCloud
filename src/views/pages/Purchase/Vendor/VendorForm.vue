@@ -1,5 +1,5 @@
 <template>
-  <nx-modal-form ref="modalFormRef" id="vendor-modal" :title="strTitle" size="lg" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
+  <nx-modal-form ref="modalFormRef" id="vendor-modal" :title="strTitle" size="3xl" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
     <template #default="{ errors }">
       <div class="grid grid-cols-2 gap-3">
         <!-- Tipo de Persona -->
@@ -79,6 +79,11 @@
         </div>
 
         <div class="col-span-2 mt-2">
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección de facturación / fiscal</h4>
+        </div>
+        <nx-address-fields name-prefix="billing_address" />
+
+        <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Finanzas</h4>
         </div>
         <!-- Crédito -->
@@ -115,6 +120,7 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import VendorService from '@/services/purchasing/VendorService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
+import { yupAddressSchema, handleEnsureAddress } from '@/utils/addressUtils';
 
 const validationSchema = yup.object({
   is_person: yup.boolean().default(false).required('Obligatorio'),
@@ -139,6 +145,7 @@ const validationSchema = yup.object({
   mobile: yup.string().nullable().default(''),
   email: yup.string().nullable().default('').transform((strValue) => (strValue === '' ? null : strValue)).email('Correo inválido'),
   website: yup.string().nullable().default(''),
+  billing_address: yupAddressSchema,
   credit_limit: yup.number().nullable().default(0),
   credit_days: yup.number().nullable().default(0),
   status: yup.string().nullable().default('Active')
@@ -192,6 +199,7 @@ export default {
       .then((response) => {
         const data = response.data || response;
         this.bIsPerson = data.is_person === true || data.is_person === 1;
+        data.billing_address = handleEnsureAddress(data.billing_address || data.billingAddress);
         if (this.$refs.modalFormRef) {
           this.$refs.modalFormRef.handleSetValues(data);
         }
