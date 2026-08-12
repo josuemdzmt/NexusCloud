@@ -31,10 +31,6 @@
                     class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light cursor-pointer">
                     <i class="ph ph-currency-dollar"></i>
                   </button>
-                  <button v-if="bCanCancel" type="button" title="Cancelar orden" @click="handleCancelOrder"
-                    class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light cursor-pointer text-danger">
-                    <i class="ph ph-x"></i>
-                  </button>
                 </div>
               </div>
               <div class="text-sm text-default space-y-3 pt-3 border-t border-border-color">
@@ -122,14 +118,12 @@ import SalesOrderPaymentForm from '@/views/pages/Sales/SalesOrderPayment/SalesOr
 import SalesOrderPaymentRelatedList from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentRelatedList.vue';
 import SalesOrderLineItemList from '@/views/pages/Sales/SalesOrderLineItem/SalesOrderLineItemList.vue';
 import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
-import { handleSuccess, handleError } from '@/utils/toastUtils';
+import { handleError } from '@/utils/toastUtils';
 import {
-  ORDER_STATUS,
   handleGetStatusLabel,
   handleGetStatusClass,
   handleCanEditOrder,
-  handleCanRegisterPayment,
-  handleCanCancelOrder
+  handleCanRegisterPayment
 } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import { handleNormalizeSalesOrder } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
@@ -175,9 +169,6 @@ export default {
     },
     bCanRegisterPayment() {
       return this.objOrder && handleCanRegisterPayment(this.objOrder.status);
-    },
-    bCanCancel() {
-      return this.objOrder && handleCanCancelOrder(this.objOrder.status);
     }
   },
   mounted() {
@@ -221,19 +212,6 @@ export default {
     },
     handleFormSuccess() {
       this.handleGetData();
-    },
-    handleCancelOrder() {
-      if (!this.bCanCancel || !this.objOrder) return;
-      this.bSpinner = true;
-      SalesOrderService.update(this.objOrder.id, { status: ORDER_STATUS.CANCELLED })
-        .then(() => {
-          handleSuccess('Orden de venta cancelada');
-          this.handleGetData();
-        })
-        .catch((objError) => handleError('No se pudo cancelar la orden', objError))
-        .finally(() => {
-          this.bSpinner = false;
-        });
     },
     handleFormatAmount(fltValue) {
       const fltAmount = parseFloat(fltValue) || 0;

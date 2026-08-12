@@ -407,8 +407,7 @@ Author URL: https://themeforest.net/user/dreamstechnologies
     .sidebar .sidebar-logo .logo {
         @apply inline-flex items-center gap-2;
     }
-    .sidebar .sidebar-logo .logo-small,
-    .sidebar .sidebar-logo .dark-logo {
+    .sidebar .sidebar-logo .logo-small {
         @apply hidden;
     }
     .sidebar .sidebar-logo #toggle_btn {
@@ -643,15 +642,8 @@ Author URL: https://themeforest.net/user/dreamstechnologies
     .navbar-header .logo {
         @apply hidden max-lg:flex max-lg:absolute max-lg:left-1/2 max-lg:top-1/2 max-lg:-translate-x-1/2 max-lg:-translate-y-1/2 max-lg:items-center max-lg:z-[1];
     }
-    .navbar-header .logo .logo-dark {
-        @apply max-lg:hidden;
-    }
-    .navbar-header .logo .logo-light .logo-lg,
-    .navbar-header .logo .logo-dark .logo-lg {
+    .navbar-header .logo .logo-lg {
         @apply inline-flex! items-center gap-2 max-sm:inline-flex!;
-    }
-    .navbar-header .logo .logo-light .logo-sm {
-        @apply hidden!;
     }
     .navbar-header .topbar-menu .header-item {
         @apply flex items-center justify-center h-[32px];
@@ -989,18 +981,6 @@ Author URL: https://themeforest.net/user/dreamstechnologies
     [data-layout="full-width"] .navbar-header .logo .logo-lg {
         @apply inline-flex! items-center gap-2;
     }
-    [data-layout="full-width"] .navbar-header .logo .logo-dark {
-        @apply hidden;
-    }
-    [data-layout="full-width"][data-theme="dark"] .navbar-header .logo .logo-light {
-        @apply hidden max-lg:block; 
-    }
-    [data-layout="full-width"][data-theme="dark"] .navbar-header .logo .logo-light .logo-sm {
-        @apply hidden!; 
-    }
-    [data-layout="full-width"][data-theme="dark"] .navbar-header .logo .logo-dark {
-        @apply flex!; 
-    }
     [data-layout="full-width"] .navbar-header .topbar-menu > div:first-child { 
         @apply lg:flex!;
     }    
@@ -1076,9 +1056,6 @@ Author URL: https://themeforest.net/user/dreamstechnologies
     [data-layout="hidden"] .navbar-header .logo .logo-lg {
         @apply block;
     }
-    [data-layout="hidden"] .navbar-header .logo .logo-dark {
-        @apply hidden;
-    }
     [data-layout="hidden"] .navbar-header .topbar-menu > div:first-child { 
         @apply lg:flex!;
     }    
@@ -1087,15 +1064,6 @@ Author URL: https://themeforest.net/user/dreamstechnologies
     }
     [data-layout="hidden"] .navbar-header #toggle_btn2 {
         @apply  flex;
-    }
-    [data-layout="hidden"][data-theme="dark"] .navbar-header .logo .logo-light {
-        @apply hidden max-lg:block; 
-    }
-    [data-layout="hidden"][data-theme="dark"] .navbar-header .logo .logo-light .logo-sm {
-        @apply hidden max-lg:block; 
-    }
-    [data-layout="hidden"][data-theme="dark"] .navbar-header .logo .logo-dark {
-        @apply block; 
     }
     @media (min-width: 992px) {
         [data-layout="hidden"] .sidebar {
@@ -1728,31 +1696,19 @@ select::-ms-expand {
     --shadow-lg: 0 0 0 rgba(30, 32, 37, 0.12);
     --shadow-inset: 0 0 0 0 rgba(229, 229, 229, 0.25) inset;
 }
-[data-theme="dark"] .sidebar .sidebar-logo .dark-logo {
-    @apply inline-flex items-center gap-2;
+[data-theme="dark"] .sidebar .sidebar-logo .logo .logo-text {
+    @apply text-white;
 }
-[data-theme="dark"] .sidebar .sidebar-logo .logo {
+[data-theme="dark"] .navbar-header .logo .logo-text {
+    @apply text-white;
+}
+[data-theme="dark"] .mini-sidebar .sidebar .sidebar-logo .logo {
     @apply hidden;
 }
-[data-theme="dark"] .mini-sidebar .sidebar .sidebar-logo .dark-logo {
-    @apply hidden;
-}
-[data-theme="dark"] .mini-sidebar.expand-menu .sidebar .sidebar-logo .dark-logo {
+[data-theme="dark"] .mini-sidebar.expand-menu .sidebar .sidebar-logo .logo {
     @apply inline-flex items-center gap-2;
 }
 
-[data-theme="dark"] .navbar-header .logo .logo-light .logo-lg {
-    @apply max-lg:hidden;
-}
-[data-theme="dark"] .navbar-header .logo .logo-light .logo-sm {
-    @apply hidden!;
-}
-[data-theme="dark"] .navbar-header .logo .logo-dark {
-    @apply max-lg:flex!;
-}
-[data-theme="dark"] .navbar-header .logo .logo-dark .logo-lg {
-    @apply inline-flex! items-center gap-2;
-}
 [data-theme="dark"] .text-white {
     @apply text-[#FFFFFF]!;
 }

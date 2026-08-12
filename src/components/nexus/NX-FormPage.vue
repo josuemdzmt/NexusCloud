@@ -1,5 +1,5 @@
 <template>
-  <Form :validation-schema="validationSchema" :initial-values="initialValues" @submit="handleSubmit" v-slot="{ errors, isSubmitting, setValues, values }" ref="formRef">
+  <Form :validation-schema="validationSchema" :initial-values="initialValues" :class="strFormClass" @submit="handleSubmit" v-slot="{ errors, isSubmitting, setValues, values }" ref="formRef">
     <!-- Layout Variant: record (2 Columns: Main 8/12 + Sidebar 4/12) -->
     <div v-if="variant === 'record'" class="grid grid-cols-12 gap-3">
       <div class="col-span-12 lg:col-span-8 space-y-3">
@@ -17,8 +17,8 @@
       </slot>
     </div>
 
-    <!-- Layout Variant: custom / free -->
-    <div v-else>
+    <!-- Layout Variant: custom / free (modales: body scrolleable) -->
+    <div v-else class="flex flex-col flex-1 min-h-0 overflow-hidden">
       <slot :errors="errors" :isSubmitting="isSubmitting" :setValues="setValues" :values="values"></slot>
     </div>
 
@@ -49,6 +49,11 @@ export default {
     initialValues: { type: Object, default: () => ({}) }
   },
   emits: ['submit', 'cancel'],
+  computed: {
+    strFormClass() {
+      return this.variant === 'custom' ? 'flex flex-col flex-1 min-h-0 overflow-hidden' : '';
+    }
+  },
   methods: {
     handleSubmit(objValues, objActions) {
       this.$emit('submit', objValues, objActions);

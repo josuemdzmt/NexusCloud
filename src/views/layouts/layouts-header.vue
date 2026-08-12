@@ -15,21 +15,13 @@
 
             </div>
 
-            <!-- Logo centrado en móvil / tablet -->
-            <router-link :to="all_routes.hrmDashboard" class="logo">
-                <span class="logo-light">
-                    <span class="logo-lg">
-                        <img src="@/assets/img/logo-small.svg" alt="Logo">
-                        <span class="logo-text text-base font-semibold text-gray-900 leading-none">NexusCloud</span>
-                    </span>
+            <!-- Logo centrado en móvil / tablet (sin enlace) -->
+            <span class="logo">
+                <span class="logo-lg inline-flex items-center gap-2">
+                    <img src="@/assets/img/logo-small.svg" alt="Logo">
+                    <span class="logo-text text-base font-semibold text-gray-900 leading-none">NexusCloud</span>
                 </span>
-                <span class="logo-dark">
-                    <span class="logo-lg">
-                        <img src="@/assets/img/logo-small.svg" alt="Logo">
-                        <span class="logo-text text-base font-semibold text-white leading-none">NexusCloud</span>
-                    </span>
-                </span>
-            </router-link>
+            </span>
 
             <div class="flex items-center gap-2 lg:w-full shrink-0 z-10">
 

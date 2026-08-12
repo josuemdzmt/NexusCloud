@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between items-center p-4 border-b border-border-color">
+  <div class="flex justify-between items-center p-4 border-b border-border-color shrink-0">
     <slot>
       <h2 class="text-base font-bold text-title mb-0">{{ label }}</h2>
     </slot>

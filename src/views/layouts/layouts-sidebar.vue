@@ -6,21 +6,15 @@
         <div class="sidebar-logo">
             <div class="flex items-center">
                 <!-- Logo Normal -->
-                <router-link :to="all_routes.hrmDashboard" class="logo logo-normal">
+                <span class="logo logo-normal">
                     <img src="@/assets/img/logo-small.svg" alt="Logo">
                     <span class="logo-text text-base font-semibold text-gray-900 leading-none">NexusCloud</span>
-                </router-link>
+                </span>
 
                 <!-- Logo Small (mini-sidebar) -->
-                <router-link :to="all_routes.hrmDashboard" class="logo-small">
+                <span class="logo-small">
                     <img src="@/assets/img/logo-small.svg" alt="Logo">
-                </router-link>
-
-                <!-- Logo Dark -->
-                <router-link :to="all_routes.hrmDashboard" class="dark-logo">
-                    <img src="@/assets/img/logo-small.svg" alt="Logo">
-                    <span class="logo-text text-base font-semibold text-white leading-none">NexusCloud</span>
-                </router-link>
+                </span>
             </div>
             <button class="sidenav-toggle-btn btn border-0 p-0 active" id="toggle_btn" aria-label="toggle" @click="toggleSidebar"> 
                 <i class="icon icon-panel-right-open align-middle"></i>
@@ -50,7 +44,6 @@
 <script>
 import simplebar from "simplebar-vue";
 import "simplebar-vue/dist/simplebar.min.css";
-import { all_routes } from '@/router/all_routes';
 
 export default {
     components: {
@@ -129,12 +122,6 @@ export default {
         beforeUnmount() {
             document.removeEventListener("mouseover", this.handleMouseover);
         },
-    },
-    setup() {
-        
-        return {
-            all_routes,
-        };
     },
 }
 </script>

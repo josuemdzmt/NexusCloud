@@ -31,10 +31,6 @@
                     class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light cursor-pointer">
                     <i class="ph ph-currency-dollar"></i>
                   </button>
-                  <button v-if="bCanCancel" type="button" title="Cancelar orden" @click="handleCancelOrder"
-                    class="size-8 rounded-md border border-border-color flex items-center justify-center hover:bg-light cursor-pointer text-danger">
-                    <i class="ph ph-x"></i>
-                  </button>
                 </div>
               </div>
               <div class="text-sm text-default space-y-3 pt-3 border-t border-border-color">
@@ -122,15 +118,13 @@ import PurchaseOrderPaymentForm from '@/views/pages/Purchase/PurchaseOrderPaymen
 import PurchaseOrderPaymentRelatedList from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentRelatedList.vue';
 import PurchaseOrderLineItemList from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderLineItemList.vue';
 import PurchaseOrderForm from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue';
-import { handleSuccess, handleError } from '@/utils/toastUtils';
+import { handleError } from '@/utils/toastUtils';
 import {
-  ORDER_STATUS,
   SUPPLIER_DOCUMENT_TYPE_LABEL,
   handleGetStatusLabel,
   handleGetStatusClass,
   handleCanEditOrder,
-  handleCanRegisterPayment,
-  handleCanCancelOrder
+  handleCanRegisterPayment
 } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleNormalizePurchaseOrder } from '@/views/pages/Purchase/PurchaseOrder/purchaseOrderUtils';
 
@@ -183,9 +177,6 @@ export default {
     },
     bCanRegisterPayment() {
       return this.objOrder && handleCanRegisterPayment(this.objOrder.status);
-    },
-    bCanCancel() {
-      return this.objOrder && handleCanCancelOrder(this.objOrder.status);
     }
   },
   mounted() {
@@ -229,19 +220,6 @@ export default {
     },
     handleFormSuccess() {
       this.handleGetData();
-    },
-    handleCancelOrder() {
-      if (!this.bCanCancel || !this.objOrder) return;
-      this.bSpinner = true;
-      PurchaseOrderService.update(this.objOrder.id, { status: ORDER_STATUS.CANCELLED })
-        .then(() => {
-          handleSuccess('Orden de compra cancelada');
-          this.handleGetData();
-        })
-        .catch((objError) => handleError('No se pudo cancelar la orden', objError))
-        .finally(() => {
-          this.bSpinner = false;
-        });
     },
     handleFormatAmount(fltValue) {
       const fltAmount = parseFloat(fltValue) || 0;
