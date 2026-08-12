@@ -1,31 +1,5 @@
 [
   {
-    "tittle": "Principal",
-    "showAsTab": true,
-    "separateRoute": false,
-    "menu": [
-      {
-        "menuValue": "Panel de Control",
-        "active_link": "dashboard",
-        "hasSubRoute": true,
-        "showSubRoute": false,
-        "Icon": "ph-duotone ph-squares-four",
-        "subMenus": [
-          {
-            "menuValue": "Panel de Inventario",
-            "route": "/dashboard/inventory-dashboard",
-            "active_link": "/dashboard/inventory-dashboard"
-          },
-          {
-            "menuValue": "Panel de Ventas",
-            "route": "/dashboard/sales-dashboard",
-            "active_link": "/dashboard/sales-dashboard"
-          }
-        ]
-      }
-    ]
-  },
-  {
     "tittle": "Ventas",
     "showAsTab": true,
     "separateRoute": false,

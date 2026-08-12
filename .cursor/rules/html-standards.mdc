@@ -1,0 +1,25 @@
+---
+description: Estándar HTML/Vue NexusCloud — líneas 180-200, atributos inline, NUNCA cierre > aislado
+globs: **/*.vue
+alwaysApply: true
+---
+
+# HTML / Vue — formato obligatorio
+
+Fuente: `docs/standards/HTML_STANDARDS.md`. **No inventar Prettier/JSX wrapping.**
+
+- Líneas de template: **180–200 caracteres**. Si cabe, **una sola línea**.
+- Si no cabe: partir atributos en la línea siguiente; el `>` o `/>` va **pegado al último atributo**. Nunca solo en su línea.
+- Indentación: 2 espacios. Misma densidad que `NX-Combobox.vue`, `NX-ModalHeader.vue`, `NX-Pagination.vue`.
+
+```html
+<!-- ✅ -->
+<nx-lookup :model-value="value" endpoint="core/accounts" :params="{ 'filter[account_type]': ['Customer', 'Both'] }"
+  placeholder="Buscar cuenta..." :class="{ 'border-danger': errors.accountId }" class="w-full" @update:model-value="handleChange" @blur="handleBlur" />
+
+<!-- ❌ PROHIBIDO: un atributo por línea y `>` aislado -->
+<nx-lookup
+  :model-value="value"
+  endpoint="core/accounts"
+>
+```
