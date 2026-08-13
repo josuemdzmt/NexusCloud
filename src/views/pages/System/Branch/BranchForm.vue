@@ -10,9 +10,9 @@
 
         <div class="col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Organización <span class="text-danger">*</span></label>
-          <Field name="org_id" as="select" :class="{ 'border-danger focus:border-danger': errors.org_id }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0">
-            <option value="" disabled>Seleccione una organización</option>
-            <option v-for="org in lstOrgs" :key="org.id" :value="org.id">{{ org.name }}</option>
+          <Field name="org_id" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="org" class="w-full" :class="{ 'border-danger': errors.org_id }"
+              @update:model-value="handleChange" @blur="handleBlur" />
           </Field>
           <ErrorMessage name="org_id" class="text-danger text-[11px] mt-1 block" />
         </div>
@@ -70,8 +70,6 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import BranchService from '@/services/system/BranchService';
-import OrgService from '@/services/system/OrgService';
-import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
@@ -104,7 +102,6 @@ export default {
       recordId: null,
       bSpinner: false,
       objInitialData: validationSchema.getDefault(),
-      lstOrgs: [],
       objValidationSchema: validationSchema
     };
   },
@@ -114,30 +111,16 @@ export default {
     }
   },
   methods: {
-    handleGetOrgs() {
-      return handleGetOrLoad('orgs', () =>
-        OrgService.getAll().then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return Array.isArray(lstData) ? lstData : [];
-        })
-      )
-        .then((lstOrgs) => {
-          this.lstOrgs = lstOrgs;
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar las organizaciones', objError));
-    },
     handleOpen(id = null) {
       this.recordId = id;
-      this.handleGetOrgs().then(() => {
-        if (this.recordId) {
-          this.handleLoadData();
-          return;
-        }
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleSetValues(this.objValidationSchema.getDefault());
-          this.$refs.modalFormRef.handleOpen();
-        }
-      });
+      if (this.recordId) {
+        this.handleLoadData();
+        return;
+      }
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleSetValues(this.objValidationSchema.getDefault());
+        this.$refs.modalFormRef.handleOpen();
+      }
     },
     handleClose() {
       this.$refs.modalFormRef.handleClose();
@@ -202,6 +185,7 @@ export default {
       });
     },
     handleCancel() {
+      this.handleClose();
     }
   }
 };

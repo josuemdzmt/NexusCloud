@@ -1,5 +1,5 @@
 <template>
-	<div class="bg-light min-h-screen flex items-center justify-center p-4">
+	<div class="bg-light min-h-screen flex flex-col items-center justify-center p-4">
 		<div class="bg-white border border-border-color rounded-md shadow-sm w-full max-w-md sm:p-8 p-5">
 			<div class="text-center mb-6">
 				<div class="flex items-center justify-center gap-2 mb-4">
@@ -30,6 +30,7 @@
 				</button>
 			</form>
 		</div>
+		<nx-app-version class="mt-4" />
 	</div>
 </template>
 

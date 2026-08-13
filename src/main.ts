@@ -49,6 +49,7 @@ import NXTabset from './components/nexus/NX-Tabset.vue';
 import NXTab from './components/nexus/NX-Tab.vue';
 import NXPrintable from './components/nexus/NX-Printable.vue';
 import NXAddressFields from './components/nexus/NX-AddressFields.vue';
+import NXAppVersion from './components/nexus/NX-AppVersion.vue';
 
 // ---------- Modal Components ---------- //
 
@@ -204,6 +205,7 @@ app.component('nx-tabset', NXTabset);
 app.component('nx-tab', NXTab);
 app.component('nx-printable', NXPrintable);
 app.component('nx-address-fields', NXAddressFields);
+app.component('nx-app-version', NXAppVersion);
 app.component("v-chart", VueECharts);
 
 use([

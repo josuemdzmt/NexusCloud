@@ -4,12 +4,18 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div class="md:col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Producto <span class="text-danger">*</span></label>
-          <Field name="productId" as="nx-combobox" :options="lstProductOptions" placeholder="Seleccionar producto" :disabled="bLocked || bProductLocked" :class="{ 'border-danger focus:border-danger': errors.productId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="productId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="product" :disabled="bLocked || bProductLocked" class="w-full"
+              :class="{ 'border-danger': errors.productId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="productId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Almacén <span class="text-danger">*</span></label>
-          <Field name="locationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="bLocked || bLocationLocked" :class="{ 'border-danger focus:border-danger': errors.locationId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="locationId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="location" :params="{ 'filter[is_inventory_location]': 1 }" :disabled="bLocked || bLocationLocked"
+              class="w-full" :class="{ 'border-danger': errors.locationId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="locationId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
@@ -40,8 +46,6 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import ProductItemService from '@/services/inventory/ProductItemService';
 import ProductItemTransactionService from '@/services/inventory/ProductItemTransactionService';
-import ProductService from '@/services/inventory/ProductService';
-import LocationService from '@/services/inventory/LocationService';
 import { handleGetOrLoad, handleInvalidateCatalog } from '@/services/catalog/catalogCache';
 import { TRANSACTION_TYPE, ADJUSTMENT_REASON_OPTIONS, handleResolveTransactionType } from '@/views/pages/Inventory/ProductItemTransaction/ProductItemTransactionConstants';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
@@ -85,10 +89,6 @@ export default {
       // 4. Objetos
       objValidationSchema: validationSchema,
       objInitialData: validationSchema.getDefault(),
-
-      // 5. Listas
-      lstProductOptions: [],
-      lstLocationOptions: [],
       lstProductItems: [],
       lstReasonOptions: ADJUSTMENT_REASON_OPTIONS
     };
@@ -99,53 +99,6 @@ export default {
       const strMonth = String(objDate.getMonth() + 1).padStart(2, '0');
       const strDay = String(objDate.getDate()).padStart(2, '0');
       return `${objDate.getFullYear()}-${strMonth}-${strDay}`;
-    },
-    handleGetProducts() {
-      return handleGetOrLoad('products', () =>
-        ProductService.getAll({ per_page: 500 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
-            label: objProduct.name,
-            value: objProduct.id
-          }));
-        })
-      )
-      .then((lstOptions) => {
-        this.lstProductOptions = lstOptions;
-      })
-      .catch((objError) => {
-        handleError('Error', 'No se pudieron cargar los productos', objError);
-      })
-      .finally(() => {
-        this.bSpinner = false;
-      });
-    },
-    handleGetLocations() {
-      return handleGetOrLoad('inventoryLocations', () =>
-        LocationService.getAll({ per_page: 500, 'filter[is_inventory_location]': 1 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstRaw = Array.isArray(lstData) ? lstData : [];
-          const lstInventoriable = lstRaw.filter((objLocation) => {
-            if (objLocation.is_inventory_location === undefined && objLocation.isInventoryLocation === undefined) {
-              return true;
-            }
-            return Boolean(objLocation.is_inventory_location ?? objLocation.isInventoryLocation);
-          });
-          return lstInventoriable.map((objLocation) => ({
-            label: objLocation.name,
-            value: objLocation.id
-          }));
-        })
-      )
-      .then((lstOptions) => {
-        this.lstLocationOptions = lstOptions;
-      })
-      .catch((objError) => {
-        handleError('Error', 'No se pudieron cargar los almacenes', objError);
-      })
-      .finally(() => {
-        this.bSpinner = false;
-      });
     },
     handleGetProductItems() {
       return handleGetOrLoad('productItems', () =>
@@ -200,7 +153,7 @@ export default {
         }
       }
 
-      Promise.all([this.handleGetProducts(), this.handleGetLocations(), this.handleGetProductItems()]).then(() => {
+      this.handleGetProductItems().then(() => {
         if (this.$refs.modalFormRef) {
           this.$refs.modalFormRef.handleSetValues(this.objInitialData);
           this.$refs.modalFormRef.handleOpen();

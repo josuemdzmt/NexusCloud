@@ -36,11 +36,15 @@
               </div>
               <div>
                 <label class="text-sm font-semibold text-gray-900 mb-1 block">Categoría</label>
-                <Field name="categoryId" as="nx-combobox" :options="lstCategories" placeholder="Seleccionar Categoría" class="w-full text-sm border-border-color focus:border-primary" />
+                <Field name="categoryId" v-slot="{ value, handleChange, handleBlur }">
+                  <nx-lookup :model-value="value" type="product_category" class="w-full" @update:model-value="handleChange" @blur="handleBlur" />
+                </Field>
               </div>
               <div>
                 <label class="text-sm font-semibold text-gray-900 mb-1 block">Marca</label>
-                <Field name="brandId" as="nx-combobox" :options="lstBrandOptions" placeholder="Seleccionar Marca" class="w-full text-sm border-border-color focus:border-primary" />
+                <Field name="brandId" v-slot="{ value, handleChange, handleBlur }">
+                  <nx-lookup :model-value="value" type="brand" class="w-full" @update:model-value="handleChange" @blur="handleBlur" />
+                </Field>
               </div>
               <div class="col-span-2">
                 <label class="text-sm text-gray-900 mb-1 block">Descripción</label>
@@ -70,7 +74,9 @@
               </div>
               <div>
                 <label class="text-sm font-semibold text-gray-900 mb-1 block">Unidad</label>
-                <Field name="unitMeasureId" as="nx-combobox" :options="lstUnitOptions" placeholder="Seleccionar Unidad" class="w-full text-sm border-border-color focus:border-primary" />
+                <Field name="unitMeasureId" v-slot="{ value, handleChange, handleBlur }">
+                  <nx-lookup :model-value="value" type="unit_measure" class="w-full" @update:model-value="handleChange" @blur="handleBlur" />
+                </Field>
               </div>
               <div>
                 <label class="text-sm font-semibold text-gray-900 mb-1 block">Stock Mínimo</label>
@@ -95,11 +101,6 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import ProductService from '@/services/inventory/ProductService';
-import ProductCategoryService from '@/services/inventory/ProductCategoryService';
-import BrandService from '@/services/inventory/BrandService';
-import UnitMeasureService from '@/services/inventory/UnitMeasureService';
-import { handleGetOrLoad } from '@/services/catalog/catalogCache';
-import { handleBuildCatalogOptions } from '@/utils/catalogUtils';
 import { handleError, handleSuccess } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
@@ -127,75 +128,20 @@ export default {
       bSpinner: false,
       strTitle: 'Producto',
       objValidationSchema: validationSchema,
-      objInitialData: validationSchema.getDefault(),
-      objCurrentProduct: null,
-      lstRawCategories: [],
-      lstRawBrands: [],
-      lstRawUnits: []
+      objInitialData: validationSchema.getDefault()
     };
   },
-  computed: {
-    lstCategories() {
-      return handleBuildCatalogOptions(this.lstRawCategories, this.objCurrentProduct?.categoryId);
-    },
-    lstBrandOptions() {
-      return handleBuildCatalogOptions(this.lstRawBrands, this.objCurrentProduct?.brandId);
-    },
-    lstUnitOptions() {
-      return handleBuildCatalogOptions(this.lstRawUnits, this.objCurrentProduct?.unitMeasureId);
-    }
-  },
   mounted() {
-    this.handleGetCategories();
-    this.handleGetBrands();
-    this.handleGetUnits();
     if (this.$route.params.recordId) {
       this.handleInitForm(this.$route.params.recordId);
     }
   },
   methods: {
-    handleGetBrands() {
-      return handleGetOrLoad('brands', () =>
-        BrandService.getAll({ per_page: 100 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return Array.isArray(lstData) ? lstData : [];
-        })
-      )
-        .then((lstBrands) => {
-          this.lstRawBrands = lstBrands;
-        })
-        .catch((objError) => handleError('Ocurrió un problema al obtener las marcas', objError));
-    },
-    handleGetUnits() {
-      return handleGetOrLoad('unitMeasures', () =>
-        UnitMeasureService.getAll({ per_page: 100 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return Array.isArray(lstData) ? lstData : [];
-        })
-      )
-        .then((lstUnits) => {
-          this.lstRawUnits = lstUnits;
-        })
-        .catch((objError) => handleError('Ocurrió un problema al obtener las unidades de medida', objError));
-    },
-    handleGetCategories() {
-      return handleGetOrLoad('productCategories', () =>
-        ProductCategoryService.getAll({ per_page: 100 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return Array.isArray(lstData) ? lstData : [];
-        })
-      )
-        .then((lstCategories) => {
-          this.lstRawCategories = lstCategories;
-        })
-        .catch((objError) => handleError('Ocurrió un problema al obtener las categorías', objError));
-    },
     handleInitForm(id) {
       this.bSpinner = true;
       ProductService.getById(id)
         .then((data) => {
           const formData = data.data || data;
-          this.objCurrentProduct = formData;
           this.$refs.formPageRef.handleSetValues(formData);
         })
         .catch((error) => {

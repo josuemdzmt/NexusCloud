@@ -2,58 +2,30 @@
   <nx-modal-form ref="modalFormRef" id="pricebook-entry-modal" :title="strTitle" size="md" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
     <template #default="{ errors }">
       <div class="grid grid-cols-1 gap-4">
-        <!-- Lista de Precios -->
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Lista de Precios <span class="text-danger">*</span></label>
-          <Field name="pricebookId" v-slot="{ field, value }">
-            <nx-combobox
-              v-bind="field"
-              :options="lstPricebookOptions"
-              :model-value="value"
-              @update:model-value="field.onChange"
-              placeholder="Seleccionar lista de precios"
-              :disabled="!!numRecordId || bLockPricebook"
-              class="w-full text-sm border-border-color focus:border-primary"
-            />
+          <Field name="pricebookId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="pricebook" :params="{ 'filter[is_active]': 1 }" :disabled="!!numRecordId || bLockPricebook"
+              class="w-full" :class="{ 'border-danger': errors.pricebookId }" @update:model-value="handleChange" @blur="handleBlur" />
           </Field>
           <ErrorMessage name="pricebookId" class="text-danger text-[11px] mt-1 block" />
         </div>
-
-        <!-- Producto -->
         <div v-if="!bLockProduct">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Producto <span class="text-danger">*</span></label>
-          <Field name="productId" v-slot="{ field, value }">
-            <nx-combobox
-              v-bind="field"
-              :options="lstProductOptions"
-              :model-value="value"
-              @update:model-value="field.onChange"
-              placeholder="Seleccionar producto"
-              :disabled="!!numRecordId"
-              class="w-full text-sm border-border-color focus:border-primary"
-            />
+          <Field name="productId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="product" :params="{ 'filter[is_active]': 1 }" :disabled="!!numRecordId" class="w-full"
+              :class="{ 'border-danger': errors.productId }" @update:model-value="handleChange" @blur="handleBlur" />
           </Field>
           <ErrorMessage name="productId" class="text-danger text-[11px] mt-1 block" />
         </div>
-
-        <!-- Moneda -->
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Moneda <span class="text-danger">*</span></label>
-          <Field name="currencyId" v-slot="{ field, value }">
-            <nx-combobox
-              v-bind="field"
-              :options="lstCurrencyOptions"
-              :model-value="value"
-              @update:model-value="field.onChange"
-              placeholder="Seleccionar moneda"
-              :disabled="!!numRecordId"
-              class="w-full text-sm border-border-color focus:border-primary"
-            />
+          <Field name="currencyId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="currency" :params="{ 'filter[is_active]': 1 }" :disabled="!!numRecordId" class="w-full"
+              :class="{ 'border-danger': errors.currencyId }" @update:model-value="handleChange" @blur="handleBlur" />
           </Field>
           <ErrorMessage name="currencyId" class="text-danger text-[11px] mt-1 block" />
         </div>
-
-        <!-- Precio -->
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Precio de Lista <span class="text-danger">*</span></label>
           <div class="relative">
@@ -62,8 +34,6 @@
           </div>
           <ErrorMessage name="unitPrice" class="text-danger text-[11px] mt-1 block" />
         </div>
-
-        <!-- Estado -->
         <div class="mt-2">
           <label class="flex items-center gap-2 cursor-pointer">
             <Field name="isActive" type="checkbox" :value="true" :unchecked-value="false" class="size-4 rounded border-border-color text-primary focus:ring-0" />
@@ -80,10 +50,7 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import PricebookEntryService from '@/services/sales/PricebookEntryService';
-import ProductService from '@/services/inventory/ProductService';
-import PricebookService from '@/services/sales/PricebookService';
-import CurrencyService, { handleFindDefaultCurrency } from '@/services/sales/CurrencyService';
-import { handleGetOrLoad } from '@/services/catalog/catalogCache';
+import CurrencyService from '@/services/sales/CurrencyService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
@@ -103,74 +70,15 @@ export default {
   emits: ['refresh'],
   data() {
     return {
-      // 1. Booleanos
       bLockProduct: false,
       bLockPricebook: false,
-
-      // 2. Números
       numRecordId: null,
-
-      // 3. Cadenas
       strTitle: 'Agregar Precio de Producto',
-
-      // 4. Objetos
       objValidationSchema: validationSchema,
-      objInitialData: validationSchema.getDefault(),
-
-      // 5. Listas
-      lstProductOptions: [],
-      lstPricebookOptions: [],
-      lstCurrencyOptions: [],
-      lstCurrencies: []
+      objInitialData: validationSchema.getDefault()
     };
   },
   methods: {
-    handleGetCurrencies() {
-      return handleGetOrLoad('currencies', () =>
-        CurrencyService.getAll({ per_page: 500 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return Array.isArray(lstData) ? lstData : [];
-        })
-      )
-        .then((lstCurrencies) => {
-          this.lstCurrencies = lstCurrencies;
-          this.lstCurrencyOptions = lstCurrencies.map((objCurrency) => ({
-            label: `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`,
-            value: objCurrency.id
-          }));
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar las monedas', objError));
-    },
-    handleGetProducts() {
-      return handleGetOrLoad('productsActive', () =>
-        ProductService.getAll({ per_page: 500, 'filter[is_active]': 1 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
-            label: objProduct.name,
-            value: objProduct.id
-          }));
-        })
-      )
-        .then((lstOptions) => {
-          this.lstProductOptions = lstOptions;
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los productos', objError));
-    },
-    handleGetPricebooks() {
-      return handleGetOrLoad('pricebooks', () =>
-        PricebookService.getAll({ per_page: 500, 'filter[is_active]': 1 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : []).map((objPricebook) => ({
-            label: objPricebook.name,
-            value: objPricebook.id
-          }));
-        })
-      )
-        .then((lstOptions) => {
-          this.lstPricebookOptions = lstOptions;
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar las listas de precios', objError));
-    },
     /**
      * @param {Number|String|null} id
      * @param {Number|String|Object|null} objDefaults - pricebookId legacy o { pricebookId, productId }
@@ -191,24 +99,28 @@ export default {
       this.bLockPricebook = !!defaultPricebookId;
       this.bLockProduct = !!defaultProductId;
 
-      Promise.all([this.handleGetProducts(), this.handleGetPricebooks(), this.handleGetCurrencies()]).then(() => {
-        if (id) {
-          this.handleLoadData(id);
-          return;
-        }
+      if (id) {
+        this.handleLoadData(id);
+        return;
+      }
 
-        this.objInitialData = validationSchema.getDefault();
-        if (defaultPricebookId) this.objInitialData.pricebookId = Number(defaultPricebookId);
-        if (defaultProductId) this.objInitialData.productId = Number(defaultProductId);
-        const objCurrency = handleFindDefaultCurrency(this.lstCurrencies);
-        if (objCurrency?.id && !this.objInitialData.currencyId) {
-          this.objInitialData.currencyId = Number(objCurrency.id);
-        }
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-          this.$refs.modalFormRef.handleOpen();
-        }
-      });
+      this.objInitialData = validationSchema.getDefault();
+      if (defaultPricebookId) this.objInitialData.pricebookId = Number(defaultPricebookId);
+      if (defaultProductId) this.objInitialData.productId = Number(defaultProductId);
+
+      CurrencyService.getDefault()
+        .then((objCurrency) => {
+          if (objCurrency?.id && !this.objInitialData.currencyId) {
+            this.objInitialData.currencyId = Number(objCurrency.id);
+          }
+        })
+        .catch(() => null)
+        .finally(() => {
+          if (this.$refs.modalFormRef) {
+            this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+            this.$refs.modalFormRef.handleOpen();
+          }
+        });
     },
     handleLoadData(id) {
       if (this.$refs.modalFormRef) {

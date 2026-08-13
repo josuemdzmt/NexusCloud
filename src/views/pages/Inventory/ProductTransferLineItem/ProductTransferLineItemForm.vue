@@ -5,17 +5,9 @@
       <div class="grid grid-cols-1 gap-3">
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Producto <span class="text-danger">*</span></label>
-          <Field name="productId" v-slot="{ field, value }">
-            <nx-combobox
-              v-bind="field"
-              :options="lstProductOptions"
-              :model-value="value"
-              placeholder="Seleccionar producto"
-              :disabled="!!recordId"
-              :class="{ 'border-danger focus:border-danger': errors.productId }"
-              class="w-full text-sm border-border-color focus:border-primary"
-              @update:model-value="field.onChange"
-            />
+          <Field name="productId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="product" :disabled="!!recordId" class="w-full"
+              :class="{ 'border-danger': errors.productId }" @update:model-value="handleChange" @blur="handleBlur" />
           </Field>
           <ErrorMessage name="productId" class="text-danger text-[11px] mt-1 block" />
         </div>
@@ -34,8 +26,6 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import ProductTransferLineItemService from '@/services/inventory/ProductTransferLineItemService';
-import ProductService from '@/services/inventory/ProductService';
-import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
@@ -61,40 +51,15 @@ export default {
   emits: ['success'],
   data() {
     return {
-      // 1. Booleanos
       bSpinner: false,
-
-      // 2. Números / IDs
       recordId: null,
       productTransferId: null,
-
-      // 3. Cadenas
       strTitle: 'Agregar línea',
-
-      // 4. Objetos
       objValidationSchema: validationSchema,
-      objInitialData: validationSchema.getDefault(),
-
-      // 5. Listas
-      lstProductOptions: []
+      objInitialData: validationSchema.getDefault()
     };
   },
   methods: {
-    handleGetProducts() {
-      return handleGetOrLoad('products', () =>
-        ProductService.getAll({ per_page: 500 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
-            label: objProduct.name,
-            value: objProduct.id
-          }));
-        })
-      )
-        .then((lstOptions) => {
-          this.lstProductOptions = lstOptions;
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los productos', objError));
-    },
     /**
      * @param {Number|String|null} numId - Line item id
      * @param {Number|String} productTransferId - Parent transfer id
@@ -109,19 +74,17 @@ export default {
         return;
       }
 
-      this.handleGetProducts().then(() => {
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleOpen();
-        }
-        if (numId) {
-          this.handleInitForm(numId);
-          return;
-        }
-        this.objInitialData = validationSchema.getDefault();
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-        }
-      });
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleOpen();
+      }
+      if (numId) {
+        this.handleInitForm(numId);
+        return;
+      }
+      this.objInitialData = validationSchema.getDefault();
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+      }
     },
     handleClose() {
       if (this.$refs.modalFormRef) {

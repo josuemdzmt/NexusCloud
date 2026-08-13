@@ -5,14 +5,18 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Almacén origen <span class="text-danger">*</span></label>
-          <Field name="sourceLocationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="bIsLocked || bSourceLocked"
-            :class="{ 'border-danger focus:border-danger': errors.sourceLocationId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="sourceLocationId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="location" :params="{ 'filter[is_inventory_location]': 1 }" :disabled="bIsLocked || bSourceLocked"
+              class="w-full" :class="{ 'border-danger': errors.sourceLocationId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="sourceLocationId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Almacén destino <span class="text-danger">*</span></label>
-          <Field name="destinationLocationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="bIsLocked"
-            :class="{ 'border-danger focus:border-danger': errors.destinationLocationId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="destinationLocationId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="location" :params="{ 'filter[is_inventory_location]': 1 }" :disabled="bIsLocked"
+              class="w-full" :class="{ 'border-danger': errors.destinationLocationId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="destinationLocationId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
@@ -35,8 +39,6 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import ProductTransferService from '@/services/inventory/ProductTransferService';
-import LocationService from '@/services/inventory/LocationService';
-import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { TRANSFER_STATUS, TRANSFER_STATUS_BADGE } from '@/views/pages/Inventory/ProductTransfer/ProductTransferConstants';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
@@ -62,24 +64,14 @@ export default {
   emits: ['success'],
   data() {
     return {
-      // 1. Booleanos
       bSpinner: false,
       bIsLocked: false,
       bSourceLocked: false,
-
-      // 2. Números / IDs
       recordId: null,
-
-      // 3. Cadenas
       strTitle: 'Nuevo Traspaso',
       strStatus: TRANSFER_STATUS.DRAFT,
-
-      // 4. Objetos
       objValidationSchema: validationSchema,
-      objInitialData: validationSchema.getDefault(),
-
-      // 5. Listas
-      lstLocationOptions: []
+      objInitialData: validationSchema.getDefault()
     };
   },
   computed: {
@@ -94,28 +86,6 @@ export default {
       const strDay = String(objDate.getDate()).padStart(2, '0');
       return `${objDate.getFullYear()}-${strMonth}-${strDay}`;
     },
-    handleGetLocations() {
-      return handleGetOrLoad('inventoryLocations', () =>
-        LocationService.getAll({ per_page: 500, 'filter[is_inventory_location]': 1 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstRaw = Array.isArray(lstData) ? lstData : [];
-          const lstInventoriable = lstRaw.filter((objLocation) => {
-            if (objLocation.is_inventory_location === undefined && objLocation.isInventoryLocation === undefined) {
-              return true;
-            }
-            return Boolean(objLocation.is_inventory_location ?? objLocation.isInventoryLocation);
-          });
-          return lstInventoriable.map((objLocation) => ({
-            label: objLocation.name,
-            value: objLocation.id
-          }));
-        })
-      )
-        .then((lstOptions) => {
-          this.lstLocationOptions = lstOptions;
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los almacenes', objError));
-    },
     handleOpen(numId = null, objContext = null) {
       this.recordId = numId;
       this.bIsLocked = false;
@@ -123,24 +93,22 @@ export default {
       this.strStatus = TRANSFER_STATUS.DRAFT;
       this.strTitle = numId ? 'Editar Traspaso' : 'Nuevo Traspaso';
 
-      this.handleGetLocations().then(() => {
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleOpen();
-        }
-        if (numId) {
-          this.handleInitForm(numId);
-          return;
-        }
-        this.objInitialData = {
-          ...validationSchema.getDefault(),
-          transferDate: this.handleGetToday(),
-          status: TRANSFER_STATUS.DRAFT,
-          sourceLocationId: objContext?.sourceLocationId ? Number(objContext.sourceLocationId) : null
-        };
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-        }
-      });
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleOpen();
+      }
+      if (numId) {
+        this.handleInitForm(numId);
+        return;
+      }
+      this.objInitialData = {
+        ...validationSchema.getDefault(),
+        transferDate: this.handleGetToday(),
+        status: TRANSFER_STATUS.DRAFT,
+        sourceLocationId: objContext?.sourceLocationId ? Number(objContext.sourceLocationId) : null
+      };
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+      }
     },
     handleClose() {
       if (this.$refs.modalFormRef) {

@@ -4,12 +4,18 @@
       <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Producto <span class="text-danger">*</span></label>
-          <Field name="productId" as="nx-combobox" :options="lstProductOptions" placeholder="Seleccionar" :disabled="bProductLocked || !!numRecordId" :class="{ 'border-danger focus:border-danger': errors.productId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="productId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="product" :disabled="bProductLocked || !!numRecordId" class="w-full"
+              :class="{ 'border-danger': errors.productId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="productId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Almacén <span class="text-danger">*</span></label>
-          <Field name="locationId" as="nx-combobox" :options="lstLocationOptions" placeholder="Seleccionar" :disabled="bLocationLocked || !!numRecordId" :class="{ 'border-danger focus:border-danger': errors.locationId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="locationId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="location" :params="{ 'filter[is_inventory_location]': 1 }" :disabled="bLocationLocked || !!numRecordId"
+              class="w-full" :class="{ 'border-danger': errors.locationId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="locationId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div v-if="!numRecordId">
@@ -40,9 +46,6 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import ProductItemService from '@/services/inventory/ProductItemService';
-import ProductService from '@/services/inventory/ProductService';
-import LocationService from '@/services/inventory/LocationService';
-import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const createSchema = yup.object({
@@ -69,76 +72,17 @@ export default {
   emits: ['success'],
   data() {
     return {
-      // 1. Booleanos
       bSpinner: false,
       bLocationLocked: false,
       bProductLocked: false,
-
-      // 2. Números
       numRecordId: null,
       numQuantityOnHand: 0,
-
-      // 3. Cadenas
       strTitle: 'Agregar Inventario',
-
-      // 4. Objetos
       objValidationSchema: createSchema,
-      objInitialData: createSchema.getDefault(),
-
-      // 5. Listas
-      lstProductOptions: [],
-      lstLocationOptions: []
+      objInitialData: createSchema.getDefault()
     };
   },
   methods: {
-    handleGetProducts() {
-      this.bSpinner = true;
-      return handleGetOrLoad('products', () =>
-        ProductService.getAll({ per_page: 50 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : []).map((objProduct) => ({
-            label: objProduct.name,
-            value: objProduct.id
-          }));
-        })
-      )
-      .then((lstOptions) => {
-        this.lstProductOptions = lstOptions;
-      })
-      .catch((objError) => {
-        handleError('Error', 'No se pudieron cargar los productos', objError);
-      })
-      .finally(() => {
-        this.bSpinner = false;
-      });
-    },
-    handleGetLocations() {
-      return handleGetOrLoad('inventoryLocations', () =>
-        LocationService.getAll({ per_page: 50, 'filter[is_inventory_location]': 1 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          const lstRaw = Array.isArray(lstData) ? lstData : [];
-          const lstInventoriable = lstRaw.filter((objLocation) => {
-            if (objLocation.is_inventory_location === undefined && objLocation.isInventoryLocation === undefined) {
-              return true;
-            }
-            return Boolean(objLocation.is_inventory_location ?? objLocation.isInventoryLocation);
-          });
-          return lstInventoriable.map((objLocation) => ({
-            label: objLocation.name,
-            value: objLocation.id
-          }));
-        })
-      )
-      .then((lstOptions) => {
-        this.lstLocationOptions = lstOptions;
-      })
-      .catch((objError) => {
-        handleError('Error', 'No se pudieron cargar los almacenes', objError);
-      })
-      .finally(() => {
-        this.bSpinner = false;
-      });
-    },
     handleOpen(recordId = null, objContext = null) {
       this.numRecordId = recordId;
       this.strTitle = recordId ? 'Editar Inventario' : 'Agregar Inventario';
@@ -146,24 +90,22 @@ export default {
       this.bLocationLocked = !recordId && !!objContext?.locationId;
       this.bProductLocked = !recordId && !!objContext?.productId;
 
-      Promise.all([this.handleGetProducts(), this.handleGetLocations()]).then(() => {
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleOpen();
-        }
-        if (recordId) {
-          this.handleInitForm(recordId);
-          return;
-        }
-        this.numQuantityOnHand = 0;
-        this.objInitialData = {
-          ...createSchema.getDefault(),
-          locationId: objContext?.locationId ? Number(objContext.locationId) : null,
-          productId: objContext?.productId ? Number(objContext.productId) : null
-        };
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-        }
-      });
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleOpen();
+      }
+      if (recordId) {
+        this.handleInitForm(recordId);
+        return;
+      }
+      this.numQuantityOnHand = 0;
+      this.objInitialData = {
+        ...createSchema.getDefault(),
+        locationId: objContext?.locationId ? Number(objContext.locationId) : null,
+        productId: objContext?.productId ? Number(objContext.productId) : null
+      };
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+      }
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
@@ -208,15 +150,15 @@ export default {
         maximumStockLevel: objForm.maximumStockLevel === null || objForm.maximumStockLevel === '' ? null : Number(objForm.maximumStockLevel)
       };
       ProductItemService.create(objPayload)
-      .then(() => {
-        handleSuccess('Éxito', 'Inventario agregado correctamente');
-        this.$emit('success');
-        this.handleClose();
-      })
-      .catch((objError) => handleError('Error de Validación', objError))
-      .finally(() => {
-        this.bSpinner = false;
-      });
+        .then(() => {
+          handleSuccess('Éxito', 'Inventario agregado correctamente');
+          this.$emit('success');
+          this.handleClose();
+        })
+        .catch((objError) => handleError('Error de Validación', objError))
+        .finally(() => {
+          this.bSpinner = false;
+        });
     },
     handleUpdate(objForm) {
       this.bSpinner = true;
@@ -225,15 +167,15 @@ export default {
         maximumStockLevel: objForm.maximumStockLevel === null || objForm.maximumStockLevel === '' ? null : Number(objForm.maximumStockLevel)
       };
       ProductItemService.update(this.numRecordId, objPayload)
-      .then(() => {
-        handleSuccess('Actualizado', 'Inventario actualizado correctamente');
-        this.$emit('success');
-        this.handleClose();
-      })
-      .catch((objError) => handleError('Error de Validación', objError))
-      .finally(() => {
-        this.bSpinner = false;
-      });
+        .then(() => {
+          handleSuccess('Actualizado', 'Inventario actualizado correctamente');
+          this.$emit('success');
+          this.handleClose();
+        })
+        .catch((objError) => handleError('Error de Validación', objError))
+        .finally(() => {
+          this.bSpinner = false;
+        });
     },
     handleCancel() {
       this.handleClose();

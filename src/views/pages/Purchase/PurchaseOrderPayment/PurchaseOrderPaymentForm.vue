@@ -34,12 +34,18 @@
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Método de Pago <span class="text-danger">*</span></label>
-          <Field name="paymentMethodId" as="nx-combobox" :options="lstPaymentMethodOptions" placeholder="Seleccionar" :disabled="!objOrder" :class="{ 'border-danger focus:border-danger': errors.paymentMethodId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="paymentMethodId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="payment_method" :disabled="!objOrder" class="w-full"
+              :class="{ 'border-danger': errors.paymentMethodId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="paymentMethodId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Banco</label>
-          <Field name="bankId" as="nx-combobox" :options="lstBankOptions" placeholder="Seleccionar" :disabled="!objOrder" :class="{ 'border-danger focus:border-danger': errors.bankId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="bankId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="bank" :disabled="!objOrder" class="w-full"
+              :class="{ 'border-danger': errors.bankId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="bankId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
@@ -73,11 +79,8 @@
 <script>
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
-import PaymentMethodService from '@/services/sales/PaymentMethodService';
-import BankService from '@/services/sales/BankService';
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
 import PurchaseOrderPaymentService from '@/services/purchasing/PurchaseOrderPaymentService';
-import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { ORDER_STATUS, handleCanRegisterPayment } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
@@ -122,8 +125,6 @@ export default {
       objOrder: null,
       objValidationSchema: validationSchema,
       objInitialData: validationSchema.getDefault(),
-      lstPaymentMethodOptions: [],
-      lstBankOptions: [],
       lstOrders: [],
       lstOrderOptions: []
     };
@@ -173,48 +174,6 @@ export default {
       this.numCurrencyId = objOrder?.currencyId ? Number(objOrder.currencyId) : null;
       this.strCurrencyLabel = this.handleGetCurrencyLabel(objOrder);
     },
-    handleGetPaymentMethods() {
-      return handleGetOrLoad('paymentMethods', () =>
-        PaymentMethodService.getAll({ per_page: 100 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : []).map((objMethod) => ({
-            label: objMethod.name,
-            value: objMethod.id
-          }));
-        })
-      )
-      .then((lstOptions) => {
-        this.lstPaymentMethodOptions = lstOptions;
-      })
-      .catch((objError) => {
-        handleError('Error', 'No se pudieron cargar los métodos de pago', objError);
-      })
-      .finally(() => {
-        this.bSpinner = false;
-      });
-    },
-    handleGetBanks() {
-      return handleGetOrLoad('banks', () =>
-        BankService.getAll({ per_page: 100 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : [])
-            .filter((objBank) => (objBank.status || 'Active') !== 'Inactive')
-            .map((objBank) => ({
-              label: objBank.name,
-              value: objBank.id
-            }));
-        })
-      )
-      .then((lstOptions) => {
-        this.lstBankOptions = lstOptions;
-      })
-      .catch((objError) => {
-        handleError('Error', 'No se pudieron cargar los bancos', objError);
-      })
-      .finally(() => {
-        this.bSpinner = false;
-      });
-    },
     handleLoadAccountOrders(numAccountId) {
       return PurchaseOrderService.getAll({
         include: 'account,currency',
@@ -254,7 +213,7 @@ export default {
       return {
         purchaseOrderId: null,
         amount: null,
-        paymentMethodId: this.lstPaymentMethodOptions.length ? this.lstPaymentMethodOptions[0].value : null,
+        paymentMethodId: null,
         bankId: null,
         paymentReference: '',
         paymentDate: this.handleGetToday(),
@@ -273,20 +232,19 @@ export default {
       this.objValidationSchema = this.bSelectOrder ? validationSchemaWithOrder : validationSchema;
       this.strTitle = 'Registrar Abono';
 
-      Promise.all([this.handleGetPaymentMethods(), this.handleGetBanks()]).then(() => {
-        if (this.bSelectOrder) {
-          return this.handleLoadAccountOrders(this.numAccountId).then(() => {
-            this.handleOpenModal(this.handleDefaultFormValues());
-          });
-        }
+      if (this.bSelectOrder) {
+        this.handleLoadAccountOrders(this.numAccountId).then(() => {
+          this.handleOpenModal(this.handleDefaultFormValues());
+        });
+        return;
+      }
 
-        this.objOrder = this.handleNormalizeOrder(objOrder);
-        this.strVendorName = this.handleGetVendorName(objOrder);
-        this.handleApplyOrderCurrency(this.objOrder);
-        this.handleOpenModal(this.handleDefaultFormValues({
-          amount: this.fltBalanceAmount || null
-        }));
-      });
+      this.objOrder = this.handleNormalizeOrder(objOrder);
+      this.strVendorName = this.handleGetVendorName(objOrder);
+      this.handleApplyOrderCurrency(this.objOrder);
+      this.handleOpenModal(this.handleDefaultFormValues({
+        amount: this.fltBalanceAmount || null
+      }));
     },
     handleOpenModal(objValues) {
       this.objInitialData = objValues;

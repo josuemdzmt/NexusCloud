@@ -5,24 +5,23 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Proveedor <span class="text-danger">*</span></label>
-          <Field name="accountId" as="nx-combobox" :options="lstVendorOptions" placeholder="Seleccionar proveedor"
-            :class="{ 'border-danger focus:border-danger': errors.accountId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="accountId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="account" :params="{ 'filter[account_type]': ['Vendor', 'Both'] }" class="w-full"
+              :class="{ 'border-danger': errors.accountId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="accountId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Estado <span class="text-danger">*</span></label>
-          <nx-combobox
-            v-model="strStatus"
-            :options="lstStatusOptions"
-            placeholder="Seleccionar estado"
-            :disabled="!bCanChangeStatus"
-            class="w-full text-sm border-border-color focus:border-primary"
-          />
+          <nx-combobox v-model="strStatus" :options="lstStatusOptions" placeholder="Seleccionar estado"
+            :disabled="!bCanChangeStatus" class="w-full text-sm border-border-color focus:border-primary" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Moneda <span class="text-danger">*</span></label>
-          <Field name="currencyId" as="nx-combobox" :options="lstCurrencyOptions" placeholder="Seleccionar moneda"
-            :class="{ 'border-danger focus:border-danger': errors.currencyId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="currencyId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="currency" :params="{ 'filter[is_active]': 1 }" class="w-full"
+              :class="{ 'border-danger': errors.currencyId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="currencyId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
@@ -98,11 +97,9 @@
 <script>
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
-import VendorService from '@/services/purchasing/VendorService';
-import CurrencyService, { handleFindDefaultCurrency } from '@/services/sales/CurrencyService';
+import CurrencyService from '@/services/sales/CurrencyService';
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
 import PurchaseOrderLineItemService from '@/services/purchasing/PurchaseOrderLineItemService';
-import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import {
   ORDER_STATUS,
@@ -157,9 +154,6 @@ export default {
       numDefaultAccountId: null,
       objValidationSchema: validationSchema,
       objInitialData: validationSchema.getDefault(),
-      lstVendorOptions: [],
-      lstCurrencyOptions: [],
-      lstCurrencies: [],
       lstDocumentTypeOptions: [
         ...SUPPLIER_DOCUMENT_TYPE_OPTIONS
       ]
@@ -204,39 +198,6 @@ export default {
     handleGetToday() {
       return new Date().toISOString().substr(0, 10);
     },
-    handleGetVendors() {
-      return handleGetOrLoad('vendors', () =>
-        VendorService.getAll({ per_page: 500 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : [])
-            .filter((objItem) => VendorService.handleIsVendorAccount(objItem))
-            .map((objVendor) => ({
-              label: objVendor.legal_name || `${objVendor.first_name || ''} ${objVendor.last_name || ''}`.trim() || 'Sin Nombre',
-              value: objVendor.id
-            }));
-        })
-      )
-        .then((lstOptions) => {
-          this.lstVendorOptions = lstOptions;
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los proveedores', objError));
-    },
-    handleGetCurrencies() {
-      return handleGetOrLoad('currencies', () =>
-        CurrencyService.getAll({ per_page: 500 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return Array.isArray(lstData) ? lstData : [];
-        })
-      )
-        .then((lstCurrencies) => {
-          this.lstCurrencies = lstCurrencies;
-          this.lstCurrencyOptions = lstCurrencies.map((objCurrency) => ({
-            label: `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`,
-            value: objCurrency.id
-          }));
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar las monedas', objError));
-    },
     /**
      * @param {Number|String|null} numId
      * @param {Object|null} objContext - { accountId }
@@ -254,16 +215,14 @@ export default {
       this.strStatus = ORDER_STATUS.DRAFT;
       this.strTitle = 'Orden de Compra';
 
-      Promise.all([this.handleGetVendors(), this.handleGetCurrencies()]).then(() => {
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleOpen();
-        }
-        if (numId) {
-          this.handleInitForm(numId);
-          return;
-        }
-        this.handleInitCreate();
-      });
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleOpen();
+      }
+      if (numId) {
+        this.handleInitForm(numId);
+        return;
+      }
+      this.handleInitCreate();
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
@@ -279,19 +238,25 @@ export default {
         discountAmount: 0,
         totalTaxAmount: 0
       };
-      const objCurrency = handleFindDefaultCurrency(this.lstCurrencies);
-      if (objCurrency?.id) {
-        objDefaults.currencyId = Number(objCurrency.id);
-      }
-      this.objInitialData = objDefaults;
       this.handleRecalcTotal({
         subtotal: objDefaults.subtotal,
         discountAmount: objDefaults.discountAmount,
         totalTaxAmount: objDefaults.totalTaxAmount
       });
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-      }
+
+      CurrencyService.getDefault()
+        .then((objCurrency) => {
+          if (objCurrency?.id) {
+            objDefaults.currencyId = Number(objCurrency.id);
+          }
+        })
+        .catch(() => null)
+        .finally(() => {
+          this.objInitialData = objDefaults;
+          if (this.$refs.modalFormRef) {
+            this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+          }
+        });
     },
     handleLoadLineCount(recordId) {
       return PurchaseOrderLineItemService.getAll({
