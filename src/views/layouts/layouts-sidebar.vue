@@ -8,7 +8,7 @@
                 <!-- Logo Normal -->
                 <span class="logo logo-normal">
                     <img src="@/assets/img/logo-small.svg" alt="Logo">
-                    <span class="logo-text text-base font-semibold text-gray-900 leading-none">NexusCloud</span>
+                    <span class="logo-text text-base font-semibold text-title leading-none">NexusCloud</span>
                 </span>
 
                 <!-- Logo Small (mini-sidebar) -->

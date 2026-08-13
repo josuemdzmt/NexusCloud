@@ -5,19 +5,16 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Cliente <span class="text-danger">*</span></label>
-          <Field name="accountId" as="nx-combobox" :options="lstCustomerOptions" placeholder="Seleccionar cliente"
-            :class="{ 'border-danger focus:border-danger': errors.accountId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="accountId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="account" :params="{ 'filter[account_type]': ['Customer', 'Both'] }" class="w-full"
+              :class="{ 'border-danger': errors.accountId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="accountId" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Estado <span class="text-danger">*</span></label>
-          <nx-combobox
-            v-model="strStatus"
-            :options="lstStatusOptions"
-            placeholder="Seleccionar estado"
-            :disabled="!bCanChangeStatus"
-            class="w-full text-sm border-border-color focus:border-primary"
-          />
+          <nx-combobox v-model="strStatus" :options="lstStatusOptions" placeholder="Seleccionar estado"
+            :disabled="!bCanChangeStatus" class="w-full text-sm border-border-color focus:border-primary" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Fecha <span class="text-danger">*</span></label>
@@ -28,17 +25,19 @@
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Lista de precios <span class="text-danger">*</span></label>
-          <Field name="pricebookId" as="nx-combobox" :options="lstPricebookOptions" placeholder="Seleccionar lista de precios"
-            :disabled="bPricebookLocked"
-            :class="{ 'border-danger focus:border-danger': errors.pricebookId }"
-            class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="pricebookId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="pricebook" :params="{ 'filter[is_active]': 1 }" :disabled="bPricebookLocked" :clearable="!bPricebookLocked"
+              class="w-full" :class="{ 'border-danger': errors.pricebookId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="pricebookId" class="text-danger text-[11px] mt-1 block" />
           <p v-if="bPricebookLocked" class="text-[11px] text-default mt-1">No se puede cambiar cuando ya hay líneas.</p>
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Moneda <span class="text-danger">*</span></label>
-          <Field name="currencyId" as="nx-combobox" :options="lstCurrencyOptions" placeholder="Seleccionar moneda"
-            :class="{ 'border-danger focus:border-danger': errors.currencyId }" class="w-full text-sm border-border-color focus:border-primary" />
+          <Field name="currencyId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="currency" :params="{ 'filter[is_active]': 1 }" class="w-full"
+              :class="{ 'border-danger': errors.currencyId }" @update:model-value="handleChange" @blur="handleBlur" />
+          </Field>
           <ErrorMessage name="currencyId" class="text-danger text-[11px] mt-1 block" />
         </div>
 
@@ -50,27 +49,22 @@
           <Field name="subtotal" v-slot="{ field }">
             <input v-bind="field" type="number" min="0" step="0.01" :readonly="bLineItemsMode" :class="{ 'border-danger focus:border-danger': errors.subtotal, 'bg-gray-50 text-gray-600': bLineItemsMode }"
               class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0"
-              @input="(e) => { field.onInput(e); handleRecalcTotal({ subtotal: e.target.value }); }"
-            >
+              @input="(e) => { field.onInput(e); handleRecalcTotal({ subtotal: e.target.value }); }">
           </Field>
           <ErrorMessage name="subtotal" class="text-danger text-[11px] mt-1 block" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Descuento</label>
           <Field name="discountAmount" v-slot="{ field }">
-            <input v-bind="field" type="number" min="0" step="0.01"
-              class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0"
-              @input="(e) => { field.onInput(e); handleRecalcTotal({ discountAmount: e.target.value }); }"
-            >
+            <input v-bind="field" type="number" min="0" step="0.01" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0"
+              @input="(e) => { field.onInput(e); handleRecalcTotal({ discountAmount: e.target.value }); }">
           </Field>
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Impuesto</label>
           <Field name="totalTaxAmount" v-slot="{ field }">
-            <input v-bind="field" type="number" min="0" step="0.01"
-              class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0"
-              @input="(e) => { field.onInput(e); handleRecalcTotal({ totalTaxAmount: e.target.value }); }"
-            >
+            <input v-bind="field" type="number" min="0" step="0.01" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0"
+              @input="(e) => { field.onInput(e); handleRecalcTotal({ totalTaxAmount: e.target.value }); }">
           </Field>
         </div>
         <div>
@@ -96,14 +90,11 @@
 <script>
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
-import CustomerService from '@/services/sales/CustomerService';
-import PricebookService from '@/services/sales/PricebookService';
-import CurrencyService, { handleFindDefaultCurrency } from '@/services/sales/CurrencyService';
+import CurrencyService from '@/services/sales/CurrencyService';
 import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderLineItemService from '@/services/sales/SalesOrderLineItemService';
-import { handleGetOrLoad } from '@/services/catalog/catalogCache';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
-import { ORDER_STATUS, AMOUNT_SOURCE, handleCanEditOrder, handleGetAvailableStatusOptions, 
+import { ORDER_STATUS, AMOUNT_SOURCE, handleCanEditOrder, handleGetAvailableStatusOptions,
   handleValidateStatusTransition } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import { handleGetGrandTotalPreview, handleNormalizeSalesOrder } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
@@ -146,11 +137,7 @@ export default {
       recordId: null,
       numDefaultAccountId: null,
       objValidationSchema: validationSchema,
-      objInitialData: validationSchema.getDefault(),
-      lstCustomerOptions: [],
-      lstPricebookOptions: [],
-      lstCurrencyOptions: [],
-      lstCurrencies: []
+      objInitialData: validationSchema.getDefault()
     };
   },
   computed: {
@@ -192,54 +179,6 @@ export default {
     handleGetToday() {
       return new Date().toISOString().substr(0, 10);
     },
-    handleGetCustomers() {
-      return handleGetOrLoad('customers', () =>
-        CustomerService.getAll({ per_page: 500 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : [])
-            .filter((objCustomer) => CustomerService.handleIsCustomerAccount(objCustomer))
-            .map((objCustomer) => ({
-              label: objCustomer.legal_name || `${objCustomer.first_name || ''} ${objCustomer.last_name || ''}`.trim() || 'Sin Nombre',
-              value: objCustomer.id
-            }));
-        })
-      )
-        .then((lstOptions) => {
-          this.lstCustomerOptions = lstOptions;
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los clientes', objError));
-    },
-    handleGetPricebooks() {
-      return handleGetOrLoad('pricebooks', () =>
-        PricebookService.getAll({ per_page: 500, 'filter[is_active]': 1 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return (Array.isArray(lstData) ? lstData : []).map((objPricebook) => ({
-            label: objPricebook.name,
-            value: objPricebook.id
-          }));
-        })
-      )
-        .then((lstOptions) => {
-          this.lstPricebookOptions = lstOptions;
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar las listas de precios', objError));
-    },
-    handleGetCurrencies() {
-      return handleGetOrLoad('currencies', () =>
-        CurrencyService.getAll({ per_page: 500 }).then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          return Array.isArray(lstData) ? lstData : [];
-        })
-      )
-        .then((lstCurrencies) => {
-          this.lstCurrencies = lstCurrencies;
-          this.lstCurrencyOptions = lstCurrencies.map((objCurrency) => ({
-            label: `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`,
-            value: objCurrency.id
-          }));
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar las monedas', objError));
-    },
     /**
      * @param {Number|String|null} numId
      * @param {Object|null} objContext - { accountId }
@@ -258,16 +197,14 @@ export default {
       this.strStatus = ORDER_STATUS.DRAFT;
       this.strTitle = 'Orden de Venta';
 
-      Promise.all([this.handleGetCustomers(), this.handleGetPricebooks(), this.handleGetCurrencies()]).then(() => {
-        if (this.$refs.modalFormRef) {
-          this.$refs.modalFormRef.handleOpen();
-        }
-        if (numId) {
-          this.handleInitForm(numId);
-          return;
-        }
-        this.handleInitCreate();
-      });
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleOpen();
+      }
+      if (numId) {
+        this.handleInitForm(numId);
+        return;
+      }
+      this.handleInitCreate();
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
@@ -283,19 +220,25 @@ export default {
         discountAmount: 0,
         totalTaxAmount: 0
       };
-      const objCurrency = handleFindDefaultCurrency(this.lstCurrencies);
-      if (objCurrency?.id) {
-        objDefaults.currencyId = Number(objCurrency.id);
-      }
-      this.objInitialData = objDefaults;
       this.handleRecalcTotal({
         subtotal: objDefaults.subtotal,
         discountAmount: objDefaults.discountAmount,
         totalTaxAmount: objDefaults.totalTaxAmount
       });
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-      }
+
+      CurrencyService.getDefault()
+        .then((objCurrency) => {
+          if (objCurrency?.id) {
+            objDefaults.currencyId = Number(objCurrency.id);
+          }
+        })
+        .catch(() => null)
+        .finally(() => {
+          this.objInitialData = objDefaults;
+          if (this.$refs.modalFormRef) {
+            this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+          }
+        });
     },
     handleLoadLineCount(recordId) {
       return SalesOrderLineItemService.getAll({

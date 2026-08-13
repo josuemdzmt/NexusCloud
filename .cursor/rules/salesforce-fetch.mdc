@@ -44,4 +44,6 @@ Equivalente SF: cache LDS de picklists / lookups compartidos.
 
 ## Labels de lookups
 
-Preferir `include` en el list/getById (hydration) frente a `getAll(per_page:100)` de métodos/bancos solo para pintar labels.
+- Controles de form: `nx-lookup` → `GET /api/v1/lookup?type=…` (contrato `{ id, name, code }`). Doc: `docs/components/NX-LOOKUP.md`.
+- En record pages: preferir `include` en getById frente a `getAll(per_page:100)` solo para pintar labels.
+- No mapear `legal_name` / `iso_code` en JS: proyección en Vertex `LookupTypeRegistry`.

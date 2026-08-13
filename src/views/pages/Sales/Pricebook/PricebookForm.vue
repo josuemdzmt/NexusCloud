@@ -2,21 +2,24 @@
   <nx-modal-form ref="modalFormRef" id="pricebook-modal" :title="strTitle" size="md" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
     <template #default="{ errors }">
       <div class="grid grid-cols-1 gap-4">
-        <!-- Nombre -->
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Nombre <span class="text-danger">*</span></label>
-          <Field name="name" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.name }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Ej. Lista Mayoristas" maxlength="150" />
+          <Field name="name" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.name }"
+            class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Ej. Lista Mayoristas" maxlength="150" />
           <ErrorMessage name="name" class="text-danger text-[11px] mt-1 block" />
         </div>
-
-        <!-- Descripción -->
+        <div>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Código</label>
+          <Field name="code" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.code }"
+            class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Ej. MAYORISTA" maxlength="50" />
+          <ErrorMessage name="code" class="text-danger text-[11px] mt-1 block" />
+        </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Descripción</label>
-          <Field name="description" as="textarea" rows="3" :class="{ 'border-danger focus:border-danger': errors.description }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Descripción breve..." />
+          <Field name="description" as="textarea" rows="3" :class="{ 'border-danger focus:border-danger': errors.description }"
+            class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Descripción breve..." />
           <ErrorMessage name="description" class="text-danger text-[11px] mt-1 block" />
         </div>
-
-        <!-- Estado -->
         <div class="mt-2">
           <label class="flex items-center gap-2 cursor-pointer">
             <Field name="isActive" type="checkbox" :value="true" :unchecked-value="false" class="size-4 rounded border-border-color text-primary focus:ring-0" />
@@ -37,6 +40,7 @@ import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const validationSchema = yup.object({
   name: yup.string().required('El nombre es obligatorio').max(150, 'Máximo 150 caracteres'),
+  code: yup.string().nullable().max(50, 'Máximo 50 caracteres'),
   description: yup.string().nullable(),
   isActive: yup.boolean().default(true)
 });

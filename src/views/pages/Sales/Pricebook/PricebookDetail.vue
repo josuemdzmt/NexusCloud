@@ -22,6 +22,10 @@
             </div>
             <div class="text-sm text-default text-left space-y-3 pt-3 border-t border-border-color">
               <div class="flex justify-between">
+                <span>Código</span>
+                <span class="text-gray-900 font-semibold">{{ objPricebook?.code || '—' }}</span>
+              </div>
+              <div class="flex justify-between">
                 <span>Descripción</span>
                 <span class="text-gray-900 font-semibold text-right max-w-[60%]">{{ objPricebook?.description || 'Sin descripción' }}</span>
               </div>

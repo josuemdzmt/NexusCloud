@@ -1,0 +1,11 @@
+---
+description: Uso de nx-lookup (type + params → GET /api/v1/lookup)
+globs: **/*.{vue,js,ts}
+alwaysApply: false
+---
+
+# nx-lookup
+
+- Solo `type` + `params` (`pageSize` default 10). `type` = snake_case del modelo Vertex (`account`, `brand`, `payment_method`).
+- Contrato: `GET /api/v1/lookup` → `{ id, name, code }`. Resolución automática por `{Model}QueryBuilder` (no registry manual de tipos).
+- Mapper JS solo name/code. Doc: `docs/components/NX-LOOKUP.md` · Vertex `docs/architecture/04-lookup.md`.

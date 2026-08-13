@@ -38,7 +38,7 @@ import PosHeader from './views/layouts/pos-header.vue';
 import NXDataTable from './components/nexus/NX-DataTable.vue';
 import NXPagination from './components/nexus/NX-Pagination.vue';
 import NXCombobox from './components/nexus/NX-Combobox.vue';
-//import NXLookup from './components/nexus/NX-Lookup.vue';
+import NXLookup from './components/nexus/NX-Lookup.vue';
 import NXFormPage from './components/nexus/NX-FormPage.vue';
 import NXModal from './components/nexus/NX-Modal.vue';
 import NXModalHeader from './components/nexus/NX-ModalHeader.vue';
@@ -193,7 +193,7 @@ app.component('calendar-modal', CalendarModal)
 app.component('nx-datatable', NXDataTable);
 app.component('nx-pagination', NXPagination);
 app.component('nx-combobox', NXCombobox);
-//app.component('nx-lookup', NXLookup);
+app.component('nx-lookup', NXLookup);
 app.component('nx-form-page', NXFormPage);
 app.component('nx-modal', NXModal);
 app.component('nx-modal-header', NXModalHeader);

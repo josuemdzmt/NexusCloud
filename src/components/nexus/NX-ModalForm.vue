@@ -38,6 +38,18 @@ export default {
     initialValues: { type: Object, default: () => ({}) }
   },
   emits: ['submit', 'cancel'],
+  mounted() {
+    this.$nextTick(() => {
+      const elModal = document.getElementById(this.id);
+      if (!elModal) return;
+      elModal.addEventListener('close.hs.overlay', this.handleBlurActiveWithinModal);
+    });
+  },
+  beforeUnmount() {
+    const elModal = document.getElementById(this.id);
+    if (!elModal) return;
+    elModal.removeEventListener('close.hs.overlay', this.handleBlurActiveWithinModal);
+  },
   methods: {
     handleOpen() {
       setTimeout(() => {
@@ -47,7 +59,15 @@ export default {
         }
       }, 50);
     },
+    handleBlurActiveWithinModal() {
+      const elModal = document.getElementById(this.id);
+      const elActive = document.activeElement;
+      if (elModal && elActive && elModal.contains(elActive) && typeof elActive.blur === 'function') {
+        elActive.blur();
+      }
+    },
     handleClose() {
+      this.handleBlurActiveWithinModal();
       const elModal = document.getElementById(this.id);
       const elCloseBtn = elModal ? elModal.querySelector('[data-hs-overlay]') : null;
       if (elCloseBtn) {

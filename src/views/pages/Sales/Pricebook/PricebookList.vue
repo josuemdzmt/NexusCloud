@@ -46,6 +46,7 @@ export default {
       lstPricebooks: [],
       lstColumns: [
         { label: 'Nombre', fieldName: 'name', type: 'text', sortable: true },
+        { label: 'Código', fieldName: 'code', type: 'text', sortable: true },
         { label: 'Descripción', fieldName: 'description', type: 'text' },
         { label: 'Estándar', fieldName: 'isStandard', type: 'badge', typeAttributes: YES_NO_BADGE },
         { label: 'Estado', fieldName: 'isActive', type: 'badge', typeAttributes: STATUS_BADGE },

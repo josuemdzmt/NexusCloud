@@ -63,7 +63,7 @@
                   </template>
                 </nx-datatable>
               </nx-tab>
-              <nx-tab label="Existencias" value="stock">
+              <!--nx-tab label="Existencias" value="stock">
                 <ProductItemRelatedList v-if="recordId" :product-id="recordId" />
               </nx-tab>
               <nx-tab label="Movimientos" value="transactions">
@@ -71,7 +71,7 @@
               </nx-tab>
               <nx-tab label="Traspasos" value="transfers">
                 <ProductTransferLineItemRelatedList v-if="recordId" :product-id="recordId" />
-              </nx-tab>
+              </nx-tab-->
             </nx-tabset>
           </div>
         </div>

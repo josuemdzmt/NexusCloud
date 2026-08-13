@@ -19,7 +19,7 @@
             <span class="logo">
                 <span class="logo-lg inline-flex items-center gap-2">
                     <img src="@/assets/img/logo-small.svg" alt="Logo">
-                    <span class="logo-text text-base font-semibold text-gray-900 leading-none">NexusCloud</span>
+                    <span class="logo-text text-base font-semibold text-title leading-none">NexusCloud</span>
                 </span>
             </span>
 
