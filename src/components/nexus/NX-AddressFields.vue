@@ -1,12 +1,12 @@
 <template>
   <div class="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-    <div v-if="searchable" class="col-span-1 sm:col-span-2 flex justify-end">
-      <button type="button" class="inline-flex items-center gap-1 text-sm text-primary hover:underline cursor-pointer" @click="handleOpenAddressSearch">
-        <i class="ph ph-map-pin"></i> Buscar en Maps
-      </button>
-    </div>
     <div class="col-span-1 sm:col-span-2">
-      <label class="text-sm font-semibold text-gray-900 mb-1 block">Calle</label>
+      <div class="flex items-center justify-between mb-1">
+        <label class="text-sm font-semibold text-gray-900">Calle</label>
+        <button v-if="searchable" type="button" class="inline-flex items-center gap-1 text-sm text-primary hover:underline cursor-pointer" @click="handleOpenAddressSearch">
+          <i class="ph ph-map-pin"></i> Buscar dirección
+        </button>
+      </div>
       <Field :name="`${namePrefix}.route`" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
     </div>
     <div class="col-span-1">
@@ -56,7 +56,7 @@ export default {
   props: {
     /** Prefijo del form: billing_address | shipping_address | address | billToAddress | shipToAddress */
     namePrefix: { type: String, required: true },
-    /** Muestra Buscar en Maps (nx-address-search) y escribe el JSON en el form. */
+    /** Muestra Buscar dirección (nx-address-search) y escribe el JSON en el form. */
     searchable: { type: Boolean, default: false }
   },
   setup() {

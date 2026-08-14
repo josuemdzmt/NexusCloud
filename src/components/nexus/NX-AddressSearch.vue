@@ -4,7 +4,7 @@
       <div class="fixed inset-0 bg-black/40 backdrop-blur-[5px]" @click="handleClose"></div>
       <div class="relative mt-16 w-full max-w-lg mx-auto m-3 bg-white border shadow-sm rounded-md border-border-color pointer-events-auto">
         <div class="flex justify-between items-center p-4 border-b border-border-color shrink-0">
-          <h2 class="text-base font-bold text-title mb-0">Buscar en Maps</h2>
+          <h2 class="text-base font-bold text-title mb-0">Buscar dirección</h2>
           <button type="button" class="size-7 inline-flex justify-center items-center rounded-md border border-border-color hover:bg-light cursor-pointer" @click="handleClose">
             <i class="ph ph-x text-sm"></i>
           </button>
@@ -53,8 +53,8 @@ export default {
   name: 'NX-AddressSearch',
   emits: ['select', 'close'],
   props: {
-    debounceMs: { type: Number, default: 300 },
-    minChars: { type: Number, default: 3 }
+    debounceMs: { type: Number, default: 500 },
+    minChars: { type: Number, default: 5 }
   },
   data() {
     return {

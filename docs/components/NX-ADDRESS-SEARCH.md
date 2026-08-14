@@ -12,6 +12,8 @@ No reemplaza `nx-lookup` (FKs internas). En formularios se usa **dentro de** `nx
 
 Al elegir un resultado, `nx-address-fields` escribe el JSON en el form vía `useFormContext().setFieldValue`.
 
+Con `searchable`, el link **Buscar dirección** va alineado con el label Calle (abre el modal).
+
 Uso directo del modal (raro; preferir `searchable`):
 
 ```html
@@ -26,8 +28,8 @@ this.$refs.addressSearchRef.handleOpen();
 
 | Prop | Tipo | Default | Descripción |
 |------|------|---------|-------------|
-| `debounceMs` | number | `300` | Debounce de búsqueda |
-| `minChars` | number | `3` | Mínimo de caracteres antes de consultar |
+| `debounceMs` | number | `500` | Debounce de búsqueda |
+| `minChars` | number | `5` | Mínimo de caracteres antes de consultar |
 
 ## Eventos
 
