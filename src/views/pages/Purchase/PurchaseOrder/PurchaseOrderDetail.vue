@@ -75,6 +75,16 @@
                   <span class="text-danger font-semibold">${{ handleFormatAmount(objOrder.balanceAmount) }}</span>
                 </div>
               </div>
+              <div class="mt-4 pt-3 border-t border-border-color text-sm space-y-3">
+                <div>
+                  <p class="text-default mb-1">Dirección de facturación</p>
+                  <p class="text-gray-900 font-semibold mb-0 whitespace-pre-line">{{ strBillToAddress }}</p>
+                </div>
+                <div>
+                  <p class="text-default mb-1">Dirección de envío</p>
+                  <p class="text-gray-900 font-semibold mb-0 whitespace-pre-line">{{ strShipToAddress }}</p>
+                </div>
+              </div>
               <div v-if="objOrder.notes || objOrder.termsAndConditions" class="mt-4 pt-3 border-t border-border-color text-sm space-y-3">
                 <div v-if="objOrder.notes">
                   <h4 class="font-semibold text-gray-900 mb-1">Notas</h4>
@@ -127,6 +137,7 @@ import {
   handleCanRegisterPayment
 } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleNormalizePurchaseOrder } from '@/views/pages/Purchase/PurchaseOrder/purchaseOrderUtils';
+import { handleFormatAddressLines } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
 export default {
   name: 'PurchaseOrderDetail',
@@ -177,12 +188,23 @@ export default {
     },
     bCanRegisterPayment() {
       return this.objOrder && handleCanRegisterPayment(this.objOrder.status);
+    },
+    strBillToAddress() {
+      return this.handleFormatPartyAddress(this.objOrder?.billToAddress);
+    },
+    strShipToAddress() {
+      return this.handleFormatPartyAddress(this.objOrder?.shipToAddress);
     }
   },
   mounted() {
     this.handleGetData();
   },
   methods: {
+    handleFormatPartyAddress(objAddress) {
+      const objLines = handleFormatAddressLines(objAddress);
+      const strText = [objLines.street, objLines.cityLine].filter(Boolean).join('\n');
+      return strText || '—';
+    },
     handleGetData() {
       const recordId = this.$route.params.recordId;
       this.bSpinner = true;

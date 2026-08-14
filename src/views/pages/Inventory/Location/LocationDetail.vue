@@ -81,6 +81,7 @@ import {
   STATUS_BADGE
 } from '@/views/pages/Inventory/Location/LocationConstants';
 import { handleError } from '@/utils/toastUtils';
+import { handleFormatAddressLines } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
 export default {
   name: 'LocationDetail',
@@ -139,15 +140,9 @@ export default {
       return Boolean(this.objLocation?.is_primary ?? this.objLocation?.isPrimary);
     },
     strAddress() {
-      const objAddress = this.objLocation?.address || {};
-      const lstParts = [
-        objAddress.street,
-        objAddress.city,
-        objAddress.state,
-        objAddress.zip,
-        objAddress.country
-      ].filter((strPart) => strPart && String(strPart).trim());
-      return lstParts.length ? lstParts.join('\n') : '—';
+      const objLines = handleFormatAddressLines(this.objLocation?.address);
+      const strText = [objLines.street, objLines.cityLine].filter(Boolean).join('\n');
+      return strText || '—';
     }
   },
   mounted() {

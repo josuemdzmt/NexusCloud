@@ -89,9 +89,12 @@ export function handleFormatAddressLines(objAddress) {
     return { street: '', cityLine: '' };
   }
 
+  const strNumber = objAddress.streetNumber || objAddress.ext_num || objAddress.extNum || '';
+  const strStreetName = objAddress.route || objAddress.street || '';
+  const bNumberInStreet = strNumber && strStreetName.includes(String(strNumber));
   const strStreetCore = [
-    objAddress.street,
-    objAddress.ext_num || objAddress.extNum ? `Ext. ${objAddress.ext_num || objAddress.extNum}` : '',
+    strStreetName,
+    strNumber && !bNumberInStreet ? `Ext. ${strNumber}` : '',
     objAddress.int_num || objAddress.intNum ? `Int. ${objAddress.int_num || objAddress.intNum}` : ''
   ].filter(Boolean).join(' ');
 
@@ -99,11 +102,13 @@ export function handleFormatAddressLines(objAddress) {
     ? (String(objAddress.neighborhood).startsWith('Col.') ? objAddress.neighborhood : `Col. ${objAddress.neighborhood}`)
     : '';
 
-  const street = [strStreetCore, strNeighborhood].filter(Boolean).join(', ');
+  const street = [strStreetCore, strNeighborhood].filter(Boolean).join(', ')
+    || objAddress.formattedAddress
+    || '';
   const cityLine = [
     objAddress.city,
     objAddress.state,
-    objAddress.zip_code || objAddress.zipCode || objAddress.zip || ''
+    objAddress.zipcode || objAddress.zip_code || objAddress.zipCode || objAddress.zip || objAddress.postalCode || ''
   ].filter(Boolean).join(', ');
   const strCountry = objAddress.country || '';
   const strCityWithCountry = [cityLine, strCountry].filter(Boolean).join(' · ');

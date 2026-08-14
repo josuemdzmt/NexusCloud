@@ -1,34 +1,34 @@
 <template>
   <nx-modal-form ref="modalFormRef" id="sales-order-modal" :title="strTitle" size="3xl"
     :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
-    <template #default="{ errors, setValues }">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
+    <template #default="{ errors }">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Cliente <span class="text-danger">*</span></label>
           <Field name="accountId" v-slot="{ value, handleChange, handleBlur }">
             <nx-lookup :model-value="value" type="account" :params="{ 'filter[account_type]': ['Customer', 'Both'] }" class="w-full"
-              :class="{ 'border-danger': errors.accountId }" @update:model-value="(numId) => handleAccountChange(numId, handleChange, setValues)" @blur="handleBlur" />
+              :class="{ 'border-danger': errors.accountId }" @update:model-value="handleChange" @blur="handleBlur" />
           </Field>
           <ErrorMessage name="accountId" class="text-danger text-[11px] mt-1 block" />
         </div>
-        <div>
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Estado <span class="text-danger">*</span></label>
           <nx-combobox v-model="strStatus" :options="lstStatusOptions" placeholder="Seleccionar estado"
             :disabled="!bCanChangeStatus" class="w-full text-sm border-border-color focus:border-primary" />
         </div>
-        <div>
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Fecha <span class="text-danger">*</span></label>
           <Field name="effectiveDate" v-slot="{ field, value }">
             <a-date-picker :value="value" valueFormat="YYYY-MM-DD" class="w-full" placeholder="dd/mm/yyyy" @update:value="field.onChange" />
           </Field>
           <ErrorMessage name="effectiveDate" class="text-danger text-[11px] mt-1 block" />
         </div>
-        <div>
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Referencia externa</label>
           <Field name="externalReference" as="input" type="text" maxlength="80" placeholder="TKT-12345"
             class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
         </div>
-        <div>
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Lista de precios <span class="text-danger">*</span></label>
           <Field name="pricebookId" v-slot="{ value, handleChange, handleBlur }">
             <nx-lookup :model-value="value" type="pricebook" :params="{ 'filter[is_active]': 1 }" :disabled="bPricebookLocked" :clearable="!bPricebookLocked"
@@ -37,7 +37,7 @@
           <ErrorMessage name="pricebookId" class="text-danger text-[11px] mt-1 block" />
           <p v-if="bPricebookLocked" class="text-[11px] text-default mt-1">No se puede cambiar cuando ya hay líneas.</p>
         </div>
-        <div>
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Moneda <span class="text-danger">*</span></label>
           <Field name="currencyId" v-slot="{ value, handleChange, handleBlur }">
             <nx-lookup :model-value="value" type="currency" :params="{ 'filter[is_active]': 1 }" class="w-full"
@@ -46,10 +46,10 @@
           <ErrorMessage name="currencyId" class="text-danger text-[11px] mt-1 block" />
         </div>
 
-        <div class="md:col-span-2 mt-1">
+        <div class="col-span-2 mt-1">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Montos</h4>
         </div>
-        <div>
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Subtotal</label>
           <Field name="subtotal" v-slot="{ field }">
             <input v-bind="field" type="number" min="0" step="0.01" :readonly="bLineItemsMode" :class="{ 'border-danger focus:border-danger': errors.subtotal, 'bg-gray-50 text-gray-600': bLineItemsMode }"
@@ -58,45 +58,45 @@
           </Field>
           <ErrorMessage name="subtotal" class="text-danger text-[11px] mt-1 block" />
         </div>
-        <div>
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Descuento</label>
           <Field name="discountAmount" v-slot="{ field }">
             <input v-bind="field" type="number" min="0" step="0.01" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0"
               @input="(e) => { field.onInput(e); handleRecalcTotal({ discountAmount: e.target.value }); }">
           </Field>
         </div>
-        <div>
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Impuesto</label>
           <Field name="totalTaxAmount" v-slot="{ field }">
             <input v-bind="field" type="number" min="0" step="0.01" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0"
               @input="(e) => { field.onInput(e); handleRecalcTotal({ totalTaxAmount: e.target.value }); }">
           </Field>
         </div>
-        <div>
+        <div class="col-span-1">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Total</label>
           <input type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-gray-50 focus:outline-none focus:ring-0 text-gray-900 font-semibold"
             :value="strGrandTotalLabel" readonly>
         </div>
 
-        <div class="md:col-span-2 mt-1">
+        <div class="col-span-2 mt-1">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección de facturación</h4>
         </div>
-        <nx-address-fields name-prefix="billToAddress" />
+        <nx-address-fields name-prefix="billToAddress" searchable />
 
-        <div class="md:col-span-2 mt-1">
+        <div class="col-span-2 mt-1">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección de envío</h4>
         </div>
-        <nx-address-fields name-prefix="shipToAddress" />
+        <nx-address-fields name-prefix="shipToAddress" searchable />
 
-        <div class="md:col-span-2 mt-1">
+        <div class="col-span-2 mt-1">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Información adicional</h4>
         </div>
-        <div class="md:col-span-2">
+        <div class="col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Notas</label>
           <Field name="notes" as="textarea" rows="2"
             class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
         </div>
-        <div class="md:col-span-2">
+        <div class="col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Términos y Condiciones</label>
           <Field name="termsAndConditions" as="textarea" rows="2"
             class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
@@ -109,11 +109,10 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import CurrencyService from '@/services/sales/CurrencyService';
-import CustomerService from '@/services/sales/CustomerService';
 import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderLineItemService from '@/services/sales/SalesOrderLineItemService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
-import { yupAddressSchema, handleEnsureAddress } from '@/utils/addressUtils';
+import { yupAddressSchema, handleEnsureAddress, handleAddressPayload } from '@/utils/addressUtils';
 import { ORDER_STATUS, AMOUNT_SOURCE, handleCanEditOrder, handleGetAvailableStatusOptions,
   handleValidateStatusTransition } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import { handleGetGrandTotalPreview, handleNormalizeSalesOrder } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
@@ -202,31 +201,6 @@ export default {
     handleGetToday() {
       return new Date().toISOString().substr(0, 10);
     },
-    handleExtractAccountAddresses(objAccount) {
-      const objData = objAccount?.data || objAccount || {};
-      return {
-        billToAddress: handleEnsureAddress(objData.billing_address || objData.billingAddress),
-        shipToAddress: handleEnsureAddress(objData.shipping_address || objData.shippingAddress)
-      };
-    },
-    handleAccountChange(numAccountId, handleChange, setValues) {
-      handleChange(numAccountId);
-      if (!numAccountId) {
-        if (typeof setValues === 'function') {
-          setValues({
-            billToAddress: handleEnsureAddress(null),
-            shipToAddress: handleEnsureAddress(null)
-          });
-        }
-        return;
-      }
-      CustomerService.getById(numAccountId)
-        .then((objResponse) => {
-          if (typeof setValues !== 'function') return;
-          setValues(this.handleExtractAccountAddresses(objResponse));
-        })
-        .catch(() => null);
-    },
     /**
      * @param {Number|String|null} numId
      * @param {Object|null} objContext - { accountId }
@@ -286,16 +260,6 @@ export default {
           .catch(() => null)
       ];
 
-      if (this.numDefaultAccountId) {
-        lstPrefill.push(
-          CustomerService.getById(this.numDefaultAccountId)
-            .then((objResponse) => {
-              Object.assign(objDefaults, this.handleExtractAccountAddresses(objResponse));
-            })
-            .catch(() => null)
-        );
-      }
-
       Promise.all(lstPrefill).finally(() => {
         this.objInitialData = objDefaults;
         if (this.$refs.modalFormRef) {
@@ -342,16 +306,6 @@ export default {
           this.fltBalanceAmount = objOrder.balanceAmount;
           this.strAmountSource = objOrder.amountSource || AMOUNT_SOURCE.MANUAL;
 
-          let objBillTo = handleEnsureAddress(objOrder.billToAddress);
-          let objShipTo = handleEnsureAddress(objOrder.shipToAddress);
-          const bMissingBill = !objOrder.billToAddress;
-          const bMissingShip = !objOrder.shipToAddress;
-          if ((bMissingBill || bMissingShip) && objOrder.account) {
-            const objFromAccount = this.handleExtractAccountAddresses(objOrder.account);
-            if (bMissingBill) objBillTo = objFromAccount.billToAddress;
-            if (bMissingShip) objShipTo = objFromAccount.shipToAddress;
-          }
-
           this.objInitialData = {
             accountId: objOrder.accountId,
             pricebookId: objOrder.pricebookId,
@@ -361,8 +315,8 @@ export default {
             subtotal: objOrder.subtotal,
             discountAmount: objOrder.discountAmount,
             totalTaxAmount: objOrder.totalTaxAmount,
-            billToAddress: objBillTo,
-            shipToAddress: objShipTo,
+            billToAddress: handleEnsureAddress(objOrder.billToAddress),
+            shipToAddress: handleEnsureAddress(objOrder.shipToAddress),
             notes: objOrder.notes || '',
             termsAndConditions: objOrder.termsAndConditions || ''
           };
@@ -408,8 +362,8 @@ export default {
         totalTaxAmount: Number(objValues.totalTaxAmount) || 0,
         pricebookId: Number(objValues.pricebookId),
         externalReference: strExternal || null,
-        billToAddress: handleEnsureAddress(objValues.billToAddress),
-        shipToAddress: handleEnsureAddress(objValues.shipToAddress),
+        billToAddress: handleAddressPayload(objValues.billToAddress),
+        shipToAddress: handleAddressPayload(objValues.shipToAddress),
         notes: objValues.notes || null,
         termsAndConditions: objValues.termsAndConditions || null
       };

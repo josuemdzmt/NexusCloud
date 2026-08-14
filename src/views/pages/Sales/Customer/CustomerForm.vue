@@ -81,12 +81,12 @@
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección de facturación / fiscal</h4>
         </div>
-        <nx-address-fields name-prefix="billing_address" />
+        <nx-address-fields name-prefix="billing_address" searchable />
 
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección de envío</h4>
         </div>
-        <nx-address-fields name-prefix="shipping_address" />
+        <nx-address-fields name-prefix="shipping_address" searchable />
 
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Finanzas</h4>
@@ -126,7 +126,7 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import CustomerService from '@/services/sales/CustomerService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
-import { yupAddressSchema, handleEnsureAddress } from '@/utils/addressUtils';
+import { yupAddressSchema, handleEnsureAddress, handleAddressPayload } from '@/utils/addressUtils';
 
 const validationSchema = yup.object({
   is_person: yup.boolean().default(false).required('Obligatorio'),
@@ -220,10 +220,15 @@ export default {
       });
     },
     handleSubmit(values) {
+      const objPayload = {
+        ...values,
+        billing_address: handleAddressPayload(values.billing_address),
+        shipping_address: handleAddressPayload(values.shipping_address)
+      };
       if (this.recordId) {
-        this.handleUpdate(values);
+        this.handleUpdate(objPayload);
       } else {
-        this.handleCreate(values);
+        this.handleCreate(objPayload);
       }
     },
     handleCreate(objForm) {

@@ -67,6 +67,27 @@
             </div>
           </div>
 
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6 pb-6 border-b border-border-color">
+            <div>
+              <p class="text-sm text-default mb-2">Facturar a</p>
+              <p class="text-sm font-semibold text-title mb-2">{{ strVendorName }}</p>
+              <p class="text-sm text-default mb-0">
+                <span v-if="objBillTo.street" class="block">{{ objBillTo.street }}</span>
+                <span v-if="objBillTo.cityLine" class="block pt-1">{{ objBillTo.cityLine }}</span>
+                <span v-if="!objBillTo.street && !objBillTo.cityLine" class="block">—</span>
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-default mb-2">Enviar a</p>
+              <p class="text-sm font-semibold text-title mb-2">{{ strVendorName }}</p>
+              <p class="text-sm text-default mb-0">
+                <span v-if="objShipTo.street" class="block">{{ objShipTo.street }}</span>
+                <span v-if="objShipTo.cityLine" class="block pt-1">{{ objShipTo.cityLine }}</span>
+                <span v-if="!objShipTo.street && !objShipTo.cityLine" class="block">—</span>
+              </p>
+            </div>
+          </div>
+
           <div class="overflow-x-auto mb-6">
             <table class="w-full text-sm">
               <thead>
@@ -144,6 +165,7 @@ import PurchaseOrderLineItemService from '@/services/purchasing/PurchaseOrderLin
 import { handleError } from '@/utils/toastUtils';
 import { SUPPLIER_DOCUMENT_TYPE_LABEL, handleGetStatusLabel, handleGetStatusClass } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleNormalizePurchaseOrder, handleNormalizePurchaseOrderLineItem } from '@/views/pages/Purchase/PurchaseOrder/purchaseOrderUtils';
+import { handleFormatAddressLines } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
 export default {
   name: 'PurchaseOrderPreview',
@@ -182,6 +204,12 @@ export default {
       if (!this.objOrder?.currency) return '—';
       const objCurrency = this.objOrder.currency;
       return `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`;
+    },
+    objBillTo() {
+      return handleFormatAddressLines(this.objOrder?.billToAddress);
+    },
+    objShipTo() {
+      return handleFormatAddressLines(this.objOrder?.shipToAddress);
     }
   },
   mounted() {

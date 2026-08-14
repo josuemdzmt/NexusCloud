@@ -56,7 +56,7 @@
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección</h4>
         </div>
-        <nx-address-fields name-prefix="address" />
+        <nx-address-fields name-prefix="address" searchable />
 
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Configuración</h4>
@@ -79,6 +79,7 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import OrgService from '@/services/system/OrgService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
+import { yupAddressSchema, handleEnsureAddress, handleAddressPayload } from '@/utils/addressUtils';
 
 const validationSchema = yup.object({
   tenant_id: yup.number().default(1),
@@ -90,16 +91,7 @@ const validationSchema = yup.object({
   website: yup.string().url('URL inválida').nullable().default(''),
   logo_url: yup.string().url('URL inválida').nullable().default(''),
   status: yup.string().default('Active'),
-  address: yup.object({
-    street: yup.string().nullable().default(''),
-    ext_num: yup.string().nullable().default(''),
-    int_num: yup.string().nullable().default(''),
-    neighborhood: yup.string().nullable().default(''),
-    zip_code: yup.string().nullable().default(''),
-    city: yup.string().nullable().default(''),
-    state: yup.string().nullable().default(''),
-    country: yup.string().nullable().default('')
-  }).default(() => ({}))
+  address: yupAddressSchema
 });
 
 export default {
@@ -141,11 +133,7 @@ export default {
       OrgService.getById(this.recordId)
       .then((response) => {
         const objData = response.data || response;
-        if (!objData.address) {
-          objData.address = {
-            street: '', ext_num: '', int_num: '', neighborhood: '', zip_code: '', city: '', state: '', country: ''
-          };
-        }
+        objData.address = handleEnsureAddress(objData.address);
         if (this.$refs.modalFormRef) {
           this.$refs.modalFormRef.handleSetValues(objData);
         }
@@ -159,10 +147,11 @@ export default {
       });
     },
     handleSubmit(objForm) {
+      const objPayload = { ...objForm, address: handleAddressPayload(objForm.address) };
       if (this.recordId) {
-        this.handleUpdate(objForm);
+        this.handleUpdate(objPayload);
       } else {
-        this.handleCreate(objForm);
+        this.handleCreate(objPayload);
       }
     },
     handleCreate(objForm) {

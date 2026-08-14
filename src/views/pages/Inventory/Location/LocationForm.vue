@@ -1,5 +1,5 @@
 <template>
-  <nx-modal-form ref="modalFormRef" id="location-modal" :title="strTitle" size="lg" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
+  <nx-modal-form ref="modalFormRef" id="location-modal" :title="strTitle" size="3xl" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
     <template #default="{ errors }">
       <div class="grid grid-cols-2 gap-3">
         
@@ -19,26 +19,7 @@
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección</h4>
         </div>
-        <div class="col-span-2">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Calle / Avenida</label>
-          <Field name="address.street" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Ciudad</label>
-          <Field name="address.city" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Estado / Provincia</label>
-          <Field name="address.state" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Código Postal</label>
-          <Field name="address.zip" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-2 sm:col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">País</label>
-          <Field name="address.country" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
+        <nx-address-fields name-prefix="address" searchable />
 
         <!-- Configuración y Estado -->
         <div class="col-span-2 mt-2">
@@ -71,6 +52,7 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import LocationService from '@/services/inventory/LocationService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
+import { yupAddressSchema, handleEnsureAddress, handleAddressPayload } from '@/utils/addressUtils';
 
 const validationSchema = yup.object({
   name: yup.string().default('').required('El nombre es obligatorio'),
@@ -79,13 +61,7 @@ const validationSchema = yup.object({
   is_inventory_location: yup.boolean().default(true),
   is_primary: yup.boolean().default(false),
   status: yup.string().default('Active'),
-  address: yup.object({
-    street: yup.string().nullable().default(''),
-    city: yup.string().nullable().default(''),
-    state: yup.string().nullable().default(''),
-    zip: yup.string().nullable().default(''),
-    country: yup.string().nullable().default('')
-  }).default(() => ({ street: '', city: '', state: '', zip: '', country: '' }))
+  address: yupAddressSchema
 });
 
 export default {
@@ -137,9 +113,7 @@ export default {
       LocationService.getById(id)
       .then((response) => {
         const objData = response.data || response;
-        if (!objData.address) {
-          objData.address = { street: '', city: '', state: '', zip: '', country: '' };
-        }
+        objData.address = handleEnsureAddress(objData.address);
         if (this.$refs.modalFormRef) {
           this.$refs.modalFormRef.handleSetValues(objData);
         }
@@ -152,10 +126,11 @@ export default {
       });
     },
     handleSubmit(objValues) {
+      const objPayload = { ...objValues, address: handleAddressPayload(objValues.address) };
       if (this.recordId) {
-        this.handleUpdate(objValues);
+        this.handleUpdate(objPayload);
       } else {
-        this.handleCreate(objValues);
+        this.handleCreate(objPayload);
       }
     },
     handleCreate(objForm) {

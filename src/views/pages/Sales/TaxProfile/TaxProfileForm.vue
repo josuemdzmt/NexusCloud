@@ -1,5 +1,5 @@
 <template>
-  <nx-modal-form ref="modalFormRef" id="tax-profile-modal" :title="strTitle" size="lg" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
+  <nx-modal-form ref="modalFormRef" id="tax-profile-modal" :title="strTitle" size="3xl" :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
     <template #default="{ errors }">
       <div class="grid grid-cols-2 gap-3">
         
@@ -24,51 +24,10 @@
           <ErrorMessage name="tax_regime" class="text-danger text-[11px] mt-1 block" />
         </div>
 
-        <!-- Separador de Dirección -->
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección Fiscal</h4>
         </div>
-
-        <!-- Calle -->
-        <div class="col-span-2">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Calle</label>
-          <Field name="address.street" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-
-        <!-- Números -->
-        <div class="col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Núm. Exterior</label>
-          <Field name="address.ext_num" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Núm. Interior</label>
-          <Field name="address.int_num" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-
-        <!-- Colonia y Código Postal -->
-        <div class="col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Colonia</label>
-          <Field name="address.neighborhood" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Código Postal</label>
-          <Field name="zip_code" as="input" type="text" :class="{ 'border-danger focus:border-danger': errors.zip_code }" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" maxlength="20" />
-          <ErrorMessage name="zip_code" class="text-danger text-[11px] mt-1 block" />
-        </div>
-
-        <!-- Ciudad, Estado, País -->
-        <div class="col-span-2 sm:col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Ciudad / Municipio</label>
-          <Field name="address.city" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-1 sm:col-span-1">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">Estado</label>
-          <Field name="address.state" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
-        </div>
-        <div class="col-span-2">
-          <label class="text-sm font-semibold text-gray-900 mb-1 block">País</label>
-          <Field name="address.country" as="input" type="text" class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" placeholder="Ej. México" />
-        </div>
+        <nx-address-fields name-prefix="address" searchable />
 
         <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Configuración</h4>
@@ -91,6 +50,7 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import TaxProfileService from '@/services/sales/TaxProfileService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
+import { yupAddressSchema, handleEnsureAddress, handleAddressPayload } from '@/utils/addressUtils';
 
 const validationSchema = yup.object({
   legal_name: yup.string().required('La razón social es obligatoria'),
@@ -98,15 +58,7 @@ const validationSchema = yup.object({
   tax_regime: yup.string().nullable().default(''),
   zip_code: yup.string().nullable().default(''),
   is_default: yup.boolean().default(false),
-  address: yup.object({
-    street: yup.string().nullable().default(''),
-    ext_num: yup.string().nullable().default(''),
-    int_num: yup.string().nullable().default(''),
-    neighborhood: yup.string().nullable().default(''),
-    city: yup.string().nullable().default(''),
-    state: yup.string().nullable().default(''),
-    country: yup.string().nullable().default('')
-  }).default(() => ({}))
+  address: yupAddressSchema
 });
 
 export default {
@@ -119,22 +71,7 @@ export default {
     return {
       recordId: null,
       bSpinner: false,
-      objInitialData: {
-        legal_name: '',
-        tax_id: '',
-        tax_regime: '',
-        zip_code: '',
-        is_default: false,
-        address: {
-          street: '',
-          ext_num: '',
-          int_num: '',
-          neighborhood: '',
-          city: '',
-          state: '',
-          country: ''
-        }
-      },
+      objInitialData: validationSchema.getDefault(),
       objValidationSchema: validationSchema
     };
   },
@@ -163,17 +100,9 @@ export default {
       TaxProfileService.getById(this.recordId)
       .then((response) => {
         const objData = response.data || response;
-        // Ensure address object exists
-        if (!objData.address) {
-          objData.address = {
-            street: '',
-            ext_num: '',
-            int_num: '',
-            neighborhood: '',
-            city: '',
-            state: '',
-            country: ''
-          };
+        objData.address = handleEnsureAddress(objData.address);
+        if (!objData.address.zipcode && objData.zip_code) {
+          objData.address.zipcode = objData.zip_code;
         }
         if (this.$refs.modalFormRef) {
           this.$refs.modalFormRef.handleSetValues(objData);
@@ -188,10 +117,16 @@ export default {
       });
     },
     handleSubmit(objForm) {
+      const objAddress = handleAddressPayload(objForm.address);
+      const objPayload = {
+        ...objForm,
+        address: objAddress,
+        zip_code: objAddress?.zipcode || null
+      };
       if (this.recordId) {
-        this.handleUpdate(objForm);
+        this.handleUpdate(objPayload);
       } else {
-        this.handleCreate(objForm);
+        this.handleCreate(objPayload);
       }
     },
     handleCreate(objForm) {

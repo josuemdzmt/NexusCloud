@@ -29,7 +29,9 @@ export function handleNormalizePurchaseOrder(objRaw) {
     notes: objRaw.notes ?? null,
     termsAndConditions: objRaw.termsAndConditions ?? objRaw.terms_and_conditions ?? null,
     account: objRaw.account || null,
-    currency: objRaw.currency || null
+    currency: objRaw.currency || null,
+    billToAddress: objRaw.billToAddress ?? objRaw.bill_to_address ?? null,
+    shipToAddress: objRaw.shipToAddress ?? objRaw.ship_to_address ?? null
   };
 }
 

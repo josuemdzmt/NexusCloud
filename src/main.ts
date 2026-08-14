@@ -49,6 +49,7 @@ import NXTabset from './components/nexus/NX-Tabset.vue';
 import NXTab from './components/nexus/NX-Tab.vue';
 import NXPrintable from './components/nexus/NX-Printable.vue';
 import NXAddressFields from './components/nexus/NX-AddressFields.vue';
+import NXAddressSearch from './components/nexus/NX-AddressSearch.vue';
 import NXAppVersion from './components/nexus/NX-AppVersion.vue';
 import NXAvatar from './components/nexus/NX-Avatar.vue';
 
@@ -206,6 +207,7 @@ app.component('nx-tabset', NXTabset);
 app.component('nx-tab', NXTab);
 app.component('nx-printable', NXPrintable);
 app.component('nx-address-fields', NXAddressFields);
+app.component('nx-address-search', NXAddressSearch);
 app.component('nx-app-version', NXAppVersion);
 app.component('nx-avatar', NXAvatar);
 app.component("v-chart", VueECharts);

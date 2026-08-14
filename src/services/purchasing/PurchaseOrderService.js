@@ -27,7 +27,8 @@ export default {
    * Create a new purchase order (header only — no nested items)
    * Write: accountId, currencyId, status, effectiveDate, amountSource?,
    *   discountAmount?, subtotal?, totalTaxAmount? (solo Manual),
-   *   supplierDocumentType?, supplierDocumentNumber?, notes?, termsAndConditions?
+   *   supplierDocumentType?, supplierDocumentNumber?, billToAddress?, shipToAddress?,
+   *   notes?, termsAndConditions?
    * Response-only (do not send): id, purchaseNumber, grandTotalAmount, paidAmount, balanceAmount
    * @param {Object} objData
    */
