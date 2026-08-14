@@ -39,6 +39,10 @@
                   <span class="text-gray-900 font-semibold text-right">{{ strCustomerName }}</span>
                 </div>
                 <div class="flex justify-between gap-2">
+                  <span>Referencia externa</span>
+                  <span class="text-gray-900 font-semibold text-right break-all">{{ objOrder.externalReference || '—' }}</span>
+                </div>
+                <div class="flex justify-between gap-2">
                   <span>Fecha</span>
                   <span class="text-gray-900 font-semibold">{{ objOrder.effectiveDate }}</span>
                 </div>
@@ -73,6 +77,16 @@
                 <div class="flex justify-between gap-2">
                   <span>Saldo</span>
                   <span class="text-danger font-semibold">${{ handleFormatAmount(objOrder.balanceAmount) }}</span>
+                </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-border-color text-sm space-y-3">
+                <div>
+                  <p class="text-default mb-1">Dirección de facturación</p>
+                  <p class="text-gray-900 font-semibold mb-0 whitespace-pre-line">{{ strBillToAddress }}</p>
+                </div>
+                <div>
+                  <p class="text-default mb-1">Dirección de envío</p>
+                  <p class="text-gray-900 font-semibold mb-0 whitespace-pre-line">{{ strShipToAddress }}</p>
                 </div>
               </div>
               <div v-if="objOrder.notes || objOrder.termsAndConditions" class="mt-4 pt-3 border-t border-border-color text-sm space-y-3">
@@ -125,7 +139,7 @@ import {
   handleCanEditOrder,
   handleCanRegisterPayment
 } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
-import { handleNormalizeSalesOrder } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
+import { handleNormalizeSalesOrder, handleFormatAddressLines } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 
 export default {
   name: 'SalesOrderDetail',
@@ -169,12 +183,23 @@ export default {
     },
     bCanRegisterPayment() {
       return this.objOrder && handleCanRegisterPayment(this.objOrder.status);
+    },
+    strBillToAddress() {
+      return this.handleFormatPartyAddress(this.objOrder?.billToAddress);
+    },
+    strShipToAddress() {
+      return this.handleFormatPartyAddress(this.objOrder?.shipToAddress);
     }
   },
   mounted() {
     this.handleGetData();
   },
   methods: {
+    handleFormatPartyAddress(objAddress) {
+      const objLines = handleFormatAddressLines(objAddress);
+      const strText = [objLines.street, objLines.cityLine].filter(Boolean).join('\n');
+      return strText || '—';
+    },
     handleGetData() {
       const recordId = this.$route.params.recordId;
       this.bSpinner = true;

@@ -43,7 +43,7 @@
         </div>
 
         <div class="md:col-span-2 mt-1">
-          <h4 class="text-sm font-semibold text-gray-700 border-b border-border-color pb-1 mb-2">Montos</h4>
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Montos</h4>
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Subtotal</label>
@@ -79,6 +79,9 @@
             :value="strGrandTotalLabel" readonly>
         </div>
 
+        <div class="md:col-span-2 mt-1">
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Información adicional</h4>
+        </div>
         <div class="md:col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Notas</label>
           <Field name="notes" as="textarea" rows="2"

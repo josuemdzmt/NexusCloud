@@ -91,6 +91,10 @@
                   <span class="text-gray-900 font-semibold"> {{ objOrder.effectiveDate || '—' }}</span>
                 </div>
                 <div>
+                  <span class="text-default">Referencia:</span>
+                  <span class="text-gray-900 font-semibold"> {{ objOrder.externalReference || '—' }}</span>
+                </div>
+                <div>
                   <span class="text-default">Moneda:</span>
                   <span class="text-gray-900 font-semibold"> {{ strCurrencyCode }}</span>
                 </div>

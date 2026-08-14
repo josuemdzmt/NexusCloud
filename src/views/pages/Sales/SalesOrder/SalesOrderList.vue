@@ -44,6 +44,7 @@ export default {
       lstOrders: [],
       lstColumns: [
         { label: 'Orden', fieldName: 'orderNumber', type: 'text', sortable: true },
+        { label: 'Referencia', fieldName: 'externalReference', type: 'text', sortable: true },
         { label: 'Cliente', fieldName: 'accountName', type: 'text', sortable: true },
         { label: 'Fecha Venta', fieldName: 'effectiveDate', type: 'text', sortable: true },
         { label: 'Moneda', fieldName: 'currencyLabel', type: 'text', sortable: true },
@@ -84,6 +85,7 @@ export default {
             return {
               ...objOrder,
               orderNumber: objOrder.orderNumber || objOrder.order_number || `SO-${objOrder.id}`,
+              externalReference: objOrder.externalReference || objOrder.external_reference || '—',
               accountName: objOrder.account ? (objOrder.account.legal_name || `${objOrder.account.first_name || ''} ${objOrder.account.last_name || ''}`.trim() || 'Sin Nombre') : 'Desconocido',
               currencyLabel: objCurrency.iso_code || objCurrency.code || objCurrency.name || '—',
               grandTotalAmount: parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0,

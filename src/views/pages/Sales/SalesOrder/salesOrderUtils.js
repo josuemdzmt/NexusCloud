@@ -51,6 +51,7 @@ export function handleNormalizeSalesOrder(objRaw) {
     notes: objRaw.notes ?? null,
     termsAndConditions: objRaw.termsAndConditions ?? objRaw.terms_and_conditions ?? null,
     description: objRaw.description ?? null,
+    externalReference: objRaw.externalReference ?? objRaw.external_reference ?? null,
     account: objRaw.account || null,
     currency: objRaw.currency || null,
     pricebook: objRaw.pricebook || null,

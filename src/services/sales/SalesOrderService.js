@@ -27,7 +27,7 @@ export default {
    * Write: accountId, currencyId, status, effectiveDate, pricebookId?,
    *   billToContactId?, shipToContactId?, amountSource?, discountAmount?,
    *   subtotal?, totalTaxAmount?, billToAddress?, shipToAddress?,
-   *   description?, notes?, termsAndConditions?
+   *   externalReference?, description?, notes?, termsAndConditions?
    * Response-only (do not send): id, orderNumber, grandTotalAmount, paidAmount, balanceAmount
    * @param {Object} objData
    */

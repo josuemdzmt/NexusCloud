@@ -50,6 +50,7 @@ export default {
       lstOrders: [],
       lstColumns: [
         { label: 'Orden', fieldName: 'orderNumber', type: 'text', sortable: true },
+        { label: 'Referencia', fieldName: 'externalReference', type: 'text', sortable: true },
         { label: 'Fecha Venta', fieldName: 'effectiveDate', type: 'text', sortable: true },
         { label: 'Moneda', fieldName: 'currencyLabel', type: 'text', sortable: true },
         { label: 'Total', fieldName: 'grandTotalAmount', type: 'currency' },
@@ -103,6 +104,7 @@ export default {
             return {
               ...objOrder,
               orderNumber: objOrder.orderNumber || objOrder.order_number || `SO-${objOrder.id}`,
+              externalReference: objOrder.externalReference || objOrder.external_reference || '—',
               effectiveDate: objOrder.effectiveDate || objOrder.effective_date || '—',
               currencyLabel: objCurrency.iso_code || objCurrency.code || objCurrency.name || '—',
               grandTotalAmount: parseFloat(objOrder.grandTotalAmount ?? objOrder.grand_total_amount ?? objOrder.totalAmount ?? objOrder.total_amount) || 0,

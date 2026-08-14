@@ -1,13 +1,13 @@
 <template>
   <nx-modal-form ref="modalFormRef" id="sales-order-modal" :title="strTitle" size="3xl"
     :validationSchema="objValidationSchema" :initialValues="objInitialData" @submit="handleSubmit" @cancel="handleCancel">
-    <template #default="{ errors }">
+    <template #default="{ errors, setValues }">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Cliente <span class="text-danger">*</span></label>
           <Field name="accountId" v-slot="{ value, handleChange, handleBlur }">
             <nx-lookup :model-value="value" type="account" :params="{ 'filter[account_type]': ['Customer', 'Both'] }" class="w-full"
-              :class="{ 'border-danger': errors.accountId }" @update:model-value="handleChange" @blur="handleBlur" />
+              :class="{ 'border-danger': errors.accountId }" @update:model-value="(numId) => handleAccountChange(numId, handleChange, setValues)" @blur="handleBlur" />
           </Field>
           <ErrorMessage name="accountId" class="text-danger text-[11px] mt-1 block" />
         </div>
@@ -22,6 +22,11 @@
             <a-date-picker :value="value" valueFormat="YYYY-MM-DD" class="w-full" placeholder="dd/mm/yyyy" @update:value="field.onChange" />
           </Field>
           <ErrorMessage name="effectiveDate" class="text-danger text-[11px] mt-1 block" />
+        </div>
+        <div>
+          <label class="text-sm font-semibold text-gray-900 mb-1 block">Referencia externa</label>
+          <Field name="externalReference" as="input" type="text" maxlength="80" placeholder="TKT-12345"
+            class="w-full px-3 py-2 text-sm border border-border-color rounded-md bg-white focus:outline-none focus:ring-0" />
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Lista de precios <span class="text-danger">*</span></label>
@@ -42,7 +47,7 @@
         </div>
 
         <div class="md:col-span-2 mt-1">
-          <h4 class="text-sm font-semibold text-gray-700 border-b border-border-color pb-1 mb-2">Montos</h4>
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Montos</h4>
         </div>
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Subtotal</label>
@@ -73,6 +78,19 @@
             :value="strGrandTotalLabel" readonly>
         </div>
 
+        <div class="md:col-span-2 mt-1">
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección de facturación</h4>
+        </div>
+        <nx-address-fields name-prefix="billToAddress" />
+
+        <div class="md:col-span-2 mt-1">
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección de envío</h4>
+        </div>
+        <nx-address-fields name-prefix="shipToAddress" />
+
+        <div class="md:col-span-2 mt-1">
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Información adicional</h4>
+        </div>
         <div class="md:col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Notas</label>
           <Field name="notes" as="textarea" rows="2"
@@ -91,9 +109,11 @@
 import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import CurrencyService from '@/services/sales/CurrencyService';
+import CustomerService from '@/services/sales/CustomerService';
 import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderLineItemService from '@/services/sales/SalesOrderLineItemService';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
+import { yupAddressSchema, handleEnsureAddress } from '@/utils/addressUtils';
 import { ORDER_STATUS, AMOUNT_SOURCE, handleCanEditOrder, handleGetAvailableStatusOptions,
   handleValidateStatusTransition } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import { handleGetGrandTotalPreview, handleNormalizeSalesOrder } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
@@ -105,6 +125,7 @@ const validationSchema = yup.object({
   pricebookId: yup.number().nullable().transform(handleToNumber).required('La lista de precios es obligatoria'),
   currencyId: yup.number().nullable().transform(handleToNumber).required('La moneda es obligatoria'),
   effectiveDate: yup.string().nullable().required('La fecha es obligatoria'),
+  externalReference: yup.string().nullable().default('').max(80),
   subtotal: yup
     .number()
     .transform((value, originalValue) => (originalValue === '' || originalValue === null || originalValue === undefined ? 0 : Number(originalValue)))
@@ -113,6 +134,8 @@ const validationSchema = yup.object({
     .default(0),
   discountAmount: yup.number().default(0).transform((value, originalValue) => Number(originalValue) || 0).min(0),
   totalTaxAmount: yup.number().default(0).transform((value, originalValue) => Number(originalValue) || 0).min(0),
+  billToAddress: yupAddressSchema,
+  shipToAddress: yupAddressSchema,
   notes: yup.string().nullable().default(''),
   termsAndConditions: yup.string().nullable().default('')
 });
@@ -179,6 +202,31 @@ export default {
     handleGetToday() {
       return new Date().toISOString().substr(0, 10);
     },
+    handleExtractAccountAddresses(objAccount) {
+      const objData = objAccount?.data || objAccount || {};
+      return {
+        billToAddress: handleEnsureAddress(objData.billing_address || objData.billingAddress),
+        shipToAddress: handleEnsureAddress(objData.shipping_address || objData.shippingAddress)
+      };
+    },
+    handleAccountChange(numAccountId, handleChange, setValues) {
+      handleChange(numAccountId);
+      if (!numAccountId) {
+        if (typeof setValues === 'function') {
+          setValues({
+            billToAddress: handleEnsureAddress(null),
+            shipToAddress: handleEnsureAddress(null)
+          });
+        }
+        return;
+      }
+      CustomerService.getById(numAccountId)
+        .then((objResponse) => {
+          if (typeof setValues !== 'function') return;
+          setValues(this.handleExtractAccountAddresses(objResponse));
+        })
+        .catch(() => null);
+    },
     /**
      * @param {Number|String|null} numId
      * @param {Object|null} objContext - { accountId }
@@ -218,7 +266,9 @@ export default {
         accountId: this.numDefaultAccountId,
         subtotal: 0,
         discountAmount: 0,
-        totalTaxAmount: 0
+        totalTaxAmount: 0,
+        billToAddress: handleEnsureAddress(null),
+        shipToAddress: handleEnsureAddress(null)
       };
       this.handleRecalcTotal({
         subtotal: objDefaults.subtotal,
@@ -226,19 +276,32 @@ export default {
         totalTaxAmount: objDefaults.totalTaxAmount
       });
 
-      CurrencyService.getDefault()
-        .then((objCurrency) => {
-          if (objCurrency?.id) {
-            objDefaults.currencyId = Number(objCurrency.id);
-          }
-        })
-        .catch(() => null)
-        .finally(() => {
-          this.objInitialData = objDefaults;
-          if (this.$refs.modalFormRef) {
-            this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-          }
-        });
+      const lstPrefill = [
+        CurrencyService.getDefault()
+          .then((objCurrency) => {
+            if (objCurrency?.id) {
+              objDefaults.currencyId = Number(objCurrency.id);
+            }
+          })
+          .catch(() => null)
+      ];
+
+      if (this.numDefaultAccountId) {
+        lstPrefill.push(
+          CustomerService.getById(this.numDefaultAccountId)
+            .then((objResponse) => {
+              Object.assign(objDefaults, this.handleExtractAccountAddresses(objResponse));
+            })
+            .catch(() => null)
+        );
+      }
+
+      Promise.all(lstPrefill).finally(() => {
+        this.objInitialData = objDefaults;
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+        }
+      });
     },
     handleLoadLineCount(recordId) {
       return SalesOrderLineItemService.getAll({
@@ -278,14 +341,28 @@ export default {
           this.strTitle = objOrder.orderNumber ? `Orden de Venta · ${objOrder.orderNumber}` : 'Orden de Venta';
           this.fltBalanceAmount = objOrder.balanceAmount;
           this.strAmountSource = objOrder.amountSource || AMOUNT_SOURCE.MANUAL;
+
+          let objBillTo = handleEnsureAddress(objOrder.billToAddress);
+          let objShipTo = handleEnsureAddress(objOrder.shipToAddress);
+          const bMissingBill = !objOrder.billToAddress;
+          const bMissingShip = !objOrder.shipToAddress;
+          if ((bMissingBill || bMissingShip) && objOrder.account) {
+            const objFromAccount = this.handleExtractAccountAddresses(objOrder.account);
+            if (bMissingBill) objBillTo = objFromAccount.billToAddress;
+            if (bMissingShip) objShipTo = objFromAccount.shipToAddress;
+          }
+
           this.objInitialData = {
             accountId: objOrder.accountId,
             pricebookId: objOrder.pricebookId,
             currencyId: objOrder.currencyId,
             effectiveDate: objOrder.effectiveDate,
+            externalReference: objOrder.externalReference || '',
             subtotal: objOrder.subtotal,
             discountAmount: objOrder.discountAmount,
             totalTaxAmount: objOrder.totalTaxAmount,
+            billToAddress: objBillTo,
+            shipToAddress: objShipTo,
             notes: objOrder.notes || '',
             termsAndConditions: objOrder.termsAndConditions || ''
           };
@@ -320,6 +397,7 @@ export default {
         return;
       }
 
+      const strExternal = objValues.externalReference ? String(objValues.externalReference).trim() : '';
       const objPayload = {
         accountId: Number(objValues.accountId),
         currencyId: Number(objValues.currencyId),
@@ -329,6 +407,9 @@ export default {
         discountAmount: Number(objValues.discountAmount) || 0,
         totalTaxAmount: Number(objValues.totalTaxAmount) || 0,
         pricebookId: Number(objValues.pricebookId),
+        externalReference: strExternal || null,
+        billToAddress: handleEnsureAddress(objValues.billToAddress),
+        shipToAddress: handleEnsureAddress(objValues.shipToAddress),
         notes: objValues.notes || null,
         termsAndConditions: objValues.termsAndConditions || null
       };
