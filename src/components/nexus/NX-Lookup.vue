@@ -54,10 +54,10 @@
  *   <nx-lookup type="account" :params="{ 'filter[account_type]': ['Customer','Both'] }" />
  *
  * @see docs/components/NX-LOOKUP.md
- * @see lookupUtils.js
+ * @see utils/lookupUtils.js
  */
 import { handlePagerParams, handleSearchParams } from '@/utils/listPaginationUtils';
-import { handleCreateLookupService, handleMapRecordOption } from '@/components/nexus/lookupUtils';
+import { handleCreateLookupService, handleMapRecordOption } from '@/components/nexus/utils/lookupUtils';
 
 export default {
   name: 'NX-Lookup',

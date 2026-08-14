@@ -6,7 +6,7 @@
 					<img src="@/assets/img/logo-small.svg" class="h-10 w-10" alt="">
 					<span class="text-2xl font-semibold text-title leading-none">NexusCloud</span>
 				</div>
-				<img src="@/assets/img/avatar/avatar-01.jpg" class="size-16 rounded-full mx-auto mb-3 border border-border-color" alt="user avatar">
+				<nx-avatar :name="strName" size="lg" class="mx-auto mb-3" />
 				<h1 class="text-xl font-bold text-title mb-1">{{ strName }}</h1>
 				<p class="text-sm text-default mb-0">{{ strEmail }}</p>
 			</div>

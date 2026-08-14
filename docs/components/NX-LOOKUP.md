@@ -54,7 +54,7 @@ En Vertex, `type` → `{Studly}QueryBuilder` por convención (sin lista fija de 
 ## Archivos
 
 - `src/components/nexus/NX-Lookup.vue` — UI
-- `src/components/nexus/lookupUtils.js` — cliente HTTP + mapper Id/Name/Code
+- `src/components/nexus/utils/lookupUtils.js` — cliente HTTP + mapper Id/Name/Code
 
 ## Qué no hacer
 

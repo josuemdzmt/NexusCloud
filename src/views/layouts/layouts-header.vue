@@ -39,15 +39,11 @@
                 <!-- User Dropdown -->
                 <div class="profile-dropdown hs-dropdown [--placement:bottom-right] [--auto-close:inside] relative">
                     <a href="#" class="hs-dropdown-toggle relative flex items-center justify-center rounded-full lg:ms-2" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown">
-                        <div class="size-8 rounded-full overflow-hidden border border-border-color">
-                            <img src="@/assets/img/avatar/avatar-01.jpg" class="size-full object-cover" alt="user-image">
-                        </div>
+                        <nx-avatar :name="strUserName" size="sm" />
                     </a>
                     <div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-50 p-5 bg-white border border-border-color shadow rounded-md mt-2 z-1 divide-y divide-border-color" role="menu" aria-orientation="vertical">
                         <div class="flex items-center pb-3">
-                            <div class="size-10 rounded-full relative me-2">
-                                <img src="@/assets/img/avatar/avatar-01.jpg" class="rounded-full border border-border-color" alt="user-image">
-                            </div>
+                            <nx-avatar :name="strUserName" size="md" class="me-2" />
                             <div>
                                 <p class="font-semibold text-title mb-1">{{ strUserName }}</p>
                                 <p class="text-[13px] mb-0">{{ strUserEmail }}</p>
