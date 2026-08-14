@@ -21,7 +21,7 @@
           Cargando...
         </div>
 
-        <div v-else-if="objOrder" class="bg-white border border-border-color rounded-md p-5 sm:p-8 w-full">
+        <div v-else-if="objOrder" class="printable-sheet bg-white border border-border-color rounded-md p-5 sm:p-8 w-full">
           <div class="flex justify-between items-start mb-8 flex-wrap gap-5 lg:flex-nowrap">
             <div>
               <div class="invoice-logo block dark:hidden">

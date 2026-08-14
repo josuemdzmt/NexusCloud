@@ -5,10 +5,31 @@ type PdfExportOptions = {
 };
 
 const OBJ_DEFAULT_PDF_OPTIONS = {
-  margin: [10, 10, 10, 10] as [number, number, number, number],
+  margin: [8, 8, 8, 8] as [number, number, number, number],
   image: { type: 'jpeg' as const, quality: 0.98 },
-  html2canvas: { scale: 2, useCORS: true, logging: false },
-  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+  html2canvas: {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    scrollX: 0,
+    scrollY: 0,
+    onclone(_objDocument: Document, elCloned: HTMLElement) {
+      elCloned.style.width = '100%';
+      elCloned.style.maxWidth = '100%';
+      elCloned.style.overflow = 'visible';
+      elCloned.style.boxSizing = 'border-box';
+      elCloned.querySelectorAll('.printable-sheet').forEach((elNode) => {
+        const elSheet = elNode as HTMLElement;
+        elSheet.style.border = 'none';
+        elSheet.style.borderRadius = '0';
+        elSheet.style.boxShadow = 'none';
+        elSheet.style.width = '100%';
+        elSheet.style.maxWidth = '100%';
+        elSheet.style.overflow = 'visible';
+      });
+    }
+  },
+  jsPDF: { unit: 'mm' as const, format: 'letter' as const, orientation: 'portrait' as const }
 };
 
 export function handleNormalizePdfFilename(strFilename?: string) {
@@ -22,14 +43,19 @@ export async function handleBuildDocumentPdf(elElement: HTMLElement | null | und
   }
 
   const strFilename = handleNormalizePdfFilename(objOptions.filename);
+  const numWidth = Math.ceil(Math.max(elElement.scrollWidth, elElement.offsetWidth, 1));
 
-  return html2pdf()
+  return (await html2pdf()
     .set({
       ...OBJ_DEFAULT_PDF_OPTIONS,
-      filename: strFilename
+      filename: strFilename,
+      html2canvas: {
+        ...OBJ_DEFAULT_PDF_OPTIONS.html2canvas,
+        windowWidth: numWidth
+      }
     })
     .from(elElement)
-    .outputPdf('blob') as Promise<Blob>;
+    .outputPdf('blob')) as Blob;
 }
 
 export async function handleDownloadDocumentPdf(elElement: HTMLElement | null | undefined, objOptions: PdfExportOptions = {}) {
