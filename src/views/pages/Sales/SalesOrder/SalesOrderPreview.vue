@@ -15,9 +15,6 @@
           <router-link v-if="objOrder" :to="`${all_routes.salesOrders}/${objOrder.id}/detail`" class="btn-sm bg-white border border-border-color text-gray-900 hover:bg-light inline-flex items-center gap-1">
             <i class="ph ph-arrow-left"></i> Detalle
           </router-link>
-          <button v-if="bCanEdit" type="button" class="btn-sm bg-dark text-white border border-dark hover:bg-primary-hover cursor-pointer inline-flex items-center gap-1" @click="handleEdit">
-            <i class="ph ph-pencil"></i> Editar
-          </button>
         </template>
 
         <div v-if="bSpinner && !objOrder" class="bg-white border border-border-color rounded-md p-8 text-center text-default text-sm">
@@ -43,7 +40,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6 pb-6 border-b border-border-color">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 pb-6 border-b border-border-color">
             <div>
               <p class="text-sm text-default mb-2">Compañía</p>
               <p class="text-sm font-semibold text-title mb-2">{{ objCompany.name }}</p>
@@ -70,6 +67,20 @@
                   <template v-if="objBillTo.phone && objBillTo.email"> · </template>
                   <template v-if="objBillTo.email">{{ objBillTo.email }}</template>
                 </span>
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-default mb-2">Enviar a</p>
+              <p class="text-sm font-semibold text-title mb-2">{{ objShipTo.name }}</p>
+              <p class="text-sm text-default mb-0">
+                <span v-if="objShipTo.street" class="block">{{ objShipTo.street }}</span>
+                <span v-if="objShipTo.cityLine" class="block pt-1">{{ objShipTo.cityLine }}</span>
+                <span v-if="objShipTo.phone || objShipTo.email" class="block pt-1">
+                  <template v-if="objShipTo.phone">{{ objShipTo.phone }}</template>
+                  <template v-if="objShipTo.phone && objShipTo.email"> · </template>
+                  <template v-if="objShipTo.email">{{ objShipTo.email }}</template>
+                </span>
+                <span v-if="!objShipTo.street && !objShipTo.cityLine" class="block">—</span>
               </p>
             </div>
             <div>
@@ -161,8 +172,6 @@
           </div>
         </div>
       </nx-printable>
-
-      <SalesOrderForm ref="salesOrderFormRef" @success="handleGetData" />
     </div>
   </main>
 </template>
@@ -173,12 +182,10 @@ import SalesOrderService from '@/services/sales/SalesOrderService';
 import SalesOrderLineItemService from '@/services/sales/SalesOrderLineItemService';
 import OrgService from '@/services/system/OrgService';
 import { handleGetOrLoad } from '@/services/catalog/catalogCache';
-import SalesOrderForm from '@/views/pages/Sales/SalesOrder/SalesOrderForm.vue';
 import { handleError } from '@/utils/toastUtils';
 import {
   handleGetStatusLabel,
-  handleGetStatusClass,
-  handleCanEditOrder
+  handleGetStatusClass
 } from '@/views/pages/Sales/SalesOrder/SalesOrderConstants';
 import {
   handleNormalizeSalesOrder,
@@ -191,9 +198,6 @@ const OBJ_PARTY_EMPTY = { name: '—', street: '', cityLine: '', taxId: '—', p
 
 export default {
   name: 'SalesOrderPreview',
-  components: {
-    SalesOrderForm
-  },
   setup() {
     return {
       all_routes,
@@ -207,6 +211,7 @@ export default {
       objOrder: null,
       objCompany: { ...OBJ_PARTY_EMPTY },
       objBillTo: { ...OBJ_PARTY_EMPTY },
+      objShipTo: { ...OBJ_PARTY_EMPTY },
       lstLineItems: []
     };
   },
@@ -219,9 +224,6 @@ export default {
       if (!this.objOrder?.currency) return '—';
       const objCurrency = this.objOrder.currency;
       return objCurrency.code || objCurrency.iso_code || objCurrency.isoCode || '—';
-    },
-    bCanEdit() {
-      return this.objOrder && handleCanEditOrder(this.objOrder.status);
     }
   },
   mounted() {
@@ -268,15 +270,16 @@ export default {
             'billing',
             this.objOrder?.billToAddress || null
           );
+          this.objShipTo = handleMapAccountToPartyBlock(
+            this.objOrder?.account || null,
+            'shipping',
+            this.objOrder?.shipToAddress || null
+          );
         })
         .catch((objError) => handleError('Error', 'No se pudo cargar la vista previa', objError))
         .finally(() => {
           this.bSpinner = false;
         });
-    },
-    handleEdit() {
-      if (!this.objOrder) return;
-      this.$refs.salesOrderFormRef?.handleOpen(this.objOrder.id);
     },
     handlePrintableError(objError) {
       handleError('No se pudo generar el PDF', objError);

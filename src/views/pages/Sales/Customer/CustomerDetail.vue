@@ -55,6 +55,16 @@
                 <span>Días de crédito</span>
                 <span class="text-gray-900 font-semibold text-right">{{ numCreditDays }}</span>
               </div>
+              <div class="pt-3 border-t border-border-color space-y-3">
+                <div>
+                  <p class="text-default mb-1">Dirección de facturación</p>
+                  <p class="text-gray-900 font-semibold mb-0 whitespace-pre-line">{{ strBillingAddress }}</p>
+                </div>
+                <div>
+                  <p class="text-default mb-1">Dirección de envío</p>
+                  <p class="text-gray-900 font-semibold mb-0 whitespace-pre-line">{{ strShippingAddress }}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -84,6 +94,7 @@ import SalesOrderRelatedList from '@/views/pages/Sales/SalesOrder/SalesOrderRela
 import SalesOrderPaymentRelatedList from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentRelatedList.vue';
 import SalesOrderPaymentForm from '@/views/pages/Sales/SalesOrderPayment/SalesOrderPaymentForm.vue';
 import { ACCOUNT_TYPE_BADGE, IS_PERSON_BADGE, STATUS_BADGE } from '@/views/pages/Sales/Customer/CustomerConstants';
+import { handleFormatAddressLines } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 import { handleError } from '@/utils/toastUtils';
 
 export default {
@@ -145,6 +156,16 @@ export default {
     numCreditDays() {
       const numDays = this.objCustomer?.credit_days ?? this.objCustomer?.creditDays;
       return numDays != null && numDays !== '' ? numDays : '—';
+    },
+    strBillingAddress() {
+      return this.handleFormatPartyAddress(
+        this.objCustomer?.billing_address || this.objCustomer?.billingAddress
+      );
+    },
+    strShippingAddress() {
+      return this.handleFormatPartyAddress(
+        this.objCustomer?.shipping_address || this.objCustomer?.shippingAddress
+      );
     }
   },
   mounted() {
@@ -189,6 +210,11 @@ export default {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
+    },
+    handleFormatPartyAddress(objAddress) {
+      const objLines = handleFormatAddressLines(objAddress);
+      const strText = [objLines.street, objLines.cityLine].filter(Boolean).join('\n');
+      return strText || '—';
     }
   }
 };

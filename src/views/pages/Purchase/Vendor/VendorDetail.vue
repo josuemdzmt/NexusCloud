@@ -55,6 +55,10 @@
                 <span>Días de crédito</span>
                 <span class="text-gray-900 font-semibold text-right">{{ numCreditDays }}</span>
               </div>
+              <div class="pt-3 border-t border-border-color">
+                <p class="text-default mb-1">Dirección fiscal</p>
+                <p class="text-gray-900 font-semibold mb-0 whitespace-pre-line">{{ strBillingAddress }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -85,6 +89,7 @@ import PurchaseOrderRelatedList from '@/views/pages/Purchase/PurchaseOrder/Purch
 import PurchaseOrderPaymentRelatedList from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentRelatedList.vue';
 import PurchaseOrderPaymentForm from '@/views/pages/Purchase/PurchaseOrderPayment/PurchaseOrderPaymentForm.vue';
 import { ACCOUNT_TYPE_BADGE, IS_PERSON_BADGE, STATUS_BADGE } from '@/views/pages/Purchase/Vendor/VendorConstants';
+import { handleFormatAddressLines } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 import { handleError } from '@/utils/toastUtils';
 
 export default {
@@ -139,6 +144,13 @@ export default {
     numCreditDays() {
       const numDays = this.objVendor?.credit_days ?? this.objVendor?.creditDays;
       return numDays != null && numDays !== '' ? numDays : '—';
+    },
+    strBillingAddress() {
+      const objLines = handleFormatAddressLines(
+        this.objVendor?.billing_address || this.objVendor?.billingAddress
+      );
+      const strText = [objLines.street, objLines.cityLine].filter(Boolean).join('\n');
+      return strText || '—';
     }
   },
   mounted() {

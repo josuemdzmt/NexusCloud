@@ -17,9 +17,6 @@
           <button type="button" class="btn-sm bg-white border border-border-color text-gray-900 hover:bg-light cursor-pointer inline-flex items-center gap-1" @click="handlePrint">
             <i class="ph ph-printer"></i> Imprimir
           </button>
-          <button v-if="bCanEdit" type="button" class="btn-sm bg-dark text-white border border-dark hover:bg-primary-hover cursor-pointer inline-flex items-center gap-1" @click="handleEdit">
-            <i class="ph ph-pencil"></i> Editar
-          </button>
         </div>
       </div>
 
@@ -143,7 +140,6 @@
         </div>
       </div>
 
-      <PurchaseOrderForm ref="purchaseOrderFormRef" @success="handleGetData" />
     </div>
   </main>
 </template>
@@ -152,17 +148,12 @@
 import { all_routes } from '@/router/all_routes';
 import PurchaseOrderService from '@/services/purchasing/PurchaseOrderService';
 import PurchaseOrderLineItemService from '@/services/purchasing/PurchaseOrderLineItemService';
-import PurchaseOrderForm from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderForm.vue';
 import { handleError } from '@/utils/toastUtils';
-import { SUPPLIER_DOCUMENT_TYPE_LABEL, handleGetStatusLabel, handleGetStatusClass, 
-  handleCanEditOrder } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
+import { SUPPLIER_DOCUMENT_TYPE_LABEL, handleGetStatusLabel, handleGetStatusClass } from '@/views/pages/Purchase/PurchaseOrder/PurchaseOrderConstants';
 import { handleNormalizePurchaseOrder, handleNormalizePurchaseOrderLineItem } from '@/views/pages/Purchase/PurchaseOrder/purchaseOrderUtils';
 
 export default {
   name: 'PurchaseOrderPreview',
-  components: {
-    PurchaseOrderForm
-  },
   setup() {
     return {
       all_routes,
@@ -198,9 +189,6 @@ export default {
       if (!this.objOrder?.currency) return '—';
       const objCurrency = this.objOrder.currency;
       return `${objCurrency.name} (${objCurrency.code || objCurrency.iso_code || ''})`;
-    },
-    bCanEdit() {
-      return this.objOrder && handleCanEditOrder(this.objOrder.status);
     }
   },
   mounted() {
@@ -232,10 +220,6 @@ export default {
     },
     handlePrint() {
       window.print();
-    },
-    handleEdit() {
-      if (!this.objOrder) return;
-      this.$refs.purchaseOrderFormRef?.handleOpen(this.objOrder.id);
     },
     handleFormatAmount(fltValue) {
       const fltAmount = parseFloat(fltValue) || 0;

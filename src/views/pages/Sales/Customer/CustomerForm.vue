@@ -84,6 +84,11 @@
         <nx-address-fields name-prefix="billing_address" />
 
         <div class="col-span-2 mt-2">
+          <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Dirección de envío</h4>
+        </div>
+        <nx-address-fields name-prefix="shipping_address" />
+
+        <div class="col-span-2 mt-2">
           <h4 class="text-sm font-semibold text-gray-700 border-b pb-1 mb-2">Finanzas</h4>
         </div>
         <!-- Crédito -->
@@ -147,6 +152,7 @@ const validationSchema = yup.object({
   email: yup.string().nullable().default('').transform((strValue) => (strValue === '' ? null : strValue)).email('Correo inválido'),
   website: yup.string().nullable().default(''),
   billing_address: yupAddressSchema,
+  shipping_address: yupAddressSchema,
   credit_limit: yup.number().nullable().default(0),
   credit_days: yup.number().nullable().default(0),
   status: yup.string().nullable().default('Active')
@@ -201,6 +207,7 @@ export default {
         const data = response.data || response;
         this.bIsPerson = data.is_person === true || data.is_person === 1;
         data.billing_address = handleEnsureAddress(data.billing_address || data.billingAddress);
+        data.shipping_address = handleEnsureAddress(data.shipping_address || data.shippingAddress);
         if (this.$refs.modalFormRef) {
           this.$refs.modalFormRef.handleSetValues(data);
         }
