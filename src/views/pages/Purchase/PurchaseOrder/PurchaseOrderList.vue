@@ -161,7 +161,9 @@ export default {
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'detail') {
+      if (action.name === 'preview') {
+        this.$router.push(`/purchase/purchase-orders/${row.id}/preview`);
+      } else if (action.name === 'detail') {
         this.$router.push(`/purchase/purchase-orders/${row.id}/detail`);
       } else if (action.name === 'edit') {
         if (!handleCanEditOrder(row.status)) {

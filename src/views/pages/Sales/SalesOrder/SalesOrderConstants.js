@@ -55,8 +55,8 @@ export const ORDER_STATUS_TRANSITIONS = {
 
 export const ACTION_BUTTONS = {
   rowActions: [
-    { label: 'Detalle', name: 'detail', icon: 'ph ph-eye' },
     { label: 'Vista previa', name: 'preview', icon: 'ph ph-file-text' },
+    { label: 'Detalle', name: 'detail', icon: 'ph ph-eye' },
     { label: 'Editar', name: 'edit', icon: 'ph ph-pencil' },
     { label: 'Eliminar', name: 'delete', icon: 'ph ph-trash', class: 'text-danger' }
   ]

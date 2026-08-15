@@ -30,7 +30,7 @@ import { handleError } from '@/utils/toastUtils';
 import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const RELATED_ACTION_BUTTONS = {
-  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => objAction.name === 'detail')
+  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => ['preview', 'detail'].includes(objAction.name))
 };
 
 export default {
@@ -126,7 +126,9 @@ export default {
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'detail') {
+      if (action.name === 'preview') {
+        this.$router.push(`/purchase/purchase-orders/${row.id}/preview`);
+      } else if (action.name === 'detail') {
         this.$router.push(`/purchase/purchase-orders/${row.id}/detail`);
       }
     }

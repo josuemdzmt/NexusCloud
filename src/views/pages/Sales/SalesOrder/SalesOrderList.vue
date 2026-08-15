@@ -108,10 +108,10 @@ export default {
     },
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail;
-      if (action.name === 'detail') {
-        this.$router.push(`/sales/sales-orders/${row.id}/detail`);
-      } else if (action.name === 'preview') {
+      if (action.name === 'preview') {
         this.$router.push(`/sales/sales-orders/${row.id}/preview`);
+      } else if (action.name === 'detail') {
+        this.$router.push(`/sales/sales-orders/${row.id}/detail`);
       } else if (action.name === 'edit') {
         if (!handleCanEditOrder(row.status)) {
           handleError('No permitido', 'Solo puedes editar órdenes en estado Borrador.');

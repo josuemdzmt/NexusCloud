@@ -77,6 +77,7 @@ export const SUPPLIER_DOCUMENT_TYPE_LABEL = {
 
 export const ACTION_BUTTONS = {
   rowActions: [
+    { label: 'Vista previa', name: 'preview', icon: 'ph ph-file-text' },
     { label: 'Detalle', name: 'detail', icon: 'ph ph-eye' },
     { label: 'Editar', name: 'edit', icon: 'ph ph-pencil' },
     { label: 'Eliminar', name: 'delete', icon: 'ph ph-trash', class: 'text-danger' }

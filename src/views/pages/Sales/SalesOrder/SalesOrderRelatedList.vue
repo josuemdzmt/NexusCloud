@@ -31,7 +31,7 @@ import { handleError } from '@/utils/toastUtils';
 import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
 
 const RELATED_ACTION_BUTTONS = {
-  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => ['detail', 'preview'].includes(objAction.name))
+  rowActions: ACTION_BUTTONS.rowActions.filter((objAction) => ['preview', 'detail'].includes(objAction.name))
 };
 
 export default {
@@ -128,10 +128,10 @@ export default {
     handleRowAction(objEvent) {
       const { action, row } = objEvent.detail || {};
       if (!action?.name || row?.id == null) return;
-      if (action.name === 'detail') {
-        this.$router.push(`${all_routes.salesOrders}/${row.id}/detail`);
-      } else if (action.name === 'preview') {
+      if (action.name === 'preview') {
         this.$router.push(`${all_routes.salesOrders}/${row.id}/preview`);
+      } else if (action.name === 'detail') {
+        this.$router.push(`${all_routes.salesOrders}/${row.id}/detail`);
       }
     }
   }
