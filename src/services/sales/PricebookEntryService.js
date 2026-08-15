@@ -15,8 +15,8 @@ export default {
    * Get a single pricebook entry by its ID
    * @param {Number|String} numId - Pricebook Entry ID
    */
-  getById(numId) {
-    return api.get(`${ENDPOINT}/${numId}`);
+  getById(numId, objParams = {}) {
+    return api.get(`${ENDPOINT}/${numId}`, { params: objParams });
   },
 
   /**

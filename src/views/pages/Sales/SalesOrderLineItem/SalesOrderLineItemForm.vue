@@ -5,17 +5,10 @@
       <div class="grid grid-cols-1 gap-3">
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Producto <span class="text-danger">*</span></label>
-          <Field name="pricebookEntryId" v-slot="{ field, value }">
-            <nx-combobox
-              v-bind="field"
-              :options="lstEntryOptions"
-              :model-value="value"
-              placeholder="Seleccionar producto"
-              :disabled="!!recordId"
-              :class="{ 'border-danger focus:border-danger': errors.pricebookEntryId }"
-              class="w-full text-sm border-border-color focus:border-primary"
-              @update:model-value="(val) => { field.onChange(val); handleEntryChange(val); }"
-            />
+          <Field name="pricebookEntryId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="pricebook_entry" :params="objEntryLookupParams" placeholder="Buscar producto..."
+              :disabled="!!recordId" class="w-full" :class="{ 'border-danger': errors.pricebookEntryId }"
+              @update:model-value="(val) => { handleChange(val); handleEntryChange(val); }" @blur="handleBlur" />
           </Field>
           <ErrorMessage name="pricebookEntryId" class="text-danger text-[11px] mt-1 block" />
         </div>
@@ -56,7 +49,6 @@ import { Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import SalesOrderLineItemService from '@/services/sales/SalesOrderLineItemService';
 import PricebookEntryService from '@/services/sales/PricebookEntryService';
-import { handleFilterPricebookEntries, handleMapEntryOptions } from '@/views/pages/Sales/SalesOrder/salesOrderUtils';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 
 const handleToNumber = (value, originalValue) => (originalValue === '' || originalValue === null || originalValue === undefined ? undefined : Number(originalValue));
@@ -84,10 +76,17 @@ export default {
       numProductId: null,
       strTitle: 'Agregar línea',
       objValidationSchema: validationSchema,
-      objInitialData: validationSchema.getDefault(),
-      lstEntries: [],
-      lstEntryOptions: []
+      objInitialData: validationSchema.getDefault()
     };
+  },
+  computed: {
+    objEntryLookupParams() {
+      return {
+        'filter[pricebook_id]': this.numPricebookId,
+        'filter[currency_id]': this.numCurrencyId,
+        'filter[is_active]': 1
+      };
+    }
   },
   methods: {
     /**
@@ -114,63 +113,48 @@ export default {
         this.$refs.modalFormRef.handleOpen();
       }
 
-      this.handleLoadEntries().then(() => {
-        if (numId) {
-          this.handleInitForm(numId);
-        } else {
-          this.numProductId = null;
-          this.objInitialData = validationSchema.getDefault();
-          if (this.$refs.modalFormRef) {
-            this.$refs.modalFormRef.handleSetValues(this.objInitialData);
-          }
-        }
-      });
+      if (numId) {
+        this.handleInitForm(numId);
+        return;
+      }
+      this.numProductId = null;
+      this.objInitialData = validationSchema.getDefault();
+      if (this.$refs.modalFormRef) {
+        this.$refs.modalFormRef.handleSetValues(this.objInitialData);
+      }
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
         this.$refs.modalFormRef.handleClose();
       }
     },
-    handleLoadEntries() {
-      return PricebookEntryService.getAll({
-        'filter[pricebook_id]': this.numPricebookId,
-        'filter[currency_id]': this.numCurrencyId,
-        'filter[is_active]': 1,
-        include: 'product',
-        per_page: 500
-      })
-        .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          this.lstEntries = handleFilterPricebookEntries(lstData, this.numPricebookId, this.numCurrencyId);
-          this.lstEntryOptions = handleMapEntryOptions(this.lstEntries);
-        })
-        .catch((objError) => handleError('Error', 'No se pudieron cargar los productos', objError));
-    },
     handleEntryChange(numEntryId) {
-      const objEntry = this.lstEntries.find((objItem) => Number(objItem.id) === Number(numEntryId));
-      if (!objEntry) {
+      if (!numEntryId) {
         this.numProductId = null;
         return;
       }
-      this.numProductId = objEntry.productId ?? objEntry.product_id ?? objEntry.product?.id ?? null;
-      const fltUnit = objEntry.unitPrice ?? objEntry.unit_price;
-      const strName = objEntry.product?.name || '';
-      this.objInitialData = {
-        ...this.objInitialData,
-        pricebookEntryId: numEntryId,
-        unitPrice: fltUnit != null ? Number(fltUnit) : null,
-        description: strName || this.objInitialData.description || ''
-      };
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleSetValues({
-          pricebookEntryId: numEntryId,
-          quantity: this.objInitialData.quantity ?? 1,
-          unitPrice: this.objInitialData.unitPrice,
-          discountAmount: this.objInitialData.discountAmount ?? 0,
-          taxAmount: this.objInitialData.taxAmount ?? 0,
-          description: this.objInitialData.description
-        });
-      }
+      PricebookEntryService.getById(numEntryId, { include: 'product' })
+        .then((objResponse) => {
+          const objEntry = objResponse.data || objResponse;
+          this.numProductId = objEntry.productId ?? objEntry.product_id ?? objEntry.product?.id ?? null;
+          const fltUnit = objEntry.unitPrice ?? objEntry.unit_price;
+          const strName = objEntry.product?.name || '';
+          const objPatch = {
+            pricebookEntryId: Number(numEntryId),
+            unitPrice: fltUnit != null ? Number(fltUnit) : null,
+            description: strName || ''
+          };
+          this.objInitialData = { ...this.objInitialData, ...objPatch };
+          if (this.$refs.modalFormRef) {
+            this.$refs.modalFormRef.handleSetValues({
+              ...objPatch,
+              quantity: this.objInitialData.quantity ?? 1,
+              discountAmount: this.objInitialData.discountAmount ?? 0,
+              taxAmount: this.objInitialData.taxAmount ?? 0
+            });
+          }
+        })
+        .catch((objError) => handleError('Error', 'No se pudo cargar la entrada de lista', objError));
     },
     handleInitForm(numId) {
       this.bSpinner = true;
@@ -197,8 +181,8 @@ export default {
     },
     handleSubmit(objValues) {
       if (!this.numProductId && objValues.pricebookEntryId) {
-        const objEntry = this.lstEntries.find((objItem) => Number(objItem.id) === Number(objValues.pricebookEntryId));
-        this.numProductId = objEntry?.productId ?? objEntry?.product_id ?? objEntry?.product?.id ?? null;
+        handleError('Error', 'Espera a que cargue el producto de la entrada o vuelve a seleccionarlo');
+        return;
       }
       if (!this.numProductId) {
         handleError('Error', 'No se pudo determinar el producto de la entrada de lista');

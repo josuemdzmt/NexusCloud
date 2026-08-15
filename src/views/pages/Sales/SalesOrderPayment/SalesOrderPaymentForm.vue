@@ -4,17 +4,13 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div v-if="bSelectOrder" class="md:col-span-2">
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Orden de Venta <span class="text-danger">*</span></label>
-          <Field name="salesOrderId" v-slot="{ field, value }">
-            <nx-combobox 
-              :options="lstOrderOptions"
-              :model-value="value"
-              placeholder="Seleccionar orden"
-              :class="{ 'border-danger focus:border-danger': errors.salesOrderId }"
-              class="w-full text-sm border-border-color focus:border-primary" 
-              @update:model-value="(numValue) => { field.onChange(numValue); handleOrderSelected(numValue); }" />
+          <Field name="salesOrderId" v-slot="{ value, handleChange, handleBlur }">
+            <nx-lookup :model-value="value" type="sales_order" :params="objOrderLookupParams" placeholder="Buscar orden..."
+              class="w-full" :class="{ 'border-danger': errors.salesOrderId }"
+              @update:model-value="(val) => { handleChange(val); handleOrderSelected(val); }" @blur="handleBlur" />
           </Field>
           <ErrorMessage name="salesOrderId" class="text-danger text-[11px] mt-1 block" />
-          <p v-if="!lstOrderOptions.length" class="text-[11px] text-default mt-1 mb-0">No hay órdenes activas con saldo pendiente para este cliente.</p>
+          <p class="text-[11px] text-default mt-1 mb-0">Solo órdenes activas con saldo pendiente de este cliente.</p>
         </div>
         <div v-if="objOrder" class="md:col-span-2 bg-light p-3 rounded-md flex justify-between items-center text-sm">
           <div>
@@ -56,7 +52,7 @@
         <div>
           <label class="text-sm font-semibold text-gray-900 mb-1 block">Fecha del Pago <span class="text-danger">*</span></label>
           <Field name="paymentDate" v-slot="{ field, value }">
-            <a-date-picker :value="value" valueFormat="YYYY-MM-DD" class="w-full" placeholder="dd/mm/yyyy" :disabled="!objOrder" @update:value="field.onChange" />
+            <a-date-picker :value="value" valueFormat="YYYY-MM-DD" class="w-full" placeholder="dd/mm/yyyy" @update:value="field.onChange" />
           </Field>
           <ErrorMessage name="paymentDate" class="text-danger text-[11px] mt-1 block" />
         </div>
@@ -97,7 +93,7 @@ const validationSchemaBase = {
 const validationSchema = yup.object(validationSchemaBase);
 
 const validationSchemaWithOrder = yup.object({
-  salesOrderId: yup.number().nullable().required('La orden es obligatoria'),
+  salesOrderId: yup.number().nullable().transform(handleToNumber).required('La orden es obligatoria'),
   ...validationSchemaBase
 });
 
@@ -110,29 +106,27 @@ export default {
   emits: ['refresh'],
   data() {
     return {
-      // 1. Booleanos
       bSpinner: false,
       bSelectOrder: false,
-
-      // 2. Números
       numCurrencyId: null,
       numAccountId: null,
-
-      // 3. Cadenas
       strTitle: 'Registrar Abono',
       strCurrencyLabel: '—',
-
-      // 4. Objetos
       objOrder: null,
       objValidationSchema: validationSchema,
-      objInitialData: validationSchema.getDefault(),
-      lstOrders: [],
-      lstOrderOptions: []
+      objInitialData: validationSchema.getDefault()
     };
   },
   computed: {
     fltBalanceAmount() {
       return parseFloat(this.objOrder?.balanceAmount) || 0;
+    },
+    objOrderLookupParams() {
+      return {
+        'filter[account_id]': this.numAccountId,
+        'filter[status]': ORDER_STATUS.ACTIVATED,
+        'filter[balance_gt]': 0
+      };
     }
   },
   methods: {
@@ -180,51 +174,16 @@ export default {
         ...objExtra
       };
     },
-    handleLoadAccountOrders(numAccountId) {
-      return SalesOrderService.getAll({
-        include: 'currency',
-        'filter[account_id]': numAccountId,
-        per_page: 200
-      })
-        .then((objResponse) => {
-          const lstData = objResponse.data || objResponse;
-          let lstRaw = Array.isArray(lstData) ? lstData : [];
-          lstRaw = lstRaw
-            .filter((objOrder) => {
-              const numAccountIdOrder = objOrder.accountId ?? objOrder.account_id ?? objOrder.account?.id;
-              if (numAccountIdOrder && Number(numAccountIdOrder) !== Number(numAccountId)) return false;
-              if (objOrder.status !== ORDER_STATUS.ACTIVATED) return false;
-              const fltBalance = parseFloat(objOrder.balanceAmount ?? objOrder.balance_amount) || 0;
-              return fltBalance > 0;
-            })
-            .map((objOrder) => this.handleNormalizeOrder(objOrder));
-
-          this.lstOrders = lstRaw;
-          this.lstOrderOptions = lstRaw.map((objOrder) => ({
-            label: `${objOrder.orderNumber || objOrder.order_number || `SO-${objOrder.id}`} — Saldo $${this.handleFormatAmount(objOrder.balanceAmount)}`,
-            value: objOrder.id
-          }));
-        })
-        .catch((objError) => {
-          handleError('Error', 'No se pudieron cargar las órdenes del cliente', objError);
-          this.lstOrders = [];
-          this.lstOrderOptions = [];
-        });
-    },
     handleOpen(objOrder = null, objContext = null) {
       this.bSelectOrder = !objOrder && !!objContext?.accountId;
       this.numAccountId = objContext?.accountId ? Number(objContext.accountId) : null;
       this.objOrder = null;
       this.numCurrencyId = null;
       this.strCurrencyLabel = '—';
-      this.lstOrders = [];
-      this.lstOrderOptions = [];
       this.objValidationSchema = this.bSelectOrder ? validationSchemaWithOrder : validationSchema;
 
       if (this.bSelectOrder) {
-        this.handleLoadAccountOrders(this.numAccountId).then(() => {
-          this.handleOpenModal(this.handleDefaultFormValues());
-        });
+        this.handleOpenModal(this.handleDefaultFormValues());
         return;
       }
 
@@ -242,16 +201,45 @@ export default {
       }
     },
     handleOrderSelected(numOrderId) {
-      const objFound = this.lstOrders.find((objOrder) => Number(objOrder.id) === Number(numOrderId));
-      this.objOrder = objFound || null;
-      this.handleApplyOrderCurrency(this.objOrder);
-
-      if (this.$refs.modalFormRef) {
-        this.$refs.modalFormRef.handleSetValues(this.handleDefaultFormValues({
-          salesOrderId: numOrderId || null,
-          amount: this.fltBalanceAmount || null
-        }));
+      if (!numOrderId) {
+        this.objOrder = null;
+        this.numCurrencyId = null;
+        this.strCurrencyLabel = '—';
+        if (this.$refs.modalFormRef) {
+          this.$refs.modalFormRef.handleSetValues(this.handleDefaultFormValues({ salesOrderId: null }));
+        }
+        return;
       }
+
+      SalesOrderService.getById(numOrderId, { include: 'currency' })
+        .then((objResponse) => {
+          const objRaw = objResponse.data || objResponse;
+          const numAccountIdOrder = objRaw.accountId ?? objRaw.account_id ?? objRaw.account?.id;
+          if (this.numAccountId && numAccountIdOrder && Number(numAccountIdOrder) !== Number(this.numAccountId)) {
+            handleError('Error', 'La orden no pertenece a este cliente');
+            this.objOrder = null;
+            return;
+          }
+          if (objRaw.status !== ORDER_STATUS.ACTIVATED) {
+            handleError('Error', 'Solo puedes abonar órdenes activadas');
+            this.objOrder = null;
+            return;
+          }
+          this.objOrder = this.handleNormalizeOrder(objRaw);
+          if (this.fltBalanceAmount <= 0) {
+            handleError('Error', 'La orden no tiene saldo pendiente');
+            this.objOrder = null;
+            return;
+          }
+          this.handleApplyOrderCurrency(this.objOrder);
+          if (this.$refs.modalFormRef) {
+            this.$refs.modalFormRef.handleSetValues(this.handleDefaultFormValues({
+              salesOrderId: Number(numOrderId),
+              amount: this.fltBalanceAmount || null
+            }));
+          }
+        })
+        .catch((objError) => handleError('Error', 'No se pudo cargar la orden', objError));
     },
     handleClose() {
       if (this.$refs.modalFormRef) {
