@@ -26,6 +26,7 @@ NexusCloud está diseñado bajo una arquitectura modular y desacoplada:
 - `docs/standards/`: reglas de código (HTML/Vue y JS).
 - `docs/iam.md`: permisos en UI (sesión, ListView, DataTable, sidebar). La autorización real es Vertex.
 - `docs/components/`: contratos de componentes (`NX-LOOKUP`, `NX-LIST-VIEW`, …).
+- `docs/debt/technical-debt.md`: deuda de UI (fases). Cada fase debe cumplir los estándares; no implementar de golpe.
 
 ## Comenzando
 Para ejecutar NexusCloud en modo de desarrollo local:
