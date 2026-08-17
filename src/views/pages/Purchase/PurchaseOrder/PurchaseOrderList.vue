@@ -1,25 +1,8 @@
 <template>
   <main>
-    <div class="p-3 lg:py-6 lg:px-0">
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-3 lg:mb-6">
-        <h1 class="text-gray-900 text-xl max-lg:text-lg font-bold mb-0">Órdenes de Compra</h1>
-        <div class="flex items-center flex-wrap gap-2">
-          <button type="button" class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer" @click="handleCreate">
-            <i class="ph ph-plus"></i> Nuevo registro
-          </button>
-        </div>
-      </div>
-
-      <nx-datatable
-        key-field="id"
-        :data="lstOrders"
-        :columns="lstColumns"
-        :is-loading="bSpinner"
-        :show-date-range="false"
-        :show-filters="false"
-        @rowaction="handleRowAction"
-        @search="handleSearch"
-        @refresh="handleGetData">
+    <nx-list-view title="Órdenes de Compra" object="purchase_order" @create="handleCreate">
+      <nx-datatable object="purchase_order" key-field="id" :data="lstOrders" :columns="lstColumns" :is-loading="bSpinner" :show-date-range="false"
+        :show-filters="false" @rowaction="handleRowAction" @search="handleSearch" @refresh="handleGetData">
         <template #cell-purchaseNumber="{ row }">
           <router-link :to="`/purchase/purchase-orders/${row.id}/detail`" class="text-sm text-default hover:text-primary">
             {{ row.purchaseNumber }}
@@ -29,8 +12,8 @@
           <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
         </template>
       </nx-datatable>
-      <PurchaseOrderForm ref="purchaseOrderFormRef" @success="handleFormSuccess" />
-    </div>
+    </nx-list-view>
+    <PurchaseOrderForm ref="purchaseOrderFormRef" @success="handleFormSuccess" />
   </main>
 </template>
 

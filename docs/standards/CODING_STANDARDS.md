@@ -2,6 +2,8 @@
 
 Este documento establece las convenciones de notación, declaración de variables, formato de `props`, nombres de funciones y manejo de asincronía obligatorios en **NexusCloud** (basados en los estándares de PhysioCloud).
 
+IAM (ocultar menú / alta / row actions; Vertex autoriza): [docs/iam.md](../iam.md). Chrome de catálogos: [NX-LIST-VIEW](../components/NX-LIST-VIEW.md).
+
 ---
 
 ## 1. Declaración de Variables (Notación Húngara)

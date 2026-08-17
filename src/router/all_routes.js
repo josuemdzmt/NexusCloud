@@ -67,6 +67,8 @@ export const all_routes = {
   pricebookList: '/system/pricebook/list',
   orgList: '/system/org/list',
   branchList: '/system/branch/list',
+  usersList: '/system/users/list',
+  profilesList: '/system/profiles/list',
 
 
   salesOrders: '/sales/sales-orders',

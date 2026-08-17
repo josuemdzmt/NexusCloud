@@ -23,7 +23,9 @@ NexusCloud está diseñado bajo una arquitectura modular y desacoplada:
 - `src/views/pages/`: Contiene los módulos principales del sistema (Ventas, Inventario, Compras, etc.).
 - `src/components/nexus/`: Componentes globales y reutilizables del sistema (tablas, modales, formularios).
 - `src/services/`: Capa de servicios para la comunicación con el Backend (API Vertex).
-- `docs/standards/`: Documentación estricta de las reglas y estándares de código (HTML/Vue y JS) que todo desarrollador debe seguir en este proyecto.
+- `docs/standards/`: reglas de código (HTML/Vue y JS).
+- `docs/iam.md`: permisos en UI (sesión, ListView, DataTable, sidebar). La autorización real es Vertex.
+- `docs/components/`: contratos de componentes (`NX-LOOKUP`, `NX-LIST-VIEW`, …).
 
 ## Comenzando
 Para ejecutar NexusCloud en modo de desarrollo local:

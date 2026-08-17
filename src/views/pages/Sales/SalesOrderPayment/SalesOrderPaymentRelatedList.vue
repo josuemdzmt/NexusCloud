@@ -1,17 +1,7 @@
 <template>
   <div>
-    <div v-if="bCanRegister" class="flex justify-end mb-3">
-      <button type="button" class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer" @click="handleRegister">
-        <i class="ph ph-plus"></i> Registrar Abono
-      </button>
-    </div>
-    <nx-datatable
-      key-field="id"
-      :data="lstPayments"
-      :columns="lstVisibleColumns"
-      :is-loading="bSpinner"
-      :show-date-range="false"
-      @search="handleSearch"
+    <nx-datatable object="sales_order" child create-label="Registrar Abono" :show-create="bCanRegister" key-field="id"
+      :data="lstPayments" :columns="lstVisibleColumns" :is-loading="bSpinner" :show-date-range="false" @create="handleRegister" @search="handleSearch"
       @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
@@ -36,7 +26,8 @@ export default {
   props: {
     salesOrderId: { type: [Number, String], default: null },
     accountId: { type: [Number, String], default: null },
-    bCanRegister: { type: Boolean, default: false }
+    bCanRegister: { type: Boolean, default: false },
+    title: { type: String, default: 'Abonos' }
   },
   emits: ['register'],
   data() {

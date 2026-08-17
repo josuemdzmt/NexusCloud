@@ -9,6 +9,7 @@
         "Icon": "ph-duotone ph-address-book",
         "active_link": "/sales/customer/list",
         "route": "/sales/customer/list",
+        "permission": "account.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -17,6 +18,7 @@
         "Icon": "ph-duotone ph-stack",
         "active_link": "/sales/sales-orders/list",
         "route": "/sales/sales-orders/list",
+        "permission": "sales_order.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -25,6 +27,7 @@
         "Icon": "ph-duotone ph-currency-dollar",
         "active_link": "/sales/product-price/list",
         "route": "/sales/product-price/list",
+        "permission": "pricebook.read",
         "hasSubRoute": false,
         "showSubRoute": false
       }
@@ -40,6 +43,7 @@
         "Icon": "ph-duotone ph-user",
         "active_link": "/purchase/vendor/list",
         "route": "/purchase/vendor/list",
+        "permission": "account.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -48,6 +52,7 @@
         "Icon": "ph-duotone ph-note",
         "active_link": "/purchase/purchase-orders/list",
         "route": "/purchase/purchase-orders/list",
+        "permission": "purchase_order.read",
         "hasSubRoute": false,
         "showSubRoute": false
       }
@@ -63,6 +68,7 @@
         "Icon": "ph-duotone ph-cube",
         "active_link": "/inventory/product/list",
         "route": "/inventory/product/list",
+        "permission": "product.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -71,6 +77,7 @@
         "Icon": "ph-duotone ph-envelope",
         "active_link": "/inventory/category/list",
         "route": "/inventory/category/list",
+        "permission": "product.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -79,6 +86,7 @@
         "Icon": "ph-duotone ph-triangle",
         "active_link": "/inventory/brand/list",
         "route": "/inventory/brand/list",
+        "permission": "product.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -87,6 +95,7 @@
         "Icon": "ph-duotone ph-compass",
         "active_link": "/inventory/unit-measure/list",
         "route": "/inventory/unit-measure/list",
+        "permission": "product.read",
         "hasSubRoute": false,
         "showSubRoute": false
       }
@@ -102,6 +111,7 @@
         "Icon": "ph-duotone ph-list-numbers",
         "active_link": "/system/pricebook/list",
         "route": "/system/pricebook/list",
+        "permission": "pricebook.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -110,6 +120,7 @@
         "Icon": "ph-duotone ph-credit-card",
         "active_link": "/system/payment-methods/list",
         "route": "/system/payment-methods/list",
+        "permission": "payment_method.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -118,6 +129,7 @@
         "Icon": "ph-duotone ph-bank",
         "active_link": "/system/banks/list",
         "route": "/system/banks/list",
+        "permission": "bank.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -126,6 +138,7 @@
         "Icon": "ph-duotone ph-coin",
         "active_link": "/system/currency/list",
         "route": "/system/currency/list",
+        "permission": "currency.read",
         "hasSubRoute": false,
         "showSubRoute": false
       },
@@ -145,14 +158,28 @@
         "showSubRoute": false,
         "subMenus": [
           {
+            "menuValue": "Usuarios",
+            "route": "/system/users/list",
+            "active_link": "/system/users/list",
+            "permission": "user.read"
+          },
+          {
+            "menuValue": "Perfiles",
+            "route": "/system/profiles/list",
+            "active_link": "/system/profiles/list",
+            "permission": "profile.read"
+          },
+          {
             "menuValue": "Organización",
             "route": "/system/org/list",
-            "active_link": "/system/org/list"
+            "active_link": "/system/org/list",
+            "permission": "org.read"
           },
           {
             "menuValue": "Sucursales",
             "route": "/system/branch/list",
-            "active_link": "/system/branch/list"
+            "active_link": "/system/branch/list",
+            "permission": "branch.read"
           }
         ]
       }

@@ -1,19 +1,8 @@
 <template>
   <div>
-    <div v-if="bCanEdit" class="flex justify-end mb-3">
-      <button type="button" class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer" @click="handleCreate">
-        <i class="ph ph-plus"></i> Agregar línea
-      </button>
-    </div>
-    <nx-datatable
-      key-field="id"
-      :data="lstLineItems"
-      :columns="lstActiveColumns"
-      :is-loading="bSpinner"
-      :show-date-range="false"
-      @rowaction="handleRowAction"
-      @search="handleSearch"
-        @refresh="handleGetData">
+    <nx-datatable object="purchase_order" child create-label="Agregar línea" :show-create="bCanEdit" key-field="id"
+      :data="lstLineItems" :columns="lstActiveColumns" :is-loading="bSpinner" :show-date-range="false" @create="handleCreate" @rowaction="handleRowAction"
+      @search="handleSearch" @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>

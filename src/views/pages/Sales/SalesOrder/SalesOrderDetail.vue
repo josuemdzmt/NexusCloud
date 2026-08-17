@@ -112,7 +112,7 @@
               </nx-tab>
               <nx-tab label="Pagos" value="payments">
                 <SalesOrderPaymentRelatedList v-if="objOrder" ref="paymentRelatedListRef" :sales-order-id="objOrder.id" :b-can-register="bCanRegisterPayment"
-                  @register="handleOpenPaymentModal" />
+                  title="Pagos" @register="handleOpenPaymentModal" />
               </nx-tab>
             </nx-tabset>
           </div>

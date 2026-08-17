@@ -36,6 +36,7 @@ import PosHeader from './views/layouts/pos-header.vue';
 
 // ---------- Nexus UI Components ---------- //
 import NXDataTable from './components/nexus/NX-DataTable.vue';
+import NXListView from './components/nexus/NX-ListView.vue';
 import NXPagination from './components/nexus/NX-Pagination.vue';
 import NXCombobox from './components/nexus/NX-Combobox.vue';
 import NXLookup from './components/nexus/NX-Lookup.vue';
@@ -194,6 +195,7 @@ app.component('calendar-modal', CalendarModal)
 // ---------- Nexus UI Components ---------- //
 
 app.component('nx-datatable', NXDataTable);
+app.component('nx-list-view', NXListView);
 app.component('nx-pagination', NXPagination);
 app.component('nx-combobox', NXCombobox);
 app.component('nx-lookup', NXLookup);

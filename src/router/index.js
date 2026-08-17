@@ -346,6 +346,22 @@ const routes = [
 
   //System Module
   {
+    path: "/system/users",
+    component: () => import("@/views/pages/System/User/User.vue"),
+    children: [
+      { path: "", redirect: "/system/users/list" },
+      { path: "list", component: () => import("@/views/pages/System/User/UserList.vue"), meta: { title: "Usuarios | NexusCloud" } }
+    ]
+  },
+  {
+    path: "/system/profiles",
+    component: () => import("@/views/pages/System/Profile/Profile.vue"),
+    children: [
+      { path: "", redirect: "/system/profiles/list" },
+      { path: "list", component: () => import("@/views/pages/System/Profile/ProfileList.vue"), meta: { title: "Perfiles | NexusCloud" } }
+    ]
+  },
+  {
     path: "/system",
     component: () => import("@/views/pages/System/Org/Org.vue"), // we can use any container or a generic one
     children: [

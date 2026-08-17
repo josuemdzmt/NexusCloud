@@ -20,7 +20,7 @@ const LEGACY_KEYS = [
 ];
 
 /** Campos permitidos en el blob de sesión (no PII de perfil). */
-const SESSION_USER_KEYS = ['id', 'name', 'email', 'tenantName', 'isActive'];
+const SESSION_USER_KEYS = ['id', 'name', 'email', 'tenantName', 'isActive', 'profile', 'permissions'];
 
 /** @type {{ accessToken: string|null, refreshToken: string|null, expiresAt: number|null, user: object|null, lockUser: object|null }} */
 let objMemory = {
@@ -242,6 +242,23 @@ export function getExpiresAt() {
   return objMemory.expiresAt;
 }
 
+export function handleHasPermission(strPermission) {
+  getUser();
+  const lstPermissions = objSessionUser.value?.permissions;
+  if (!Array.isArray(lstPermissions)) return false;
+  return lstPermissions.includes(strPermission);
+}
+
+/**
+ * Alta en ListView / DataTable. Fail-closed si hay object.
+ * Sin object (catálogos sin IAM) se muestra si showCreate.
+ */
+export function handleCanShowCreate(strObject, { child = false, showCreate = true } = {}) {
+  if (!showCreate) return false;
+  if (!strObject) return true;
+  return handleHasPermission(`${strObject}.${child ? 'update' : 'create'}`);
+}
+
 export function isAuthenticated() {
   return Boolean(getAccessToken() || getRefreshToken());
 }
@@ -280,6 +297,7 @@ export default {
   getUser,
   getExpiresAt,
   isAuthenticated,
+  handleHasPermission,
   getExpiredUser,
   clearExpiredUser,
   handleUnauthorized,

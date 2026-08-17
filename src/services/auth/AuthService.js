@@ -27,16 +27,6 @@ export default {
   },
 
   /**
-   * @param {object} objPayload
-   */
-  async register(objPayload) {
-    const objResponse = await authApi.post(`${ENDPOINT}/register`, objPayload);
-    const objData = objResponse?.data || objResponse;
-    this._persistPair(objData);
-    return objData;
-  },
-
-  /**
    * Renueva access + refresh. Usado por el interceptor de negocio.
    */
   async refresh() {
@@ -58,6 +48,18 @@ export default {
       headers: { Authorization: `Bearer ${getAccessToken()}` }
     });
     return objResponse?.data || objResponse;
+  },
+
+  /**
+   * Vuelve a leer /me y persiste permisos de sesión (tras cambio de perfil o reload).
+   */
+  async handleRefreshSessionUser() {
+    if (!getAccessToken()) return null;
+    const objUser = await this.me();
+    if (objUser && typeof objUser === 'object') {
+      setUser(toSessionUser(objUser));
+    }
+    return objUser;
   },
 
   /**

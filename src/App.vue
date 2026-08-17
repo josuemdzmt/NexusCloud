@@ -22,9 +22,11 @@
 </template>
 
 <script>
-import { watch, nextTick } from "vue";
+import { watch, nextTick, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import "preline";
+import AuthService from "@/services/auth/AuthService";
+import { isAuthenticated } from "@/services/auth/authSession";
 
 export default {
   watch: {
@@ -64,6 +66,11 @@ export default {
         }
       }
     );
+
+    onMounted(() => {
+      if (!isAuthenticated()) return;
+      AuthService.handleRefreshSessionUser().catch(() => {});
+    });
 
     return {};
   }

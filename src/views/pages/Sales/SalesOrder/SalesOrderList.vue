@@ -1,29 +1,14 @@
 <template>
   <main>
-    <div class="p-3 lg:py-6 lg:px-0">
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-3 lg:mb-6">
-        <h1 class="text-gray-900 text-xl font-bold mb-0">Órdenes de Venta</h1>
-        <div class="flex items-center gap-2">
-          <button @click="handleCreate" class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer">
-            <i class="ph ph-plus"></i> Nueva Orden
-          </button>
-        </div>
-      </div>
-      <nx-datatable 
-        key-field="id" 
-        :data="lstOrders" 
-        :columns="lstColumns" 
-        :is-loading="bSpinner" 
-        :show-date-range="false"
-        @rowaction="handleRowAction" 
-        @search="handleSearch"
-        @refresh="handleGetData">
+    <nx-list-view title="Órdenes de Venta" object="sales_order" @create="handleCreate">
+      <nx-datatable object="sales_order" key-field="id" :data="lstOrders" :columns="lstColumns" :is-loading="bSpinner" :show-date-range="false"
+        @rowaction="handleRowAction" @search="handleSearch" @refresh="handleGetData">
         <template #footer>
           <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
         </template>
       </nx-datatable>
-      <SalesOrderForm ref="salesOrderFormRef" @success="handleFormSuccess" />
-    </div>
+    </nx-list-view>
+    <SalesOrderForm ref="salesOrderFormRef" @success="handleFormSuccess" />
   </main>
 </template>
 

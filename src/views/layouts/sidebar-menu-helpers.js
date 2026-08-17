@@ -19,6 +19,34 @@ export function containsActiveRoute(item, currentPath) {
     return getChildren(item).some((child) => containsActiveRoute(child, currentPath));
 }
 
+export function filterMenuByPermission(menuGroups, fnHasPermission) {
+  function handleFilterItems(lstItems) {
+    return lstItems
+      .map((objItem) => {
+        const lstChildren = getChildren(objItem);
+        const lstFilteredChildren = lstChildren.length ? handleFilterItems(lstChildren) : [];
+        if (objItem.permission && !fnHasPermission(objItem.permission)) {
+          return null;
+        }
+        if (lstChildren.length && !lstFilteredChildren.length && !objItem.route) {
+          return null;
+        }
+        const objClone = { ...objItem };
+        if (objItem.subMenus) objClone.subMenus = lstFilteredChildren;
+        if (objItem.subMenusTwo) objClone.subMenusTwo = lstFilteredChildren;
+        return objClone;
+      })
+      .filter(Boolean);
+  }
+
+  return menuGroups
+    .map((objGroup) => ({
+      ...objGroup,
+      menu: handleFilterItems(objGroup.menu || [])
+    }))
+    .filter((objGroup) => (objGroup.menu || []).length);
+}
+
 export function expandActivePath(menuGroups, currentPath) {
     function walk(items) {
         let branchActive = false;

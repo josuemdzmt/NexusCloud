@@ -1,19 +1,7 @@
 <template>
   <div>
-    <div class="flex justify-end mb-3">
-      <button type="button" class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer" @click="handleCreate">
-        <i class="ph ph-plus"></i> Nueva Registro
-      </button>
-    </div>
-    <nx-datatable
-      key-field="id"
-      :data="lstOrders"
-      :columns="lstColumns"
-      :is-loading="bSpinner"
-      :show-date-range="false"
-      @rowaction="handleRowAction"
-      @search="handleSearch"
-        @refresh="handleGetData">
+    <nx-datatable object="purchase_order" key-field="id" :data="lstOrders" :columns="lstColumns" :is-loading="bSpinner"
+      :show-date-range="false" @create="handleCreate" @rowaction="handleRowAction" @search="handleSearch" @refresh="handleGetData">
       <template #footer>
         <nx-pagination :current-page="currentPage" :page-size="pageSize" :total-pages="totalPages" @change="handlePageChange"/>
       </template>

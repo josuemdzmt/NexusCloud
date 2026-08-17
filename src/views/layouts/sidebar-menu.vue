@@ -18,7 +18,8 @@ import { reactive, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import sidebarMenuData from '@/assets/json/sidebar-menu.json';
 import SidebarSubmenu from './sidebar-submenu.vue';
-import { expandActivePath } from './sidebar-menu-helpers';
+import { expandActivePath, filterMenuByPermission } from './sidebar-menu-helpers';
+import { handleHasPermission, objSessionUser } from '@/services/auth/authSession';
 
 export default {
     components: {
@@ -26,12 +27,20 @@ export default {
     },
     setup() {
         const route = useRoute();
-        const menuGroups = reactive(JSON.parse(JSON.stringify(sidebarMenuData)));
+        const menuGroups = reactive([]);
 
-        const syncActivePath = () => expandActivePath(menuGroups, route.path);
+        const handleRebuildMenu = () => {
+            const lstFiltered = filterMenuByPermission(
+                JSON.parse(JSON.stringify(sidebarMenuData)),
+                handleHasPermission
+            );
+            menuGroups.splice(0, menuGroups.length, ...lstFiltered);
+            expandActivePath(menuGroups, route.path);
+        };
 
-        onMounted(syncActivePath);
-        watch(() => route.path, syncActivePath);
+        onMounted(handleRebuildMenu);
+        watch(() => route.path, handleRebuildMenu);
+        watch(objSessionUser, handleRebuildMenu, { deep: true });
 
         return {
             menuGroups,

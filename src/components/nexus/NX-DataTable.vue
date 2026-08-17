@@ -1,7 +1,19 @@
 <template>
   <div class="bg-white border border-border-color rounded-md p-4">
-    <!-- Toolbar: Search, Date Picker, Filters, Actions -->
-    <div v-if="showSearch || showDateRange || showFilters" class="flex flex-wrap items-center justify-between gap-3 mb-3">
+    <div v-if="title" class="flex flex-wrap items-center justify-between gap-3 mb-3">
+      <component :is="strTitleTag" class="text-gray-900 text-xl font-bold mb-0">{{ title }}</component>
+      <div v-if="bShowCreateOnTitleRow" class="flex items-center gap-2">
+        <router-link v-if="createTo" :to="createTo"
+          class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer">
+          <i class="ph ph-plus"></i> {{ createLabel }}
+        </router-link>
+        <button v-else type="button"
+          class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer" @click="$emit('create')">
+          <i class="ph ph-plus"></i> {{ createLabel }}
+        </button>
+      </div>
+    </div>
+    <div v-if="showSearch || showDateRange || showFilters || bShowCreateOnToolbar" class="flex flex-wrap items-center justify-between gap-3 mb-3">
       <div class="flex items-center gap-2 flex-wrap">
         <div v-if="showSearch" class="relative w-64 search-input">
           <i class="ph ph-magnifying-glass absolute right-2.5 top-1/2 -translate-y-1/2 text-default text-sm"></i>
@@ -41,6 +53,14 @@
         <button @click="handleRefresh" class="size-7 rounded-md border border-border-color flex items-center justify-center text-default hover:bg-light cursor-pointer">
           <i class="ph ph-arrow-clockwise"></i>
         </button>
+        <router-link v-if="bShowCreateOnToolbar && createTo" :to="createTo"
+          class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer">
+          <i class="ph ph-plus"></i> {{ createLabel }}
+        </router-link>
+        <button v-else-if="bShowCreateOnToolbar" type="button"
+          class="btn-sm bg-dark text-white border border-dark inline-flex items-center gap-2 hover:bg-primary-hover cursor-pointer" @click="$emit('create')">
+          <i class="ph ph-plus"></i> {{ createLabel }}
+        </button>
       </div>
     </div>
 
@@ -51,7 +71,7 @@
             <th v-if="!hideCheckboxColumn" class="w-10 py-2 px-2 text-center">
               <input type="checkbox" class="size-4 rounded border-border-color text-primary focus:ring-0 cursor-pointer" :checked="isAllSelected" @change="handleSelectAll" />
             </th>
-            <th v-for="objCol in columns" :key="objCol.fieldName || objCol.label" class="text-left py-2 px-2 font-semibold text-gray-900" :class="{ 'cursor-pointer select-none': objCol.sortable, [objCol.cellAttributes?.class || '']: true }" @click="objCol.sortable && handleSort(objCol.fieldName)">
+            <th v-for="objCol in lstDisplayColumns" :key="objCol.fieldName || objCol.label" class="text-left py-2 px-2 font-semibold text-gray-900" :class="{ 'cursor-pointer select-none': objCol.sortable, [objCol.cellAttributes?.class || '']: true }" @click="objCol.sortable && handleSort(objCol.fieldName)">
               <div class="flex items-center gap-1">
                 <span>{{ objCol.label }}</span>
                 <i v-if="objCol.sortable" class="ph" :class="getSortIcon(objCol.fieldName)"></i>
@@ -75,7 +95,7 @@
             <td v-if="!hideCheckboxColumn" class="w-10 py-2.5 px-2 text-center">
               <input type="checkbox" class="size-4 rounded border-border-color text-primary focus:ring-0 cursor-pointer" :value="objRow[keyField]" :checked="lstSelectedRowKeys.includes(objRow[keyField])" @change="handleSelectRow(objRow[keyField], $event)" />
             </td>
-            <td v-for="objCol in columns" :key="objCol.fieldName || objCol.label" class="py-2.5 px-2 text-sm text-default" :class="objCol.cellAttributes?.class || ''">
+            <td v-for="objCol in lstDisplayColumns" :key="objCol.fieldName || objCol.label" class="py-2.5 px-2 text-sm text-default" :class="objCol.cellAttributes?.class || ''">
               <slot v-if="$slots['cell-' + objCol.fieldName]" :name="'cell-' + objCol.fieldName" :row="objRow" :objRow="objRow" :value="objRow[objCol.fieldName]" :column="objCol" :objCol="objCol" />
               <template v-else-if="objCol.type === 'action'">
                 <slot name="action" :row="objRow" :objRow="objRow">
@@ -120,6 +140,8 @@
 </template>
 
 <script>
+import { handleCanShowCreate, handleHasPermission, objSessionUser } from '@/services/auth/authSession';
+
 export default {
   name: 'NXDataTable',
   props: {
@@ -133,9 +155,16 @@ export default {
     sortedDirection: { type: String, default: 'asc' },
     showSearch: { type: Boolean, default: true },
     showDateRange: { type: Boolean, default: false },
-    showFilters: { type: Boolean, default: false }
+    showFilters: { type: Boolean, default: false },
+    object: { type: String, default: '' },
+    child: { type: Boolean, default: false },
+    createLabel: { type: String, default: 'Nuevo Registro' },
+    createTo: { type: [String, Object], default: null },
+    showCreate: { type: Boolean, default: true },
+    title: { type: String, default: '' },
+    titleTag: { type: String, default: 'h1' }
   },
-  emits: ['rowaction', 'onrowaction', 'sort', 'onsort', 'rowselection', 'onrowselection', 'search', 'onsearch', 'daterangechange', 'refresh'],
+  emits: ['rowaction', 'onrowaction', 'sort', 'onsort', 'rowselection', 'onrowselection', 'search', 'onsearch', 'daterangechange', 'refresh', 'create'],
   data() {
     return {
       strSearch: '',
@@ -158,8 +187,40 @@ export default {
     }
   },
   computed: {
+    lstSessionPermissions() {
+      return objSessionUser.value?.permissions || [];
+    },
     computedColspan() {
-      return this.columns.length + (this.hideCheckboxColumn ? 0 : 1);
+      return this.lstDisplayColumns.length + (this.hideCheckboxColumn ? 0 : 1);
+    },
+    bCreateRequested() {
+      if (this.createTo) return true;
+      const mixOnCreate = this.$.vnode?.props?.onCreate;
+      return typeof mixOnCreate === 'function';
+    },
+    bShowCreateButton() {
+      void this.lstSessionPermissions;
+      if (!this.bCreateRequested) return false;
+      return handleCanShowCreate(this.object, { child: this.child, showCreate: this.showCreate });
+    },
+    bShowCreateOnTitleRow() {
+      return Boolean(this.title) && this.bShowCreateButton;
+    },
+    bShowCreateOnToolbar() {
+      return !this.title && this.bShowCreateButton;
+    },
+    strTitleTag() {
+      return this.titleTag === 'h2' ? 'h2' : 'h1';
+    },
+    lstDisplayColumns() {
+      void this.lstSessionPermissions;
+      if (!this.object) return this.columns;
+      return this.columns.map((objCol) => {
+        if (objCol.type !== 'action') return objCol;
+        const lstActions = (objCol.typeAttributes?.rowActions || []).filter((objAction) => this.handleCanRowAction(objAction.name));
+        if (!lstActions.length) return null;
+        return { ...objCol, typeAttributes: { ...objCol.typeAttributes, rowActions: lstActions } };
+      }).filter(Boolean);
     },
     filteredData() {
       let lstResult = [...this.data];
@@ -191,6 +252,15 @@ export default {
     }
   },
   methods: {
+    handleCanRowAction(strName) {
+      if (!this.object) return true;
+      if (strName === 'edit') return handleHasPermission(`${this.object}.update`);
+      if (strName === 'delete') {
+        const strAction = this.child ? 'update' : 'delete';
+        return handleHasPermission(`${this.object}.${strAction}`);
+      }
+      return true;
+    },
     reinitPreline() {
       this.$nextTick(() => {
         setTimeout(() => {
