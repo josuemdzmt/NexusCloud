@@ -9,12 +9,14 @@
       </nx-datatable>
     </nx-list-view>
     <ProfileForm ref="profileFormRef" @success="handleGetData" />
+    <ProfilePermissionForm ref="profilePermissionFormRef" @success="handleGetData" />
   </main>
 </template>
 
 <script>
 import ProfileService from '@/services/system/ProfileService';
 import ProfileForm from '@/views/pages/System/Profile/ProfileForm.vue';
+import ProfilePermissionForm from '@/views/pages/System/Profile/ProfilePermissionForm.vue';
 import { handleSuccess, handleError } from '@/utils/toastUtils';
 import { ACTION_BUTTONS } from './ProfileConstants';
 import { handleInitPager, handlePagerParams, handleSearchParams, handleParseList } from '@/utils/listPaginationUtils';
@@ -23,7 +25,8 @@ import { handleHasPermission, objSessionUser } from '@/services/auth/authSession
 export default {
   name: 'ProfileList',
   components: {
-    ProfileForm
+    ProfileForm,
+    ProfilePermissionForm
   },
   data() {
     return {
@@ -37,6 +40,7 @@ export default {
       void objSessionUser.value;
       const lstActions = ACTION_BUTTONS.rowActions.filter((objAction) => {
         if (objAction.name === 'edit') return handleHasPermission('profile.update') || handleHasPermission('profile.read');
+        if (objAction.name === 'permission') return handleHasPermission('profile.update') || handleHasPermission('profile.read');
         if (objAction.name === 'delete') return handleHasPermission('profile.delete');
         return true;
       });
@@ -90,6 +94,10 @@ export default {
       if (action.name === 'edit') {
         if (this.$refs.profileFormRef) {
           this.$refs.profileFormRef.handleOpen(row.id);
+        }
+      } else if (action.name === 'permission') {
+        if (this.$refs.profilePermissionFormRef) {
+          this.$refs.profilePermissionFormRef.handleOpen(row.id);
         }
       } else if (action.name === 'delete') {
         this.handleDelete(row);

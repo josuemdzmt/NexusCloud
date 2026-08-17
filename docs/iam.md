@@ -80,7 +80,7 @@ El create **no se pinta** si no hay `createTo` ni listener `@create`.
 
 `ProfileService.getCatalog()` → `GET /api/v1/core/permissions` (matriz fija objeto × acción). CRUD de perfiles: `/api/v1/core/profiles`.
 
-`ProfileForm` pinta checkboxes desde ese catálogo. System Administrator queda locked en UI (Vertex también lo impide).
+`ProfileForm` solo el nombre. `ProfilePermissionForm` (row action Permisos) pinta la matriz por sección (Sistema, Inventario, Ventas, Compras, Cuentas), con columna Todos. System Administrator queda locked en UI (Vertex también lo impide). El agrupado es presentación; los nombres siguen el catálogo Vertex.
 
 Lookup de perfil al dar de alta usuarios: Vertex permite GET perfiles con `user.create` / `user.update` aunque no tenga `profile.read`. La matriz de permisos sigue pidiendo `profile.read`.
 
