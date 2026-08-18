@@ -27,6 +27,9 @@
 				</button>
 				<p class="text-center text-sm text-default mb-0">¿No eres tú? <router-link :to="all_routes.login" class="text-primary hover:underline" @click="clearExpiredUser">Iniciar sesión con otra cuenta</router-link></p>
 			</form>
+			<p class="text-[11px] text-default text-center mb-0 mt-6 pt-4 border-t border-border-color">Este sitio está protegido por reCAPTCHA y se aplican la
+				<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Política de privacidad</a>
+				y los <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Términos de servicio</a> de Google.</p>
 		</div>
 		<nx-app-version class="mt-4" />
 	</div>
@@ -37,6 +40,7 @@ import { all_routes } from '@/router/all_routes';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthService from '@/services/auth/AuthService';
+import { handleLoadRecaptcha } from '@/services/auth/recaptcha';
 import { clearExpiredUser, getExpiredUser } from '@/services/auth/authSession';
 import { formatError } from '@/utils/errorUtils';
 import { handleResetIdleTimer } from '@/services/auth/idleSession';
@@ -52,6 +56,7 @@ export default {
 		const strName = ref('Usuario');
 
 		onMounted(() => {
+			handleLoadRecaptcha().catch(() => {});
 			const objExpired = getExpiredUser();
 			if (objExpired?.email) {
 				strEmail.value = objExpired.email;

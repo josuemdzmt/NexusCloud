@@ -426,3 +426,8 @@
 	color: #fff;
     background: #0f766e !important;
 }
+
+/* reCAPTCHA v3/Enterprise: badge oculto; el aviso legal va en Login / LockScreen (exigencia de Google). */
+.grecaptcha-badge {
+  visibility: hidden;
+}

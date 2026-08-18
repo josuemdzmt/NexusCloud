@@ -8,6 +8,7 @@ import {
   getRefreshToken,
   toSessionUser
 } from '@/services/auth/authSession';
+import { handleExecuteRecaptcha } from '@/services/auth/recaptcha';
 
 const ENDPOINT = '/api/v1/auth';
 
@@ -20,7 +21,12 @@ export default {
    * @param {{ email: string, password: string }} objCredentials
    */
   async login(objCredentials) {
-    const objResponse = await authApi.post(`${ENDPOINT}/login`, objCredentials);
+    const strRecaptchaToken = await handleExecuteRecaptcha();
+    const objResponse = await authApi.post(`${ENDPOINT}/login`, {
+      email: objCredentials.email,
+      password: objCredentials.password,
+      recaptchaToken: strRecaptchaToken
+    });
     const objData = objResponse?.data || objResponse;
     this._persistPair(objData);
     return objData;

@@ -29,6 +29,9 @@
 					{{ bolLoading ? 'Ingresando…' : 'Iniciar sesión' }}
 				</button>
 			</form>
+			<p class="text-[11px] text-default text-center mb-0 mt-6 pt-4 border-t border-border-color">Este sitio está protegido por reCAPTCHA y se aplican la
+				<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Política de privacidad</a>
+				y los <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Términos de servicio</a> de Google.</p>
 		</div>
 		<nx-app-version class="mt-4" />
 	</div>
@@ -36,9 +39,10 @@
 
 <script>
 import { all_routes } from '@/router/all_routes';
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AuthService from '@/services/auth/AuthService';
+import { handleLoadRecaptcha } from '@/services/auth/recaptcha';
 import { formatError } from '@/utils/errorUtils';
 import { handleResetIdleTimer } from '@/services/auth/idleSession';
 
@@ -50,6 +54,10 @@ export default {
 		const bolLoading = ref(false);
 		const strError = ref('');
 		const objForm = reactive({ email: '', password: '' });
+
+		onMounted(() => {
+			handleLoadRecaptcha().catch(() => {});
+		});
 
 		const submitForm = async () => {
 			strError.value = '';

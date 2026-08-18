@@ -91,12 +91,12 @@
               </div>
               <div v-if="objOrder.notes || objOrder.termsAndConditions" class="mt-4 pt-3 border-t border-border-color text-sm space-y-3">
                 <div v-if="objOrder.notes">
-                  <h4 class="font-semibold text-gray-900 mb-1">Notas</h4>
-                  <p class="text-default whitespace-pre-wrap mb-0">{{ objOrder.notes }}</p>
+                  <p class="text-default mb-1">Notas</p>
+                  <p class="text-gray-900 font-semibold mb-0 whitespace-pre-wrap">{{ objOrder.notes }}</p>
                 </div>
                 <div v-if="objOrder.termsAndConditions">
-                  <h4 class="font-semibold text-gray-900 mb-1">Términos</h4>
-                  <p class="text-default whitespace-pre-wrap mb-0">{{ objOrder.termsAndConditions }}</p>
+                  <p class="text-default mb-1">Términos y condiciones</p>
+                  <p class="text-gray-900 font-semibold mb-0 whitespace-pre-wrap">{{ objOrder.termsAndConditions }}</p>
                 </div>
               </div>
             </div>
